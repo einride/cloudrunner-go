@@ -15,7 +15,7 @@ type HTTPMiddleware = func(http.Handler) http.Handler
 
 // NewHTTPServer creates a new HTTP server preconfigured with middleware for request logging, tracing, etc.
 func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTTPMiddleware) *http.Server {
-	runCtx, ok := getRunContext(ctx)
+	run, ok := getRunContext(ctx)
 	if !ok {
 		panic("cloudrunner.NewHTTPServer: must be called with a context from cloudrunner.Run")
 	}
@@ -23,21 +23,21 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		func(handler http.Handler) http.Handler {
 			return otelhttp.NewHandler(handler, "server")
 		},
-		runCtx.loggerMiddleware.HTTPServer,
-		runCtx.traceMiddleware.HTTPServer,
-		runCtx.requestLoggerMiddleware.HTTPServer,
-		runCtx.serverMiddleware.HTTPServer,
+		run.loggerMiddleware.HTTPServer,
+		run.traceMiddleware.HTTPServer,
+		run.requestLoggerMiddleware.HTTPServer,
+		run.serverMiddleware.HTTPServer,
 	}
 	return &http.Server{
-		Addr: fmt.Sprintf(":%d", runCtx.runConfig.Service.Port),
+		Addr: fmt.Sprintf(":%d", run.config.Service.Port),
 		Handler: cloudserver.ChainHTTPMiddleware(
 			handler,
 			append(defaultMiddlewares, middlewares...)...,
 		),
-		ReadTimeout:       runCtx.serverMiddleware.Config.Timeout,
-		ReadHeaderTimeout: runCtx.serverMiddleware.Config.Timeout,
-		WriteTimeout:      runCtx.serverMiddleware.Config.Timeout,
-		IdleTimeout:       runCtx.serverMiddleware.Config.Timeout,
+		ReadTimeout:       run.serverMiddleware.Config.Timeout,
+		ReadHeaderTimeout: run.serverMiddleware.Config.Timeout,
+		WriteTimeout:      run.serverMiddleware.Config.Timeout,
+		IdleTimeout:       run.serverMiddleware.Config.Timeout,
 	}
 }
 

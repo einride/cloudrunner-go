@@ -12,31 +12,31 @@ import (
 
 // NewGRPCServer creates a new gRPC server preconfigured with middleware for request logging, tracing, etc.
 func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server {
-	runCtx, ok := getRunContext(ctx)
+	run, ok := getRunContext(ctx)
 	if !ok {
 		panic("cloudrunner.NewGRPCServer: must be called with a context from cloudrunner.Run")
 	}
 	serverOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			otelgrpc.UnaryServerInterceptor(),
-			runCtx.loggerMiddleware.GRPCUnaryServerInterceptor,        // adds context logger
-			runCtx.traceMiddleware.GRPCServerUnaryInterceptor,         // needs the context logger
-			runCtx.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
-			runCtx.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
+			run.loggerMiddleware.GRPCUnaryServerInterceptor,        // adds context logger
+			run.traceMiddleware.GRPCServerUnaryInterceptor,         // needs the context logger
+			run.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
+			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
 	}
-	serverOptions = append(serverOptions, runCtx.grpcServerOptions...)
+	serverOptions = append(serverOptions, run.grpcServerOptions...)
 	serverOptions = append(serverOptions, opts...)
 	return grpc.NewServer(serverOptions...)
 }
 
 // ListenGRPC binds a listener on the configured port and listens for gRPC requests.
 func ListenGRPC(ctx context.Context, grpcServer *grpc.Server) error {
-	runCtx, ok := getRunContext(ctx)
+	run, ok := getRunContext(ctx)
 	if !ok {
 		return fmt.Errorf("cloudrunner.ListenGRPC: must be called with a context from cloudrunner.Run")
 	}
-	address := fmt.Sprintf(":%d", runCtx.runConfig.Service.Port)
+	address := fmt.Sprintf(":%d", run.config.Service.Port)
 	listener, err := (&net.ListenConfig{}).Listen(
 		ctx,
 		"tcp",

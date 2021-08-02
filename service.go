@@ -8,11 +8,11 @@ import (
 
 // Service returns the service config for the current context.
 func Service(ctx context.Context) ServiceConfig {
-	runCtx, ok := getRunContext(ctx)
+	run, ok := getRunContext(ctx)
 	if !ok {
 		panic("cloudrunner.Logger must be called with a context from cloudrunner.Run")
 	}
-	return runCtx.runConfig.Service
+	return run.config.Service
 }
 
 // ServiceConfig contains generic service configuration.
