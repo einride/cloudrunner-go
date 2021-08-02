@@ -16,7 +16,7 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 	if !ok {
 		panic("cloudrunner.NewGRPCServer: must be called with a context from cloudrunner.Run")
 	}
-	defaultOpts := []grpc.ServerOption{
+	serverOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			otelgrpc.UnaryServerInterceptor(),
 			runCtx.loggerMiddleware.GRPCUnaryServerInterceptor,        // adds context logger
@@ -25,7 +25,9 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 			runCtx.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
 	}
-	return grpc.NewServer(append(defaultOpts, opts...)...)
+	serverOptions = append(serverOptions, runCtx.grpcServerOptions...)
+	serverOptions = append(serverOptions, opts...)
+	return grpc.NewServer(serverOptions...)
 }
 
 // ListenGRPC binds a listener on the configured port and listens for gRPC requests.
