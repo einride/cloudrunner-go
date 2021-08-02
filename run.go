@@ -39,23 +39,23 @@ type runConfig struct {
 
 // Run a service.
 // Configuration of the service is loaded from the environment.
-func Run(run func(context.Context) error, options ...Option) error {
+func Run(fn func(context.Context) error, options ...Option) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 	usage := flag.Bool("help", false, "show help then exit")
 	yamlServiceSpecificationFile := flag.String("config", "", "load environment from a YAML service specification")
 	validate := flag.Bool("validate", false, "validate config then exit")
 	flag.Parse()
-	var runCtx runContext
+	var run runContext
 	for _, option := range options {
-		option(&runCtx)
+		option(&run)
 	}
 	if *yamlServiceSpecificationFile != "" {
-		runCtx.configOptions = append(
-			runCtx.configOptions, cloudconfig.WithYAMLServiceSpecificationFile(*yamlServiceSpecificationFile),
+		run.configOptions = append(
+			run.configOptions, cloudconfig.WithYAMLServiceSpecificationFile(*yamlServiceSpecificationFile),
 		)
 	}
-	config, err := cloudconfig.New("cloudrunner", &runCtx.runConfig, runCtx.configOptions...)
+	config, err := cloudconfig.New("cloudrunner", &run.config, run.configOptions...)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
@@ -66,39 +66,39 @@ func Run(run func(context.Context) error, options ...Option) error {
 	if err := config.Load(); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	runCtx.runConfig.Service.loadFromRuntime()
+	run.config.Service.loadFromRuntime()
 	if *validate {
 		return nil
 	}
-	runCtx.traceMiddleware.ProjectID = runCtx.runConfig.Service.ProjectID
-	runCtx.serverMiddleware.Config = runCtx.runConfig.Server
-	runCtx.requestLoggerMiddleware.Config = runCtx.runConfig.RequestLogger
-	ctx = withRunContext(ctx, &runCtx)
-	logger, err := cloudzap.NewLogger(runCtx.runConfig.Logger)
+	run.traceMiddleware.ProjectID = run.config.Service.ProjectID
+	run.serverMiddleware.Config = run.config.Server
+	run.requestLoggerMiddleware.Config = run.config.RequestLogger
+	ctx = withRunContext(ctx, &run)
+	logger, err := cloudzap.NewLogger(run.config.Logger)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	runCtx.loggerMiddleware.Logger = logger
+	run.loggerMiddleware.Logger = logger
 	ctx = cloudzap.WithLogger(ctx, logger)
-	if err := cloudprofiler.Start(runCtx.runConfig.Profiler); err != nil {
+	if err := cloudprofiler.Start(run.config.Profiler); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	resource, err := cloudotel.NewResource(ctx)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	stopTraceExporter, err := cloudtrace.StartExporter(ctx, runCtx.runConfig.TraceExporter, resource)
+	stopTraceExporter, err := cloudtrace.StartExporter(ctx, run.config.TraceExporter, resource)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	defer stopTraceExporter()
 	logger.Info("up and running", zap.Object("config", config), cloudzap.Resource("resource", resource))
 	defer logger.Info("goodbye")
-	return run(ctx)
+	return fn(ctx)
 }
 
 type runContext struct {
-	runConfig               runConfig
+	config                  runConfig
 	configOptions           []cloudconfig.Option
 	grpcServerOptions       []grpc.ServerOption
 	loggerMiddleware        cloudzap.Middleware
@@ -110,8 +110,8 @@ type runContext struct {
 
 type runContextKey struct{}
 
-func withRunContext(ctx context.Context, runCtx *runContext) context.Context {
-	return context.WithValue(ctx, runContextKey{}, runCtx)
+func withRunContext(ctx context.Context, run *runContext) context.Context {
+	return context.WithValue(ctx, runContextKey{}, run)
 }
 
 func getRunContext(ctx context.Context) (*runContext, bool) {
