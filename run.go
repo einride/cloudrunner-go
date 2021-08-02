@@ -16,6 +16,7 @@ import (
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 // runConfig configures the Run entrypoint from environment variables.
@@ -99,6 +100,7 @@ func Run(run func(context.Context) error, options ...Option) error {
 type runContext struct {
 	runConfig               runConfig
 	configOptions           []cloudconfig.Option
+	grpcServerOptions       []grpc.ServerOption
 	loggerMiddleware        cloudzap.Middleware
 	serverMiddleware        cloudserver.Middleware
 	clientMiddleware        cloudclient.Middleware

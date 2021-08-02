@@ -2,6 +2,7 @@ package cloudrunner
 
 import (
 	"go.einride.tech/cloudrunner/cloudconfig"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -28,5 +29,12 @@ func WithOptions(options []Option) Option {
 		for _, option := range options {
 			option(runCtx)
 		}
+	}
+}
+
+// WithGRPCServerOptions configures the run context with additional default options for NewGRPCServer.
+func WithGRPCServerOptions(grpcServerOptions []grpc.ServerOption) Option {
+	return func(runCtx *runContext) {
+		runCtx.grpcServerOptions = append(runCtx.grpcServerOptions, grpcServerOptions...)
 	}
 }
