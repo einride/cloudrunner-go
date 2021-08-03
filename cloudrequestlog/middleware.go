@@ -36,6 +36,13 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	response, err := handler(ctx, request)
 	code := status.Code(err)
 	service, method := splitFullMethod(info.FullMethod)
+	checkedEntry := l.logger(ctx).Check(
+		l.codeToLevel(code),
+		grpcServerLogMessage(code, method),
+	)
+	if checkedEntry == nil {
+		return response, err
+	}
 	grpcRequest := cloudzap.HTTPRequestObject{
 		Protocol: "gRPC",
 		Latency:  time.Since(startTime),
@@ -59,10 +66,6 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		fields = additionalFields.AppendTo(fields)
 	}
-	checkedEntry := l.logger(ctx).Check(
-		l.codeToLevel(code),
-		grpcServerLogMessage(code, method),
-	)
 	if caller, ok := err.(interface {
 		Caller() (pc uintptr, file string, line int, ok bool)
 	}); ok {
@@ -96,6 +99,13 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
 	code := status.Code(err)
 	service, method := splitFullMethod(fullMethod)
+	checkedEntry := l.logger(ctx).Check(
+		l.codeToLevel(code),
+		grpcClientLogMessage(code, method),
+	)
+	if checkedEntry == nil {
+		return err
+	}
 	grpcRequest := cloudzap.HTTPRequestObject{
 		Protocol: "gRPC",
 		Latency:  time.Since(startTime),
@@ -106,10 +116,6 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	if protoResponse, ok := response.(proto.Message); ok {
 		grpcRequest.ResponseSize = proto.Size(protoResponse)
 	}
-	checkedEntry := l.logger(ctx).Check(
-		l.codeToLevel(code),
-		grpcClientLogMessage(code, method),
-	)
 	// assuming this middleware is first in the chain, the caller of the client method is 4 stack frames up
 	checkedEntry.Caller = zapcore.NewEntryCaller(runtime.Caller(4))
 	checkedEntry.Entry.Caller = checkedEntry.Caller
@@ -146,6 +152,13 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 		startTime := time.Now()
 		next.ServeHTTP(responseWriter, r)
+		checkedEntry := l.logger(ctx).Check(
+			l.statusToLevel(responseWriter.Status()),
+			httpServerLogMessage(responseWriter, r),
+		)
+		if checkedEntry == nil {
+			return
+		}
 		httpRequest := cloudzap.HTTPRequestObject{
 			RequestMethod: r.Method,
 			Status:        responseWriter.statusCode,
@@ -159,17 +172,13 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		if r.URL != nil {
 			httpRequest.RequestURL = r.URL.String()
 		}
-		responseStatus := responseWriter.Status()
 		fields := []zapcore.Field{
 			cloudzap.HTTPRequest(&httpRequest),
 		}
 		if additionalFields, ok := GetAdditionalFields(ctx); ok {
 			fields = additionalFields.AppendTo(fields)
 		}
-		l.logger(ctx).Check(
-			l.statusToLevel(responseStatus),
-			httpServerLogMessage(responseWriter, r),
-		).Write(fields...)
+		checkedEntry.Write(fields...)
 	})
 }
 
