@@ -18,11 +18,6 @@ func Logger(ctx context.Context) *zap.Logger {
 	return logger
 }
 
-// WithLogger adds a logger to the current context.
-func WithLogger(ctx context.Context, logger *zap.Logger) context.Context {
-	return cloudzap.WithLogger(ctx, logger)
-}
-
 // WithLoggerFields attaches structured fields to a new logger in the returned child context.
 func WithLoggerFields(ctx context.Context, fields ...zap.Field) context.Context {
 	logger, ok := cloudzap.GetLogger(ctx)
