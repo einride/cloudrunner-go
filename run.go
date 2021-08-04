@@ -12,6 +12,7 @@ import (
 	"go.einride.tech/cloudrunner/cloudotel"
 	"go.einride.tech/cloudrunner/cloudprofiler"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
+	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"go.einride.tech/cloudrunner/cloudzap"
@@ -21,8 +22,8 @@ import (
 
 // runConfig configures the Run entrypoint from environment variables.
 type runConfig struct {
-	// Service contains generic service config.
-	Service ServiceConfig
+	// Runtime contains runtime config.
+	Runtime cloudruntime.Config
 	// Logger contains logger config.
 	Logger cloudzap.LoggerConfig
 	// Profiler contains profiler config.
@@ -66,14 +67,17 @@ func Run(fn func(context.Context) error, options ...Option) error {
 	if err := config.Load(); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	run.config.Service.loadFromRuntime()
+	if err := run.config.Runtime.Autodetect(); err != nil {
+		return fmt.Errorf("cloudrunner.Run: %w", err)
+	}
 	if *validate {
 		return nil
 	}
-	run.traceMiddleware.ProjectID = run.config.Service.ProjectID
+	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
 	ctx = withRunContext(ctx, &run)
+	ctx = cloudruntime.WithConfig(ctx, run.config.Runtime)
 	logger, err := cloudzap.NewLogger(run.config.Logger)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)

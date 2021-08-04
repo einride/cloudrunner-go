@@ -29,7 +29,7 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		run.serverMiddleware.HTTPServer,
 	}
 	return &http.Server{
-		Addr: fmt.Sprintf(":%d", run.config.Service.Port),
+		Addr: fmt.Sprintf(":%d", run.config.Runtime.Port),
 		Handler: cloudserver.ChainHTTPMiddleware(
 			handler,
 			append(defaultMiddlewares, middlewares...)...,
