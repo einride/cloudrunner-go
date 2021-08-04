@@ -36,7 +36,7 @@ func ListenGRPC(ctx context.Context, grpcServer *grpc.Server) error {
 	if !ok {
 		return fmt.Errorf("cloudrunner.ListenGRPC: must be called with a context from cloudrunner.Run")
 	}
-	address := fmt.Sprintf(":%d", run.config.Service.Port)
+	address := fmt.Sprintf(":%d", run.config.Runtime.Port)
 	listener, err := (&net.ListenConfig{}).Listen(
 		ctx,
 		"tcp",
