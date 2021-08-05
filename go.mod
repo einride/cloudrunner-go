@@ -4,8 +4,8 @@ go 1.16
 
 require (
 	cloud.google.com/go v0.89.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v1.0.0-RC1.0.20210727190337-8bcac983167d
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.0-RC1.0.20210727190337-8bcac983167d
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.22.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.0-RC2
 	github.com/google/go-cmp v0.5.6
 	go.opentelemetry.io/contrib/detectors/gcp v0.22.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.22.0
