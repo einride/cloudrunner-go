@@ -15,6 +15,9 @@ type HTTPMiddleware = func(http.Handler) http.Handler
 
 // NewHTTPServer creates a new HTTP server preconfigured with middleware for request logging, tracing, etc.
 func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTTPMiddleware) *http.Server {
+	if handler == nil {
+		panic("cloudrunner.NewHTTPServer: handler must not be nil")
+	}
 	run, ok := getRunContext(ctx)
 	if !ok {
 		panic("cloudrunner.NewHTTPServer: must be called with a context from cloudrunner.Run")
