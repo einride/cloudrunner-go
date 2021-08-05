@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 	"os/signal"
 	"syscall"
 
@@ -69,6 +70,13 @@ func Run(fn func(context.Context) error, options ...Option) error {
 	}
 	if err := run.config.Runtime.Autodetect(); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
+	}
+	if run.config.Client.Retry.Enabled && os.Getenv("GRPC_GO_RETRY") != "on" {
+		// Keep an eye on gRPC Go client retries and remove this if/when retries are enabled by default.
+		return fmt.Errorf(
+			"cloudrunner.Run: must set GRPC_GO_RETRY=on when enabling client retries (see %s)",
+			"https://github.com/grpc/grpc-go/blob/master/examples/features/retry/README.md",
+		)
 	}
 	if *validate {
 		return nil
