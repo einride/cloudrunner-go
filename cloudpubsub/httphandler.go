@@ -15,9 +15,9 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// NewHTTPHandler creates a new HTTP handler for Cloud Pub/Sub push messages.
+// HTTPHandler creates a new HTTP handler for Cloud Pub/Sub push messages.
 // See: https://cloud.google.com/pubsub/docs/push
-func NewHTTPHandler(fn func(context.Context, *pubsub.PubsubMessage) error) http.Handler {
+func HTTPHandler(fn func(context.Context, *pubsub.PubsubMessage) error) http.Handler {
 	return httpHandlerFn(fn)
 }
 

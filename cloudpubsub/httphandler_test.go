@@ -44,7 +44,7 @@ func TestNewHTTPHandler(t *testing.T) {
 		actualMessage = message
 		return nil
 	}
-	server := httptest.NewServer(NewHTTPHandler(fn))
+	server := httptest.NewServer(HTTPHandler(fn))
 	defer server.Close()
 	request, err := http.NewRequest(http.MethodPost, server.URL, strings.NewReader(example))
 	assert.NilError(t, err)
