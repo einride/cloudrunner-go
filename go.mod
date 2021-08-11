@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.16
 
 require (
-	cloud.google.com/go v0.90.0
+	cloud.google.com/go v0.91.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.22.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.0-RC2
 	github.com/google/go-cmp v0.5.6
@@ -16,9 +16,9 @@ require (
 	go.opentelemetry.io/otel/sdk v1.0.0-RC2
 	go.opentelemetry.io/otel/sdk/metric v0.22.0
 	go.uber.org/zap v1.19.0
-	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
+	golang.org/x/oauth2 v0.0.0-20210805134026-6f1e6394065a
 	google.golang.org/api v0.52.0
-	google.golang.org/genproto v0.0.0-20210728212813-7823e685a01f
+	google.golang.org/genproto v0.0.0-20210811021853-ddbe55d93216
 	google.golang.org/grpc v1.39.1
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
