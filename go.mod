@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.16
 
 require (
-	cloud.google.com/go v0.91.0
+	cloud.google.com/go v0.91.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.22.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.0-RC2
 	github.com/google/go-cmp v0.5.6
