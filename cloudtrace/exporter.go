@@ -3,6 +3,7 @@ package cloudtrace
 import (
 	"context"
 	"fmt"
+	"time"
 
 	traceexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"go.einride.tech/cloudrunner/cloudotel"
@@ -16,7 +17,9 @@ import (
 
 // ExporterConfig configures the trace exporter.
 type ExporterConfig struct {
-	Enabled bool `onGCE:"true"`
+	Enabled           bool          `onGCE:"true"`
+	Timeout           time.Duration `default:"10s"`
+	SampleProbability float64       `default:"0.01"`
 }
 
 // StartExporter starts the OpenTelemetry Cloud Trace exporter.
@@ -39,6 +42,7 @@ func StartExporter(
 	exporter, err := traceexporter.New(
 		traceexporter.WithProjectID(projectID),
 		traceexporter.WithErrorHandler(cloudotel.NewErrorLogger(logger, zap.WarnLevel, "trace exporter error")),
+		traceexporter.WithTimeout(exporterConfig.Timeout),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("start trace exporter: %w", err)
@@ -46,6 +50,7 @@ func StartExporter(
 	tracerProvider := sdktrace.NewTracerProvider(
 		sdktrace.WithResource(resource),
 		sdktrace.WithBatcher(exporter),
+		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(exporterConfig.SampleProbability))),
 	)
 	otel.SetTracerProvider(tracerProvider)
 	cleanup := func() {
