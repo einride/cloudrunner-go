@@ -89,52 +89,53 @@ are turned on by default.
 
 Invoke your service with `-help` to show available configuration.
 
+
+<!-- BEGIN usage -->
 ```
- $ go run go.einride.tech/cloudrunner/examples/cmd/grpc-server -help
 
 Usage of grpc-server:
 
   -config string
-        load environment from a YAML service specification
+    	load environment from a YAML service specification
   -help
-        show help then exit
+    	show help then exit
   -validate
-        validate config then exit
+    	validate config then exit
 
 Runtime configuration of grpc-server:
 
-CONFIG         ENV                                  TYPE                            DEFAULT        ON GCE
-cloudrunner    PORT                                 int                             8080
-cloudrunner    K_SERVICE                            string
-cloudrunner    K_REVISION                           string
-cloudrunner    K_CONFIGURATION                      string
-cloudrunner    GOOGLE_CLOUD_PROJECT                 string
-cloudrunner    SERVICE_ACCOUNT                      string
-cloudrunner    SERVICE_VERSION                      string
-cloudrunner    LOGGER_DEVELOPMENT                   bool                            true           false
-cloudrunner    LOGGER_LEVEL                         zapcore.Level                   debug          info
-cloudrunner    LOGGER_REPORTERRORS                  bool                                           true
-cloudrunner    PROFILER_ENABLED                     bool                                           true
-cloudrunner    PROFILER_MUTEXPROFILING              bool
-cloudrunner    PROFILER_ALLOCFORCEGC                bool                            true
-cloudrunner    TRACEEXPORTER_ENABLED                bool                                           true
-cloudrunner    TRACEEXPORTER_TIMEOUT                time.Duration                   10s
-cloudrunner    TRACEEXPORTER_SAMPLEPROBABILITY      float64                         0.01
-cloudrunner    SERVER_TIMEOUT                       time.Duration                   290s
-cloudrunner    SERVER_RECOVERPANICS                 bool                                           true
-cloudrunner    CLIENT_TIMEOUT                       time.Duration                   10s
-cloudrunner    CLIENT_RETRY_ENABLED                 bool                            true
-cloudrunner    CLIENT_RETRY_INITIALBACKOFF          time.Duration                   200ms
-cloudrunner    CLIENT_RETRY_MAXBACKOFF              time.Duration                   60s
-cloudrunner    CLIENT_RETRY_MAXATTEMPTS             int                             5
-cloudrunner    CLIENT_RETRY_BACKOFFMULTIPLIER       float64                         1.3
-cloudrunner    CLIENT_RETRY_RETRYABLESTATUSCODES    []codes.Code                    Unavailable
-cloudrunner    REQUESTLOGGER_MESSAGESIZELIMIT       int                                            1024
-cloudrunner    REQUESTLOGGER_CODETOLEVEL            map[codes.Code]zapcore.Level
-cloudrunner    REQUESTLOGGER_STATUSTOLEVEL          map[int]zapcore.Level
+CONFIG         ENV                                  TYPE                            DEFAULT                ON GCE
+cloudrunner    PORT                                 int                             8080                   
+cloudrunner    K_SERVICE                            string                                                 
+cloudrunner    K_REVISION                           string                                                 
+cloudrunner    K_CONFIGURATION                      string                                                 
+cloudrunner    GOOGLE_CLOUD_PROJECT                 string                                                 
+cloudrunner    RUNTIME_SERVICEACCOUNT               string                                                 
+cloudrunner    SERVICE_VERSION                      string                                                 
+cloudrunner    LOGGER_DEVELOPMENT                   bool                            true                   false
+cloudrunner    LOGGER_LEVEL                         zapcore.Level                   debug                  info
+cloudrunner    LOGGER_REPORTERRORS                  bool                                                   true
+cloudrunner    PROFILER_ENABLED                     bool                                                   true
+cloudrunner    PROFILER_MUTEXPROFILING              bool                                                   
+cloudrunner    PROFILER_ALLOCFORCEGC                bool                            true                   
+cloudrunner    TRACEEXPORTER_ENABLED                bool                                                   true
+cloudrunner    TRACEEXPORTER_TIMEOUT                time.Duration                   10s                    
+cloudrunner    TRACEEXPORTER_SAMPLEPROBABILITY      float64                         0.01                   
+cloudrunner    SERVER_TIMEOUT                       time.Duration                   290s                   
+cloudrunner    CLIENT_TIMEOUT                       time.Duration                   10s                    
+cloudrunner    CLIENT_RETRY_ENABLED                 bool                            true                   
+cloudrunner    CLIENT_RETRY_INITIALBACKOFF          time.Duration                   200ms                  
+cloudrunner    CLIENT_RETRY_MAXBACKOFF              time.Duration                   60s                    
+cloudrunner    CLIENT_RETRY_MAXATTEMPTS             int                             5                      
+cloudrunner    CLIENT_RETRY_BACKOFFMULTIPLIER       float64                         1.3                    
+cloudrunner    CLIENT_RETRY_RETRYABLESTATUSCODES    []codes.Code                    Unavailable,Unknown    
+cloudrunner    REQUESTLOGGER_MESSAGESIZELIMIT       int                                                    1024
+cloudrunner    REQUESTLOGGER_CODETOLEVEL            map[codes.Code]zapcore.Level                           
+cloudrunner    REQUESTLOGGER_STATUSTOLEVEL          map[int]zapcore.Level                                  
 
 Build-time configuration of grpc-server:
 
 LDFLAG                                                     TYPE      VALUE
-go.einride.tech/cloudrunner/cloudruntime.serviceVersion    string
+go.einride.tech/cloudrunner/cloudruntime.serviceVersion    string    
 ```
+<!-- END usage -->
