@@ -118,6 +118,8 @@ cloudrunner    PROFILER_ENABLED                     bool                        
 cloudrunner    PROFILER_MUTEXPROFILING              bool
 cloudrunner    PROFILER_ALLOCFORCEGC                bool                            true
 cloudrunner    TRACEEXPORTER_ENABLED                bool                                           true
+cloudrunner    TRACEEXPORTER_TIMEOUT                time.Duration                   10s
+cloudrunner    TRACEEXPORTER_SAMPLEPROBABILITY      float64                         0.01
 cloudrunner    SERVER_TIMEOUT                       time.Duration                   290s
 cloudrunner    SERVER_RECOVERPANICS                 bool                                           true
 cloudrunner    CLIENT_TIMEOUT                       time.Duration                   10s
