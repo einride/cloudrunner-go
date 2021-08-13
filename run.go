@@ -48,6 +48,7 @@ func Run(fn func(context.Context) error, options ...Option) error {
 	yamlServiceSpecificationFile := flag.String("config", "", "load environment from a YAML service specification")
 	validate := flag.Bool("validate", false, "validate config then exit")
 	flag.Parse()
+	flag.CommandLine.SetOutput(os.Stdout)
 	var run runContext
 	for _, option := range options {
 		option(&run)
