@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.16
 
 require (
-	cloud.google.com/go v0.94.0
+	cloud.google.com/go v0.94.1
 	cloud.google.com/go/monitoring v0.1.0 // indirect
 	cloud.google.com/go/profiler v0.1.0
 	cloud.google.com/go/trace v0.1.0 // indirect
