@@ -33,7 +33,7 @@ func WithOptions(options []Option) Option {
 }
 
 // WithGRPCServerOptions configures the run context with additional default options for NewGRPCServer.
-func WithGRPCServerOptions(grpcServerOptions []grpc.ServerOption) Option {
+func WithGRPCServerOptions(grpcServerOptions ...grpc.ServerOption) Option {
 	return func(run *runContext) {
 		run.grpcServerOptions = append(run.grpcServerOptions, grpcServerOptions...)
 	}
