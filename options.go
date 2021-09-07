@@ -1,7 +1,10 @@
 package cloudrunner
 
 import (
+	"context"
+
 	"go.einride.tech/cloudrunner/cloudconfig"
+	"go.einride.tech/cloudrunner/cloudtrace"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
@@ -36,5 +39,12 @@ func WithOptions(options []Option) Option {
 func WithGRPCServerOptions(grpcServerOptions ...grpc.ServerOption) Option {
 	return func(run *runContext) {
 		run.grpcServerOptions = append(run.grpcServerOptions, grpcServerOptions...)
+	}
+}
+
+// WithTraceHook configures the run context with a trace hook.
+func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.Context) Option {
+	return func(run *runContext) {
+		run.traceMiddleware.TraceHook = traceHook
 	}
 }

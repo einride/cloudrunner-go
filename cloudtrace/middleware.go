@@ -14,6 +14,8 @@ import (
 type Middleware struct {
 	// ProjectID of the project the service is running in.
 	ProjectID string
+	// TraceHook is an optional callback that gets called with the parsed trace context.
+	TraceHook func(context.Context, Context) context.Context
 }
 
 // GRPCServerUnaryInterceptor provides unary RPC middleware for gRPC servers.
@@ -59,6 +61,9 @@ func (i *Middleware) withLogTracing(ctx context.Context, header string) context.
 	var traceContext Context
 	if err := traceContext.UnmarshalString(header); err != nil {
 		return ctx
+	}
+	if i.TraceHook != nil {
+		ctx = i.TraceHook(ctx, traceContext)
 	}
 	fields := make([]zap.Field, 0, 3)
 	fields = append(fields, cloudzap.Trace(i.ProjectID, traceContext.TraceID))
