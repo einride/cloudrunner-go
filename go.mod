@@ -15,7 +15,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/host v0.22.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.22.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.22.0
-	go.opentelemetry.io/otel v1.0.0-RC2
+	go.opentelemetry.io/otel v1.0.0
 	go.opentelemetry.io/otel/sdk v1.0.0-RC2
 	go.opentelemetry.io/otel/sdk/metric v0.22.0
 	go.uber.org/zap v1.19.0
