@@ -14,7 +14,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.24.0
 	go.opentelemetry.io/contrib/instrumentation/host v0.22.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.22.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.22.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.23.0
 	go.opentelemetry.io/otel v1.0.0
 	go.opentelemetry.io/otel/sdk v1.0.0
 	go.opentelemetry.io/otel/sdk/metric v0.22.0
