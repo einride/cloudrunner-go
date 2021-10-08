@@ -36,7 +36,7 @@ func NewLogger(config LoggerConfig) (*zap.Logger, error) {
 		zap.AddCaller(),
 		zap.AddStacktrace(zap.FatalLevel), // add stacktraces manually where needed
 		zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-			return sourceLocationCore{Core: core}
+			return sourceLocationCore{nextCore: core}
 		}),
 	}
 	if config.ReportErrors {
@@ -44,7 +44,7 @@ func NewLogger(config LoggerConfig) (*zap.Logger, error) {
 			if serviceVersion, ok := cloudruntime.ServiceVersion(); ok {
 				zapOptions = append(zapOptions, zap.WrapCore(func(core zapcore.Core) zapcore.Core {
 					return errorReportingCore{
-						Core:           core,
+						nextCore:       core,
 						serviceName:    service,
 						serviceVersion: serviceVersion,
 					}
@@ -60,12 +60,26 @@ func NewLogger(config LoggerConfig) (*zap.Logger, error) {
 }
 
 type sourceLocationCore struct {
-	zapcore.Core
+	nextCore zapcore.Core
+}
+
+func (c sourceLocationCore) Enabled(level zapcore.Level) bool {
+	return c.nextCore.Enabled(level)
+}
+
+func (c sourceLocationCore) With(fields []zapcore.Field) zapcore.Core {
+	return sourceLocationCore{
+		nextCore: c.nextCore.With(fields),
+	}
+}
+
+func (c sourceLocationCore) Sync() error {
+	return c.nextCore.Sync()
 }
 
 // Check implements zapcore.Core.
 func (c sourceLocationCore) Check(entry zapcore.Entry, checked *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	if !c.Enabled(entry.Level) {
+	if !c.nextCore.Enabled(entry.Level) {
 		return checked
 	}
 	return checked.AddCore(entry, c)
@@ -76,18 +90,34 @@ func (c sourceLocationCore) Write(entry zapcore.Entry, fields []zapcore.Field) e
 	if entry.Caller.Defined {
 		fields = appendIfNotExists(fields, SourceLocationForCaller(entry.Caller))
 	}
-	return c.Core.Write(entry, fields)
+	return c.nextCore.Write(entry, fields)
 }
 
 type errorReportingCore struct {
-	zapcore.Core
+	nextCore       zapcore.Core
 	serviceName    string
 	serviceVersion string
 }
 
+func (c errorReportingCore) Enabled(level zapcore.Level) bool {
+	return c.nextCore.Enabled(level)
+}
+
+func (c errorReportingCore) With(fields []zapcore.Field) zapcore.Core {
+	return errorReportingCore{
+		nextCore:       c.nextCore.With(fields),
+		serviceName:    c.serviceName,
+		serviceVersion: c.serviceVersion,
+	}
+}
+
+func (c errorReportingCore) Sync() error {
+	return c.nextCore.Sync()
+}
+
 // Check implements zapcore.Core.
 func (c errorReportingCore) Check(entry zapcore.Entry, checked *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	if !c.Enabled(entry.Level) {
+	if !c.nextCore.Enabled(entry.Level) {
 		return checked
 	}
 	return checked.AddCore(entry, c)
@@ -99,7 +129,7 @@ func (c errorReportingCore) Write(entry zapcore.Entry, fields []zapcore.Field) e
 		fields = appendIfNotExists(fields, ErrorReportContextForCaller(entry.Caller))
 		fields = appendIfNotExists(fields, ErrorReportServiceContext(c.serviceName, c.serviceVersion))
 	}
-	return c.Core.Write(entry, fields)
+	return c.nextCore.Write(entry, fields)
 }
 
 func appendIfNotExists(fields []zapcore.Field, field zap.Field) []zapcore.Field {
