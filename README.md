@@ -23,7 +23,7 @@ Run your application with [`cloudrunner.Run`][run], and you get:
 
 [run]: ./run.go
 [cloud-logging]: https://cloud.google.com/logging
-[zap]: go.uber.org/zap
+[zap]: https://go.uber.org/zap
 [cloud-trace]: https://cloud.google.com/trace
 [open-telemetry-go]: https://go.opentelemetry.io/otel
 [cloud-monitoring]: https://cloud.google.com/monitoring
