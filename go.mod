@@ -9,18 +9,18 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.24.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.0
 	github.com/google/go-cmp v0.5.6
-	go.opentelemetry.io/contrib/detectors/gcp v1.0.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/host v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.25.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.26.0
-	go.opentelemetry.io/otel v1.0.1
-	go.opentelemetry.io/otel/sdk v1.0.1
+	go.opentelemetry.io/contrib/detectors/gcp v1.1.1
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.26.1
+	go.opentelemetry.io/contrib/instrumentation/host v0.26.1
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.26.1
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.26.1
+	go.opentelemetry.io/otel v1.1.0
+	go.opentelemetry.io/otel/sdk v1.1.0
 	go.opentelemetry.io/otel/sdk/metric v0.24.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1
 	google.golang.org/api v0.60.0
-	google.golang.org/genproto v0.0.0-20211021150943-2b146023228c
+	google.golang.org/genproto v0.0.0-20211104193956-4c6863e31247
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
@@ -50,12 +50,12 @@ require (
 	go.opentelemetry.io/otel/internal/metric v0.24.0 // indirect
 	go.opentelemetry.io/otel/metric v0.24.0 // indirect
 	go.opentelemetry.io/otel/sdk/export/metric v0.24.0 // indirect
-	go.opentelemetry.io/otel/trace v1.0.1 // indirect
+	go.opentelemetry.io/otel/trace v1.1.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
-	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
-	golang.org/x/text v0.3.6 // indirect
+	golang.org/x/net v0.0.0-20211104170005-ce137452f963 // indirect
+	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )
