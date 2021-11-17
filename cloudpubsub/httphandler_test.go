@@ -40,8 +40,11 @@ func TestNewHTTPHandler(t *testing.T) {
 		},
 	}
 	var actualMessage *pubsub.PubsubMessage
+	var subscription string
+	var subscriptionOk bool
 	fn := func(ctx context.Context, message *pubsub.PubsubMessage) error {
 		actualMessage = message
+		subscription, subscriptionOk = GetSubscription(ctx)
 		return nil
 	}
 	server := httptest.NewServer(HTTPHandler(fn))
@@ -52,4 +55,6 @@ func TestNewHTTPHandler(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	assert.DeepEqual(t, expectedMessage, actualMessage, protocmp.Transform())
+	assert.Assert(t, subscriptionOk)
+	assert.Equal(t, subscription, "projects/myproject/subscriptions/mysubscription")
 }
