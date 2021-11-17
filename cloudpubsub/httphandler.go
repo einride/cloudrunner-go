@@ -49,7 +49,8 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 		fields.Add(cloudzap.ProtoMessage("pubsubMessage", &pubsubMessage))
 	}
-	if err := fn(r.Context(), &pubsubMessage); err != nil {
+	ctx := withSubscription(r.Context(), payload.Subscription)
+	if err := fn(ctx, &pubsubMessage); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 			fields.Add(zap.Error(err))
 		}
