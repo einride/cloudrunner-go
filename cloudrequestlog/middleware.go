@@ -235,9 +235,9 @@ func (l *Middleware) statusToLevel(status int) zapcore.Level {
 		return level
 	}
 	switch {
-	case status < 400:
+	case status < http.StatusBadRequest:
 		return zap.DebugLevel
-	case 400 <= status && status < 500:
+	case http.StatusBadRequest <= status && status < http.StatusInternalServerError:
 		return zap.WarnLevel
 	default:
 		return zap.ErrorLevel
