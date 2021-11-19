@@ -239,6 +239,9 @@ func (l *Middleware) statusToLevel(status int) zapcore.Level {
 		return zap.DebugLevel
 	case http.StatusBadRequest <= status && status < http.StatusInternalServerError:
 		return zap.WarnLevel
+	case status == http.StatusGatewayTimeout:
+		// special case for 504 (timeout) to match severity for gRPC status codes
+		return zap.WarnLevel
 	default:
 		return zap.ErrorLevel
 	}
