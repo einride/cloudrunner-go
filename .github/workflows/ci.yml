@@ -8,6 +8,10 @@ on:
     branches:
       - "*"
 
+# Allow dependabot to make releases
+permissions:
+  contents: write
+
 jobs:
   make:
     runs-on: ubuntu-latest
