@@ -10,6 +10,7 @@ import (
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // DialServiceInsecure establishes an insecure connection to another service that must be on the local host.
@@ -33,7 +34,7 @@ func DialServiceInsecure(ctx context.Context, target string, opts ...grpc.DialOp
 	}
 	defaultOpts := []grpc.DialOption{
 		grpc.WithPerRPCCredentials(insecureTokenSource{TokenSource: idTokenSource}),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 	conn, err := grpc.DialContext(ctx, parsedTarget.Host, append(defaultOpts, opts...)...)
 	if err != nil {
