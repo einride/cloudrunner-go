@@ -81,6 +81,10 @@ func Run(fn func(context.Context) error, options ...Option) error {
 	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
+	run.metricMiddleware, err = cloudmonitoring.NewMetricMiddleware()
+	if err != nil {
+		return fmt.Errorf("cloudrunner.Run: %w", err)
+	}
 	ctx = withRunContext(ctx, &run)
 	ctx = cloudruntime.WithConfig(ctx, run.config.Runtime)
 	logger, err := cloudzap.NewLogger(run.config.Logger)
@@ -120,6 +124,7 @@ type runContext struct {
 	clientMiddleware        cloudclient.Middleware
 	requestLoggerMiddleware cloudrequestlog.Middleware
 	traceMiddleware         cloudtrace.Middleware
+	metricMiddleware        cloudmonitoring.MetricMiddleware
 }
 
 type runContextKey struct{}

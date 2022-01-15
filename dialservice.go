@@ -23,6 +23,7 @@ func DialService(ctx context.Context, target string, opts ...grpc.DialOption) (*
 				grpc.WithDefaultServiceConfig(run.config.Client.AsServiceConfigJSON()),
 				grpc.WithChainUnaryInterceptor(
 					otelgrpc.UnaryClientInterceptor(),
+					run.metricMiddleware.GRPCUnaryClientInterceptor,
 					run.requestLoggerMiddleware.GRPCUnaryClientInterceptor,
 					run.clientMiddleware.GRPCUnaryClientInterceptor,
 				),

@@ -19,8 +19,9 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 	serverOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			otelgrpc.UnaryServerInterceptor(),
-			run.loggerMiddleware.GRPCUnaryServerInterceptor,        // adds context logger
-			run.traceMiddleware.GRPCServerUnaryInterceptor,         // needs the context logger
+			run.loggerMiddleware.GRPCUnaryServerInterceptor, // adds context logger
+			run.traceMiddleware.GRPCServerUnaryInterceptor,  // needs the context logger
+			run.metricMiddleware.GRPCUnaryServerInterceptor,
 			run.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
 			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
