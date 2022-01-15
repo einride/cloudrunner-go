@@ -10,6 +10,7 @@ import (
 
 	"go.einride.tech/cloudrunner/cloudclient"
 	"go.einride.tech/cloudrunner/cloudconfig"
+	"go.einride.tech/cloudrunner/cloudmonitoring"
 	"go.einride.tech/cloudrunner/cloudotel"
 	"go.einride.tech/cloudrunner/cloudprofiler"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
@@ -31,6 +32,8 @@ type runConfig struct {
 	Profiler cloudprofiler.Config
 	// TraceExporter contains trace exporter config.
 	TraceExporter cloudtrace.ExporterConfig
+	// MetricExporter contains metric exporter config.
+	MetricExporter cloudmonitoring.ExporterConfig
 	// Server contains server config.
 	Server cloudserver.Config
 	// Client contains client config.
@@ -98,6 +101,11 @@ func Run(fn func(context.Context) error, options ...Option) error {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	defer stopTraceExporter()
+	stopMetricExporter, err := cloudmonitoring.StartExporter(ctx, run.config.MetricExporter, resource)
+	if err != nil {
+		return fmt.Errorf("cloudrunner.Run: %w", err)
+	}
+	defer stopMetricExporter()
 	logger.Info("up and running", zap.Object("config", config), cloudzap.Resource("resource", resource))
 	defer logger.Info("goodbye")
 	return fn(ctx)
