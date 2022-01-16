@@ -2,6 +2,7 @@ package cloudruntime
 
 import "os"
 
+// nolint: gochecknoglobals
 var serviceVersion string
 
 // ServiceVersionFromLinkerFlags returns the exact value of the variable:
@@ -22,7 +23,7 @@ func ServiceVersionFromLinkerFlags() string {
 // - the "SERVICE_VERSION" environment variable
 // - the go.einride.tech/cloudrunner/cloudruntime.serviceVersion variable (must be set at build-time)
 // - the "K_REVISION" environment variable
-// - no version
+// - no version.
 func ServiceVersion() (string, bool) {
 	if serviceVersionFromEnv, ok := os.LookupEnv("SERVICE_VERSION"); ok {
 		return serviceVersionFromEnv, ok
@@ -30,8 +31,8 @@ func ServiceVersion() (string, bool) {
 	if ServiceVersionFromLinkerFlags() != "" {
 		return ServiceVersionFromLinkerFlags(), true
 	}
-	if kRevision, ok := os.LookupEnv("K_REVISION"); ok {
-		return kRevision, true
+	if revision, ok := os.LookupEnv("K_REVISION"); ok {
+		return revision, true
 	}
 	return "", false
 }

@@ -2,6 +2,7 @@ package cloudrequestlog
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -66,10 +67,11 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		fields = additionalFields.AppendTo(fields)
 	}
-	if caller, ok := err.(interface {
+	var errCaller interface {
 		Caller() (pc uintptr, file string, line int, ok bool)
-	}); ok {
-		checkedEntry.Caller = zapcore.NewEntryCaller(caller.Caller())
+	}
+	if errors.As(err, &errCaller) {
+		checkedEntry.Caller = zapcore.NewEntryCaller(errCaller.Caller())
 		checkedEntry.Entry.Caller = checkedEntry.Caller
 	}
 	fields = append(fields, cloudzap.SourceLocationForCaller(checkedEntry.Caller))

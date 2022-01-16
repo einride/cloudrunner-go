@@ -8,8 +8,8 @@ import (
 
 // Service returns the service name of the current runtime.
 func Service() (string, bool) {
-	if kService, ok := os.LookupEnv("K_SERVICE"); ok {
-		return kService, true
+	if service, ok := os.LookupEnv("K_SERVICE"); ok {
+		return service, true
 	}
 	// Default to the name of the entrypoint command.
 	return path.Base(os.Args[0]), true

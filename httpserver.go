@@ -2,6 +2,7 @@ package cloudrunner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -54,7 +55,7 @@ func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
 		}
 	}()
 	Logger(ctx).Info("HTTPServer listening", zap.String("address", httpServer.Addr))
-	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 	return nil
