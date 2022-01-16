@@ -14,6 +14,7 @@ import (
 )
 
 func TestNewHTTPHandler(t *testing.T) {
+	ctx := context.Background()
 	// From: https://cloud.google.com/pubsub/docs/push#receiving_messages
 	const example = `
 		{
@@ -49,10 +50,13 @@ func TestNewHTTPHandler(t *testing.T) {
 	}
 	server := httptest.NewServer(HTTPHandler(fn))
 	defer server.Close()
-	request, err := http.NewRequest(http.MethodPost, server.URL, strings.NewReader(example))
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, server.URL, strings.NewReader(example))
 	assert.NilError(t, err)
 	response, err := http.DefaultClient.Do(request)
 	assert.NilError(t, err)
+	t.Cleanup(func() {
+		assert.NilError(t, response.Body.Close())
+	})
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	assert.DeepEqual(t, expectedMessage, actualMessage, protocmp.Transform())
 	assert.Assert(t, subscriptionOk)

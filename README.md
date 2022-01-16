@@ -1,46 +1,25 @@
-# Cloud Runner
+Cloud Runner
+============
 
-Get up and running with [Go][go] and [gRPC][grpc] on [Google Cloud
-Platform][gcp], with this lightweight, opinionated, batteries-included
-service SDK.
+Get up and running with [Go](https://golang.org/) and [gRPC](https://grpc.io) on [Google Cloud Platform](https://cloud.google.com/), with this lightweight, opinionated, batteries-included service SDK.
 
-[go]: https://golang.org/
-[gcp]: https://cloud.google.com/
-[cloud-run]: https://cloud.google.com/run
-[grpc]: https://grpc.io
+Features
+--------
 
-## Features
+Run your application with [`cloudrunner.Run`](./run.go), and you get:
 
-Run your application with [`cloudrunner.Run`][run], and you get:
-
-- Logging integrated with [Cloud Logging][cloud-logging] using [Zap][zap].
-- Tracing integrated with [Cloud Trace][cloud-trace] using
-  [OpenTelemetry Go][open-telemetry-go].
-- Metrics integrated with [Cloud Monitoring][cloud-monitoring] using
-  [OpenTelemetry Go][open-telemetry-go].
-- Profiling integrated with [Cloud Profiler][cloud-profiler] using
-  the [Google Cloud Go SDK][google-cloud-go].
-
-[run]: ./run.go
-[cloud-logging]: https://cloud.google.com/logging
-[zap]: https://go.uber.org/zap
-[cloud-trace]: https://cloud.google.com/trace
-[open-telemetry-go]: https://go.opentelemetry.io/otel
-[cloud-monitoring]: https://cloud.google.com/monitoring
-[cloud-profiler]: https://cloud.google.com/profiler
-[google-cloud-go]: https://cloud.google.com/go
+-	Logging integrated with [Cloud Logging](https://cloud.google.com/logging) using [Zap](https://go.uber.org/zap).
+-	Tracing integrated with [Cloud Trace](https://cloud.google.com/trace) using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
+-	Metrics integrated with [Cloud Monitoring](https://cloud.google.com/monitoring) using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
+-	Profiling integrated with [Cloud Profiler](https://cloud.google.com/profiler) using the [Google Cloud Go SDK](https://cloud.google.com/go).
 
 To help you build gRPC microservices, you also get:
 
-- Server-to-server authentication, client retries, and more for gRPC
-  clients with [`cloudrunner.DialService`][dial-service].
-- Request logging, tracing, and more, for gRPC servers with
-  [`cloudrunner.NewGRPCServer`][grpc-server].
+-	Server-to-server authentication, client retries, and more for gRPC clients with [`cloudrunner.DialService`](./dialservice.go).
+-	Request logging, tracing, and more, for gRPC servers with[`cloudrunner.NewGRPCServer`](./grpcserver.go).
 
-[dial-service]: ./dialservice.go
-[grpc-server]: ./grpcserver.go
-
-## Get up and running
+Get up and running
+------------------
 
 Install the package:
 
@@ -75,24 +54,20 @@ func main() {
 }
 ```
 
-## Configuration
+Configuration
+-------------
 
 The service is configured with environment variables.
 
-When the service is running [on GCE][on-gce], all built-in integrations
-are turned on by default.
+When the service is running [on GCE](https://pkg.go.dev/cloud.google.com/go/compute/metadata#OnGCE), all built-in integrations are turned on by default.
 
-[Service-specific config][options] is supported out of the box.
-
-[options]: ./options.go
-[on-gce]: https://pkg.go.dev/cloud.google.com/go/compute/metadata#OnGCE
+[Service-specific config](./options.go) is supported out of the box.
 
 Invoke your service with `-help` to show available configuration.
 
-
 <!-- BEGIN usage -->
-```
 
+```
 Usage of grpc-server:
 
   -config string
@@ -136,6 +111,7 @@ cloudrunner    REQUESTLOGGER_STATUSTOLEVEL          map[int]zapcore.Level
 Build-time configuration of grpc-server:
 
 LDFLAG                                                     TYPE      VALUE
-go.einride.tech/cloudrunner/cloudruntime.serviceVersion    string    
+go.einride.tech/cloudrunner/cloudruntime.serviceVersion    string
 ```
+
 <!-- END usage -->

@@ -29,8 +29,8 @@ type HTTPRequestObject struct {
 	RequestSize int
 	// Status is the response code indicating the status of response. Examples: 200, 404.
 	Status int
-	// ResponseSize is the size of the HTTP response message sent back to the client, in bytes, including the response headers
-	// and the response body.
+	// ResponseSize is the size of the HTTP response message sent back to the client, in bytes,
+	// including the response headers and the response body.
 	ResponseSize int
 	// UserAgent is the user agent sent by the client.
 	// Example: "Mozilla/4.0 (compatible; MSIE 6.0; Windows 98; Q312461; .NET CLR 1.0.3705)".

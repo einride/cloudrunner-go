@@ -40,7 +40,7 @@ type Setter interface {
 	Set(value string) error
 }
 
-// fieldSpec maintains information about the configuration variable
+// fieldSpec maintains information about the configuration variable.
 type fieldSpec struct {
 	Name  string
 	Key   string
@@ -147,8 +147,7 @@ func process(fieldSpecs []fieldSpec) error {
 
 func processField(value string, field reflect.Value) error {
 	typ := field.Type()
-	setter := setterFrom(field)
-	if setter != nil {
+	if setter := setterFrom(field); setter != nil {
 		return setter.Set(value)
 	}
 	if t := textUnmarshaler(field); t != nil {

@@ -13,15 +13,15 @@ func (w *httpResponseWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-func (z *httpResponseWriter) Status() int {
-	if z.statusCode == 0 {
+func (w *httpResponseWriter) Status() int {
+	if w.statusCode == 0 {
 		return http.StatusOK
 	}
-	return z.statusCode
+	return w.statusCode
 }
 
-func (z *httpResponseWriter) Write(b []byte) (int, error) {
-	size, err := z.ResponseWriter.Write(b)
-	z.size += size
+func (w *httpResponseWriter) Write(b []byte) (int, error) {
+	size, err := w.ResponseWriter.Write(b)
+	w.size += size
 	return size, err
 }
