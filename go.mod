@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.17
 
 require (
-	cloud.google.com/go v0.99.0
+	cloud.google.com/go v0.100.2 // indirect
 	cloud.google.com/go/profiler v0.1.2
 	cloud.google.com/go/trace v1.0.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.24.0
@@ -20,14 +20,17 @@ require (
 	go.uber.org/zap v1.19.1
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	google.golang.org/api v0.63.0
-	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
+	google.golang.org/genproto v0.0.0-20211221195035-429b39de9b1c
 	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gotest.tools/v3 v3.0.3
 )
 
+require cloud.google.com/go/compute v0.1.0
+
 require (
+	cloud.google.com/go/iam v0.1.0 // indirect
 	cloud.google.com/go/monitoring v1.1.0 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.2.1 // indirect
