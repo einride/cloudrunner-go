@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/magefile/mage v1.12.1
-	go.einride.tech/mage-tools v0.21.3
+	go.einride.tech/mage-tools v0.27.0
 )
 
 require (
