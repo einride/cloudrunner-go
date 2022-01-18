@@ -8,11 +8,19 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func grpcServerLogMessage(code codes.Code, methodName string) string {
+func grpcServerLogMessage(code codes.Code, fullMethod string) string {
+	methodName := fullMethod
+	if _, method, ok := splitFullMethod(fullMethod); ok {
+		methodName = method
+	}
 	return fmt.Sprintf("gRPCServer %s %s", code.String(), methodName)
 }
 
-func grpcClientLogMessage(code codes.Code, methodName string) string {
+func grpcClientLogMessage(code codes.Code, fullMethod string) string {
+	methodName := fullMethod
+	if _, method, ok := splitFullMethod(fullMethod); ok {
+		methodName = method
+	}
 	return fmt.Sprintf("gRPCClient %s %s", code.String(), methodName)
 }
 

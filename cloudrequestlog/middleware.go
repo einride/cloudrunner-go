@@ -36,10 +36,9 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	ctx = WithAdditionalFields(ctx)
 	response, err := handler(ctx, request)
 	code := status.Code(err)
-	service, method := splitFullMethod(info.FullMethod)
 	checkedEntry := l.logger(ctx).Check(
 		l.codeToLevel(code),
-		grpcServerLogMessage(code, method),
+		grpcServerLogMessage(code, info.FullMethod),
 	)
 	if checkedEntry == nil {
 		return response, err
@@ -56,14 +55,13 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	}
 	fields := []zapcore.Field{
 		zap.Stringer("code", code),
-		zap.String("service", service),
-		zap.String("method", method),
 		zap.Object("httpRequest", &grpcRequest),
 		l.messageField("request", request),
 		l.messageField("response", response),
 		zap.Error(err),
 		ErrorDetails(err),
 	}
+	fields = appendFullMethodFields(info.FullMethod, fields)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		fields = additionalFields.AppendTo(fields)
 	}
@@ -100,10 +98,9 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	startTime := time.Now()
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
 	code := status.Code(err)
-	service, method := splitFullMethod(fullMethod)
 	checkedEntry := l.logger(ctx).Check(
 		l.codeToLevel(code),
-		grpcClientLogMessage(code, method),
+		grpcClientLogMessage(code, fullMethod),
 	)
 	if checkedEntry == nil {
 		return err
@@ -121,17 +118,17 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	// assuming this middleware is first in the chain, the caller of the client method is 4 stack frames up
 	checkedEntry.Caller = zapcore.NewEntryCaller(runtime.Caller(4))
 	checkedEntry.Entry.Caller = checkedEntry.Caller
-	checkedEntry.Write(
+	fields := []zap.Field{
 		zap.Stringer("code", code),
 		zap.Object("httpRequest", &grpcRequest),
-		zap.String("service", service),
-		zap.String("method", method),
 		l.messageField("request", request),
 		l.messageField("response", response),
 		zap.Error(err),
 		ErrorDetails(err),
 		cloudzap.SourceLocationForCaller(checkedEntry.Caller),
-	)
+	}
+	fields = appendFullMethodFields(fullMethod, fields)
+	checkedEntry.Write(fields...)
 	return err
 }
 
@@ -247,4 +244,16 @@ func (l *Middleware) statusToLevel(status int) zapcore.Level {
 	default:
 		return zap.ErrorLevel
 	}
+}
+
+func appendFullMethodFields(fullMethod string, dst []zap.Field) []zap.Field {
+	service, method, ok := splitFullMethod(fullMethod)
+	if !ok {
+		return dst
+	}
+	return append(
+		dst,
+		zap.String("service", service),
+		zap.String("method", method),
+	)
 }
