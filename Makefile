@@ -10,7 +10,7 @@ $(sagefile): .sage/go.mod .sage/*.go
 
 .PHONY: clean-sage
 clean-sage:
-	@git clean -fdx .sage/tools
+	@git clean -fdx .sage/tools .sage/bin .sage/build
 
 .PHONY: all
 all: $(sagefile)
