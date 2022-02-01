@@ -102,7 +102,7 @@ cloudrunner    CLIENT_RETRY_ENABLED                 bool                        
 cloudrunner    CLIENT_RETRY_INITIALBACKOFF          time.Duration                   200ms                  
 cloudrunner    CLIENT_RETRY_MAXBACKOFF              time.Duration                   60s                    
 cloudrunner    CLIENT_RETRY_MAXATTEMPTS             int                             5                      
-cloudrunner    CLIENT_RETRY_BACKOFFMULTIPLIER       float64                         1.3                    
+cloudrunner    CLIENT_RETRY_BACKOFFMULTIPLIER       float64                         2                      
 cloudrunner    CLIENT_RETRY_RETRYABLESTATUSCODES    []codes.Code                    Unavailable,Unknown    
 cloudrunner    REQUESTLOGGER_MESSAGESIZELIMIT       int                                                    1024
 cloudrunner    REQUESTLOGGER_CODETOLEVEL            map[codes.Code]zapcore.Level                           

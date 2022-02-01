@@ -38,7 +38,7 @@ type RetryConfig struct {
 	// MaxAttempts is the max number of backoff attempts retried.
 	MaxAttempts int `default:"5"`
 	// BackoffMultiplier is the exponential backoff multiplier.
-	BackoffMultiplier float64 `default:"1.3"`
+	BackoffMultiplier float64 `default:"2"`
 	// RetryableStatusCodes is the set of status codes which may be retried.
 	// Unknown status codes are retried by default for the sake of retrying Google Cloud HTTP load balancer errors.
 	RetryableStatusCodes []codes.Code `default:"Unavailable,Unknown"`
