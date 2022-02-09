@@ -5,8 +5,16 @@
 
 sagefile := .sage/bin/sagefile
 
-$(sagefile): .sage/go.mod .sage/*.go
+.PHONY: $(sagefile)
+$(sagefile):
 	@cd .sage && go mod tidy && go run .
+
+.PHONY: sage
+sage: $(sagefile)
+
+.PHONY: update-sage
+update-sage:
+	@cd .sage && go get -d go.einride.tech/sage@latest && go mod tidy && go run .
 
 .PHONY: clean-sage
 clean-sage:
