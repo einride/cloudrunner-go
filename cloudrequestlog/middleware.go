@@ -34,6 +34,8 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 ) (interface{}, error) {
 	startTime := time.Now()
 	ctx = WithAdditionalFields(ctx)
+	// Clone request to ensure not using a mutated one later
+	requestClone := proto.Clone(request.(proto.Message))
 	response, err := handler(ctx, request)
 	code := status.Code(err)
 	checkedEntry := l.logger(ctx).Check(
@@ -47,16 +49,14 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 		Protocol: "gRPC",
 		Latency:  time.Since(startTime),
 	}
-	if protoRequest, ok := request.(proto.Message); ok {
-		grpcRequest.RequestSize = proto.Size(protoRequest)
-	}
+	grpcRequest.RequestSize = proto.Size(requestClone)
 	if protoResponse, ok := response.(proto.Message); ok {
 		grpcRequest.ResponseSize = proto.Size(protoResponse)
 	}
 	fields := []zapcore.Field{
 		zap.Stringer("code", code),
 		zap.Object("httpRequest", &grpcRequest),
-		l.messageField("request", request),
+		l.messageField("request", requestClone),
 		l.messageField("response", response),
 		zap.Error(err),
 		ErrorDetails(err),
@@ -96,6 +96,8 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	opts ...grpc.CallOption,
 ) error {
 	startTime := time.Now()
+	// Clone request to ensure not using a mutated one later
+	requestClone := proto.Clone(request.(proto.Message))
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
 	code := status.Code(err)
 	checkedEntry := l.logger(ctx).Check(
@@ -109,9 +111,7 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 		Protocol: "gRPC",
 		Latency:  time.Since(startTime),
 	}
-	if protoRequest, ok := request.(proto.Message); ok {
-		grpcRequest.RequestSize = proto.Size(protoRequest)
-	}
+	grpcRequest.RequestSize = proto.Size(requestClone)
 	if protoResponse, ok := response.(proto.Message); ok {
 		grpcRequest.ResponseSize = proto.Size(protoResponse)
 	}
@@ -121,7 +121,7 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	fields := []zap.Field{
 		zap.Stringer("code", code),
 		zap.Object("httpRequest", &grpcRequest),
-		l.messageField("request", request),
+		l.messageField("request", requestClone),
 		l.messageField("response", response),
 		zap.Error(err),
 		ErrorDetails(err),
