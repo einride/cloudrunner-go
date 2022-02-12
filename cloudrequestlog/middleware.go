@@ -219,7 +219,8 @@ func (l *Middleware) codeToLevel(code codes.Code) zapcore.Level {
 		codes.DeadlineExceeded,
 		codes.OutOfRange,
 		codes.Canceled,
-		codes.Aborted:
+		codes.Aborted,
+		codes.ResourceExhausted:
 		return zap.WarnLevel
 	case
 		codes.Unknown, codes.Internal, codes.DataLoss:
