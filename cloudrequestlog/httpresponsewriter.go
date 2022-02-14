@@ -25,3 +25,10 @@ func (w *httpResponseWriter) Write(b []byte) (int, error) {
 	w.size += size
 	return size, err
 }
+
+// Flush sends any buffered data to the client.
+func (w *httpResponseWriter) Flush() {
+	if flusher, ok := w.ResponseWriter.(http.Flusher); ok {
+		flusher.Flush()
+	}
+}
