@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go v0.100.2 // indirect
-	cloud.google.com/go/compute v1.2.0
+	cloud.google.com/go/compute v1.3.0
 	cloud.google.com/go/profiler v0.2.0
 	cloud.google.com/go/trace v1.0.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.26.0
