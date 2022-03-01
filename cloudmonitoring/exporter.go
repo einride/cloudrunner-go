@@ -17,7 +17,7 @@ import (
 
 // ExporterConfig configures the metrics exporter.
 type ExporterConfig struct {
-	Enabled                bool          `onGCE:"true"`
+	Enabled                bool          `onGCE:"false"`
 	Interval               time.Duration `default:"60s"`
 	RuntimeInstrumentation bool          `onGCE:"true"`
 	HostInstrumentation    bool          `onGCE:"true"`

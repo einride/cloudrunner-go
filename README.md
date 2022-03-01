@@ -96,7 +96,7 @@ cloudrunner    PROFILER_ALLOCFORCEGC                    bool                    
 cloudrunner    TRACEEXPORTER_ENABLED                    bool                                                   true
 cloudrunner    TRACEEXPORTER_TIMEOUT                    time.Duration                   10s                    
 cloudrunner    TRACEEXPORTER_SAMPLEPROBABILITY          float64                         0.01                   
-cloudrunner    METRICEXPORTER_ENABLED                   bool                                                   true
+cloudrunner    METRICEXPORTER_ENABLED                   bool                                                   false
 cloudrunner    METRICEXPORTER_INTERVAL                  time.Duration                   60s                    
 cloudrunner    METRICEXPORTER_RUNTIMEINSTRUMENTATION    bool                                                   true
 cloudrunner    METRICEXPORTER_HOSTINSTRUMENTATION       bool                                                   true
