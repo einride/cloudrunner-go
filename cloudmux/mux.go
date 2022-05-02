@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/soheilhy/cmux"
-	"go.einride.tech/cloudrunner"
+	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -28,7 +28,10 @@ func ServeGRPCHTTP(
 	m := cmux.New(l)
 	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
 	httpL := m.Match(cmux.Any())
-	logger := cloudrunner.Logger(ctx)
+	logger, ok := cloudzap.GetLogger(ctx)
+	if !ok {
+		logger = zap.NewNop()
+	}
 
 	var g errgroup.Group
 
