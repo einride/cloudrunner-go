@@ -5,7 +5,7 @@ go 1.17
 require (
 	cloud.google.com/go v0.102.0 // indirect
 	cloud.google.com/go/compute v1.7.0
-	cloud.google.com/go/profiler v0.2.0
+	cloud.google.com/go/profiler v0.3.0
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.0
@@ -42,7 +42,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/pprof v0.0.0-20220113144219-d25a53d42d00 // indirect
+	github.com/google/pprof v0.0.0-20220412212628-83db2b799d1f // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
