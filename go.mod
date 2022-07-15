@@ -1,6 +1,6 @@
 module go.einride.tech/cloudrunner
 
-go 1.17
+go 1.18
 
 require (
 	cloud.google.com/go v0.102.0 // indirect
