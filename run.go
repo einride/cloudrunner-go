@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 
 	"go.einride.tech/cloudrunner/cloudclient"
@@ -19,6 +20,7 @@ import (
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 )
 
@@ -110,7 +112,13 @@ func Run(fn func(context.Context) error, options ...Option) error {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	defer stopMetricExporter()
-	logger.Info("up and running", zap.Object("config", config), cloudzap.Resource("resource", resource))
+	buildInfo, _ := debug.ReadBuildInfo()
+	logger.Info(
+		"up and running",
+		zap.Object("config", config),
+		cloudzap.Resource("resource", resource),
+		zap.Object("buildInfo", buildInfoMarshaler{buildInfo: buildInfo}),
+	)
 	defer logger.Info("goodbye")
 	return fn(ctx)
 }
@@ -136,4 +144,28 @@ func withRunContext(ctx context.Context, run *runContext) context.Context {
 func getRunContext(ctx context.Context) (*runContext, bool) {
 	result, ok := ctx.Value(runContextKey{}).(*runContext)
 	return result, ok
+}
+
+type buildInfoMarshaler struct {
+	buildInfo *debug.BuildInfo
+}
+
+func (b buildInfoMarshaler) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if b.buildInfo == nil {
+		return nil
+	}
+	encoder.AddString("path", b.buildInfo.Main.Path)
+	encoder.AddString("version", b.buildInfo.Main.Version)
+	encoder.AddString("sum", b.buildInfo.Main.Sum)
+	encoder.AddString("goVersion", b.buildInfo.GoVersion)
+	return encoder.AddObject("buildSettings", buildSettingsMarshaler(b.buildInfo.Settings))
+}
+
+type buildSettingsMarshaler []debug.BuildSetting
+
+func (b buildSettingsMarshaler) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	for _, setting := range b {
+		encoder.AddString(setting.Key, setting.Value)
+	}
+	return nil
 }
