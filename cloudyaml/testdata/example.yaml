@@ -1,0 +1,21 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: example
+  annotations:
+    autoscaling.knative.dev/maxScale: "100"
+spec:
+  template:
+    spec:
+      containerConcurrency: 50
+      containers:
+        - image: gcr.io/cloudrun/hello
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          env:
+            - name: FOO
+              value: baz
+            - name: BAR
+              value: 3
