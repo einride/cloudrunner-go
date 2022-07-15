@@ -154,9 +154,7 @@ func (b buildInfoMarshaler) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 	if b.buildInfo == nil {
 		return nil
 	}
-	encoder.AddString("path", b.buildInfo.Main.Path)
-	encoder.AddString("version", b.buildInfo.Main.Version)
-	encoder.AddString("sum", b.buildInfo.Main.Sum)
+	encoder.AddString("mainPath", b.buildInfo.Main.Path)
 	encoder.AddString("goVersion", b.buildInfo.GoVersion)
 	return encoder.AddObject("buildSettings", buildSettingsMarshaler(b.buildInfo.Settings))
 }
