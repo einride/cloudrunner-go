@@ -22,6 +22,10 @@ type fieldSpecsMarshaler []fieldSpec
 // MarshalLogObject implements zapcore.ObjectMarshaler.
 func (fm fieldSpecsMarshaler) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	for _, fs := range fm {
+		if fs.Secret {
+			encoder.AddString(fs.Key, "<secret>")
+			continue
+		}
 		switch value := fs.Value.Interface().(type) {
 		case time.Duration:
 			encoder.AddDuration(fs.Key, value)
