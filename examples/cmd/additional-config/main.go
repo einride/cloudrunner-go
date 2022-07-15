@@ -11,7 +11,8 @@ import (
 
 func main() {
 	var config struct {
-		Foo string `default:"bar" onGCE:"baz"`
+		Foo      string `default:"bar" onGCE:"baz"`
+		MySecret string `default:"42" secret:"true"`
 	}
 	if err := cloudrunner.Run(
 		func(ctx context.Context) error {

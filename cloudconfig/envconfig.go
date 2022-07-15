@@ -42,10 +42,11 @@ type Setter interface {
 
 // fieldSpec maintains information about the configuration variable.
 type fieldSpec struct {
-	Name  string
-	Key   string
-	Value reflect.Value
-	Tags  reflect.StructTag
+	Name   string
+	Key    string
+	Secret bool
+	Value  reflect.Value
+	Tags   reflect.StructTag
 }
 
 func collectFieldSpecs(prefix string, spec interface{}) ([]fieldSpec, error) {
@@ -78,10 +79,12 @@ func collectFieldSpecs(prefix string, spec interface{}) ([]fieldSpec, error) {
 			f = f.Elem()
 		}
 		// Capture information about the config variable
+		_, secret := ftype.Tag.Lookup("secret")
 		info := fieldSpec{
-			Name:  ftype.Name,
-			Value: f,
-			Tags:  ftype.Tag,
+			Name:   ftype.Name,
+			Value:  f,
+			Secret: secret,
+			Tags:   ftype.Tag,
 		}
 		// Default to the field name as the env var name (will be upcased)
 		info.Key = info.Name
