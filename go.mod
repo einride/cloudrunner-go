@@ -5,7 +5,6 @@ go 1.18
 require (
 	cloud.google.com/go/compute v1.7.0
 	cloud.google.com/go/profiler v0.3.0
-	cloud.google.com/go/secretmanager v1.5.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.3
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.3
 	github.com/google/go-cmp v0.5.8
@@ -33,7 +32,6 @@ require (
 
 require (
 	cloud.google.com/go v0.102.0 // indirect
-	cloud.google.com/go/iam v0.3.0 // indirect
 	cloud.google.com/go/monitoring v1.4.0 // indirect
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.3 // indirect

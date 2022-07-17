@@ -26,3 +26,10 @@ func WithYAMLServiceSpecificationFile(filename string) Option {
 		config.yamlServiceSpecificationFilename = filename
 	}
 }
+
+// WithOptionalSecrets overrides all secrets to be optional.
+func WithOptionalSecrets() Option {
+	return func(config *Config) {
+		config.optionalSecrets = true
+	}
+}
