@@ -63,6 +63,9 @@ func Run(fn func(context.Context) error, options ...Option) error {
 			run.configOptions, cloudconfig.WithYAMLServiceSpecificationFile(*yamlServiceSpecificationFile),
 		)
 	}
+	if *validate {
+		run.configOptions = append(run.configOptions, cloudconfig.WithOptionalSecrets())
+	}
 	config, err := cloudconfig.New("cloudrunner", &run.config, run.configOptions...)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)

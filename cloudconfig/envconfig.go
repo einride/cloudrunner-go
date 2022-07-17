@@ -115,7 +115,7 @@ func collectFieldSpecs(prefix string, spec interface{}) ([]fieldSpec, error) {
 	return infos, nil
 }
 
-func process(fieldSpecs []fieldSpec) error {
+func (c *Config) process(fieldSpecs []fieldSpec) error {
 	for _, info := range fieldSpecs {
 		value, ok := os.LookupEnv(info.Key)
 		def := info.Tags.Get("default")
@@ -129,7 +129,7 @@ func process(fieldSpecs []fieldSpec) error {
 			}
 		}
 		if !ok && def == "" {
-			if isTrue(info.Tags.Get("required")) {
+			if isTrue(info.Tags.Get("required")) && !(isTrue(info.Tags.Get("secret")) && c.optionalSecrets) {
 				key := info.Key
 				return fmt.Errorf("required key %s missing value", key)
 			}

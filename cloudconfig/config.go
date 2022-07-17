@@ -36,6 +36,7 @@ type Config struct {
 	configSpecs                      []*configSpec
 	envPrefix                        string
 	yamlServiceSpecificationFilename string
+	optionalSecrets                  bool
 }
 
 type configSpec struct {
@@ -52,7 +53,7 @@ func (c *Config) Load() error {
 		}
 	}
 	for _, cs := range c.configSpecs {
-		if err := process(cs.fieldSpecs); err != nil {
+		if err := c.process(cs.fieldSpecs); err != nil {
 			return err
 		}
 	}
