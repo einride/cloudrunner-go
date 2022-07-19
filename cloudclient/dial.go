@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/oauth"
+	"google.golang.org/grpc/keepalive"
 )
 
 // DialService dials another Cloud Run gRPC service with the default service account's RPC credentials.
@@ -30,6 +32,13 @@ func DialService(ctx context.Context, target string, opts ...grpc.DialOption) (*
 			&oauth.TokenSource{TokenSource: idTokenSource},
 		),
 		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(systemCertPool, "")),
+		// Enable connection keepalive to mitigate "connection reset by peer".
+		// https://cloud.google.com/run/docs/troubleshooting
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                30 * time.Second,
+			Timeout:             10 * time.Second,
+			PermitWithoutStream: true,
+		}),
 	}
 	conn, err := grpc.DialContext(ctx, withDefaultPort(target, 443), append(defaultOpts, opts...)...)
 	if err != nil {
