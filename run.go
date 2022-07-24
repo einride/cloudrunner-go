@@ -84,6 +84,9 @@ func Run(fn func(context.Context) error, options ...Option) error {
 		return nil
 	}
 	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID
+	if run.traceMiddleware.TraceHook == nil {
+		run.traceMiddleware.TraceHook = cloudtrace.IDHook
+	}
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
 	run.metricMiddleware, err = cloudmonitoring.NewMetricMiddleware()
