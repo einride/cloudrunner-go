@@ -19,6 +19,7 @@ import (
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"go.einride.tech/cloudrunner/cloudzap"
+	"go.einride.tech/protobuf-sensitive/protosensitive"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
@@ -89,6 +90,9 @@ func Run(fn func(context.Context) error, options ...Option) error {
 	}
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
+	if run.requestLoggerMiddleware.MessageTransformer == nil {
+		run.requestLoggerMiddleware.MessageTransformer = protosensitive.Redact
+	}
 	run.metricMiddleware, err = cloudmonitoring.NewMetricMiddleware()
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
