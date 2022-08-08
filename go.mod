@@ -11,7 +11,7 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	go.einride.tech/protobuf-sensitive v0.1.1
 	go.opentelemetry.io/contrib/detectors/gcp v1.9.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.32.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.34.0
 	go.opentelemetry.io/contrib/instrumentation/host v0.31.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.32.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.31.0
@@ -24,7 +24,7 @@ require (
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	google.golang.org/api v0.88.0
 	google.golang.org/genproto v0.0.0-20220624142145-8cd45d7dbd1f
-	google.golang.org/grpc v1.47.0
+	google.golang.org/grpc v1.48.0
 	google.golang.org/grpc/examples v0.0.0-20220131204945-980790869b00
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/yaml.v3 v3.0.1
