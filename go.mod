@@ -6,14 +6,14 @@ require (
 	cloud.google.com/go/compute v1.7.0
 	cloud.google.com/go/profiler v0.3.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.3
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.3
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.6
 	github.com/google/go-cmp v0.5.8
 	github.com/soheilhy/cmux v0.1.5
 	go.einride.tech/protobuf-sensitive v0.1.1
 	go.opentelemetry.io/contrib/detectors/gcp v1.9.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.34.0
 	go.opentelemetry.io/contrib/instrumentation/host v0.34.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.32.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.34.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.34.0
 	go.opentelemetry.io/otel v1.9.0
 	go.opentelemetry.io/otel/metric v0.31.0
@@ -36,9 +36,9 @@ require (
 	cloud.google.com/go/monitoring v1.4.0 // indirect
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.32.3 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.3 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.6 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
-	github.com/felixge/httpsnoop v1.0.2 // indirect
+	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
