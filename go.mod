@@ -5,7 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/compute v1.7.0
 	cloud.google.com/go/profiler v0.3.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.3
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.7
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.3
 	github.com/google/go-cmp v0.5.8
 	github.com/soheilhy/cmux v0.1.5
@@ -23,8 +23,8 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	google.golang.org/api v0.92.0
-	google.golang.org/genproto v0.0.0-20220624142145-8cd45d7dbd1f
-	google.golang.org/grpc v1.48.0
+	google.golang.org/genproto v0.0.0-20220829175752-36a9c930ecbf
+	google.golang.org/grpc v1.49.0
 	google.golang.org/grpc/examples v0.0.0-20220131204945-980790869b00
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v3 v3.0.1
