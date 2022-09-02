@@ -160,7 +160,7 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		}
 		httpRequest := cloudzap.HTTPRequestObject{
 			RequestMethod: r.Method,
-			Status:        responseWriter.statusCode,
+			Status:        responseWriter.Status(),
 			ResponseSize:  responseWriter.size + measureHeaderSize(w.Header()),
 			UserAgent:     r.UserAgent(),
 			RemoteIP:      r.RemoteAddr,
