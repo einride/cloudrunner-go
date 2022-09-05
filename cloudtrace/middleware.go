@@ -35,6 +35,7 @@ func (i *Middleware) GRPCServerUnaryInterceptor(
 	}
 	ctx = i.withOutgoingRequestTracing(ctx, values[0])
 	ctx = i.withLogTracing(ctx, values[0])
+	ctx = i.withInternalContext(ctx, values[0])
 	return handler(ctx, req)
 }
 
@@ -49,12 +50,21 @@ func (i *Middleware) HTTPServer(next http.Handler) http.Handler {
 		w.Header().Set(ContextHeader, header)
 		ctx := i.withOutgoingRequestTracing(r.Context(), header)
 		ctx = i.withLogTracing(ctx, header)
+		ctx = i.withInternalContext(ctx, header)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func (i *Middleware) withOutgoingRequestTracing(ctx context.Context, header string) context.Context {
 	return metadata.AppendToOutgoingContext(ctx, ContextHeader, header)
+}
+
+func (i *Middleware) withInternalContext(ctx context.Context, header string) context.Context {
+	var result Context
+	if err := result.UnmarshalString(header); err != nil {
+		return ctx
+	}
+	return SetContext(ctx, result)
 }
 
 func (i *Middleware) withLogTracing(ctx context.Context, header string) context.Context {
