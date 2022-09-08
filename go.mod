@@ -19,10 +19,10 @@ require (
 	go.opentelemetry.io/otel/metric v0.31.0
 	go.opentelemetry.io/otel/sdk v1.9.0
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
-	go.uber.org/zap v1.21.0
-	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2
+	go.uber.org/zap v1.23.0
+	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	google.golang.org/api v0.92.0
+	google.golang.org/api v0.95.0
 	google.golang.org/genproto v0.0.0-20220624142145-8cd45d7dbd1f
 	google.golang.org/grpc v1.48.0
 	google.golang.org/grpc/examples v0.0.0-20220131204945-980790869b00
