@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 )
 
-// nolint: gochecknoglobals
+//nolint: gochecknoglobals
 var serviceVersion string
 
 // ServiceVersionFromLinkerFlags returns the exact value of the variable:
