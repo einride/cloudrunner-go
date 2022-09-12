@@ -31,6 +31,7 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Data        []byte            `json:"data"`
 			MessageID   string            `json:"messageId"`
 			PublishTime time.Time         `json:"publishTime"`
+			OrderingKey string            `json:"orderingKey"`
 		} `json:"message"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -45,6 +46,7 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Attributes:  payload.Message.Attributes,
 		MessageId:   payload.Message.MessageID,
 		PublishTime: timestamppb.New(payload.Message.PublishTime),
+		OrderingKey: payload.Message.OrderingKey,
 	}
 	if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 		fields.Add(cloudzap.ProtoMessage("pubsubMessage", &pubsubMessage))
