@@ -89,8 +89,10 @@ func (c *Config) AsServiceConfigJSON() string {
 			)
 		}
 	}
-	_ = json.NewEncoder(&s).Encode(serviceConfigJSON{
+	if err := json.NewEncoder(&s).Encode(serviceConfigJSON{
 		MethodConfig: []methodConfigJSON{methodConfig},
-	})
+	}); err != nil {
+		panic(err)
+	}
 	return strings.TrimSpace(s.String())
 }
