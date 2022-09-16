@@ -24,6 +24,10 @@ func HTTPHandler(fn func(context.Context, *pubsub.PubsubMessage) error) http.Han
 type httpHandlerFn func(ctx context.Context, message *pubsub.PubsubMessage) error
 
 func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
 	var payload struct {
 		Subscription string `json:"subscription"`
 		Message      struct {
