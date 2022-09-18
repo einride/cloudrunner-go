@@ -5,7 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/compute v1.10.0
 	cloud.google.com/go/profiler v0.3.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.3
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.8
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8
 	github.com/google/go-cmp v0.5.9
 	github.com/soheilhy/cmux v0.1.5

@@ -70,8 +70,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.32.3 h1:fiyErF/p5fz79DvMCca9ayvYiWYsFP1oJbskt9fjo8I=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.32.3/go.mod h1:s7Gpwj0tk7XnVCm4BQEmx/mbS36SuTCY/vMB2SNxe8o=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.3 h1:X0Pef/Vg22naPM4hjUyF+gvW5ZpTlPmZMcMA2cCbG08=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.3/go.mod h1:ecXkRy8lmvy60jtd1I2GZ9BnUx4g0J36PW3gMh0738I=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.8 h1:wBikEeDL3f1Wael8kXuBkYQ94y4p2XpfBzdyLhtTTQ8=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.8/go.mod h1:jMTj3X9wmrmQPQijv2DO0/4eNYbgB0pZFpuYPSh30zc=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8 h1:gJotWbuzSbr350EljD1zTNy3l4NiigjDVeVBWf7ERgk=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8/go.mod h1:Cy0FEJrgXiz3UbLX/ZRlHPQxq605mGwz14ac+peTwQo=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.32.8 h1:ehU1r1DPZfv3Qfi0r7C24UAi0sozSwiSHtqwD1sdL8k=
@@ -213,7 +213,6 @@ github.com/googleapis/gax-go/v2 v2.4.0 h1:dS9eYAjhrE2RjmzYw2XAPvcXfmcQLtFEQWn0CR
 github.com/googleapis/gax-go/v2 v2.4.0/go.mod h1:XOTVJ59hdnfJLIP/dh8n5CGryZR2LxK9wbMD5+iXC6c=
 github.com/googleapis/go-type-adapters v1.0.0 h1:9XdMn+d/G57qq1s8dNc5IesGCXHf6V2HZ2JwRxfA2tA=
 github.com/googleapis/go-type-adapters v1.0.0/go.mod h1:zHW75FOG2aur7gAO2B+MLby+cLsWGBF62rFAi7WjWO4=
-github.com/googleinterns/cloud-operations-api-mock v0.0.0-20200709193332-a1e58c29bdd3 h1:eHv/jVY/JNop1xg2J9cBb4EzyMpWZoNCP1BslSAIkOI=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
