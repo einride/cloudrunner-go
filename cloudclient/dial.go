@@ -23,63 +23,16 @@ import (
 
 // DialService dials another Cloud Run gRPC service with the default service account's RPC credentials.
 func DialService(ctx context.Context, target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-	audience := "https://" + trimPort(target)
-	idTokenSource, err := idtoken.NewTokenSource(ctx, audience, option.WithAudiences(audience))
+	tokenSource, err := newTokenSource(ctx, target)
 	if err != nil {
-		logger, ok := cloudzap.GetLogger(ctx)
-		if !ok {
-			logger = zap.NewNop()
-		}
-		// Google's idtoken package does not support credential type other than `service_account`.
-		// This blocks local development with using `impersonated_service_account` type credentials. If that happens,
-		// we work it around by using our Application Default Credentials (which is impersonated already) to fetch
-		// an id_token on the fly.
-		// This however still blocks `authorized_user` type of credentials passing through.
-		// Related issue page: https://github.com/googleapis/google-api-go-client/issues/873
-		defaultCred, defaultCredErr := google.FindDefaultCredentials(ctx)
-		if defaultCredErr == nil {
-			var credTypeHolder struct {
-				Type string `json:"type"`
-			}
-			if jsonErr := json.Unmarshal(defaultCred.JSON, &credTypeHolder); jsonErr != nil {
-				// Ignoring jsonErr if it happens.
-				return nil, err
-			}
-			if credTypeHolder.Type != "impersonated_service_account" {
-				// We only patching the case where type of "impersonated_service_account" is used
-				// if not return original error.
-				return nil, err
-			}
-		} else {
-			// Ignoring defaultCredErr if it happens.
-			return nil, err
-		}
-
-		// Here we know the err is due to "impersonated_service_account" type of credential is used
-		// Just verify again with err's error message to be sure
-		if !strings.Contains(err.Error(), "impersonated_service_account") {
-			return nil, err
-		}
-
-		logger.Warn(
-			"Using Application Default Credentials to fetch id_token again. This should never happen in prod env.",
-			zap.String("ignored_error", err.Error()),
-		)
-		gts, err := google.DefaultTokenSource(ctx)
-		if err != nil {
-			return nil, err
-		}
-		idTokenSource = oauth2.ReuseTokenSource(nil, &idTokenSourceWrapper{TokenSource: gts})
+		return nil, err
 	}
-
 	systemCertPool, err := x509.SystemCertPool()
 	if err != nil {
 		return nil, fmt.Errorf("dial %s: %w", target, err)
 	}
 	defaultOpts := []grpc.DialOption{
-		grpc.WithPerRPCCredentials(
-			&oauth.TokenSource{TokenSource: idTokenSource},
-		),
+		grpc.WithPerRPCCredentials(&oauth.TokenSource{TokenSource: tokenSource}),
 		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(systemCertPool, "")),
 		// Enable connection keepalive to mitigate "connection reset by peer".
 		// https://cloud.google.com/run/docs/troubleshooting
@@ -110,6 +63,48 @@ func withDefaultPort(target string, port int) string {
 		return target + ":" + strconv.Itoa(port)
 	}
 	return target
+}
+
+func newTokenSource(ctx context.Context, target string) (_ oauth2.TokenSource, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("new token source: %w", err)
+		}
+	}()
+	audience := "https://" + trimPort(target)
+	idTokenSource, errIDTokenSource := idtoken.NewTokenSource(ctx, audience, option.WithAudiences(audience))
+	if errIDTokenSource == nil {
+		return idTokenSource, nil
+	}
+	// Google's idtoken package does not support credential type other than `service_account`.
+	// This blocks local development with using `impersonated_service_account` type credentials. If that happens,
+	// we work it around by using our Application Default Credentials (which is impersonated already) to fetch
+	// an id_token on the fly.
+	// This however still blocks `authorized_user` type of credentials passing through.
+	// Related issue page: https://github.com/googleapis/google-api-go-client/issues/873
+	defaultCredentials, err := google.FindDefaultCredentials(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var defaultCredentialsJSON struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(defaultCredentials.JSON, &defaultCredentialsJSON); err != nil {
+		return nil, err
+	}
+	if defaultCredentialsJSON.Type != "impersonated_service_account" {
+		// We only patch the case where type of "impersonated_service_account" is used
+		// if not return original error.
+		return nil, err
+	}
+	defaultTokenSource, err := google.DefaultTokenSource(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if logger, ok := cloudzap.GetLogger(ctx); ok {
+		logger.Warn("using default token source - this should not happen in production", zap.Error(errIDTokenSource))
+	}
+	return oauth2.ReuseTokenSource(nil, &idTokenSourceWrapper{TokenSource: defaultTokenSource}), nil
 }
 
 // idTokenSourceWrapper is an oauth2.TokenSource wrapper used for getting id_token for local development using
