@@ -3,7 +3,6 @@ package cloudclient
 import (
 	"context"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -27,8 +26,6 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	return handleHTTPResponseToGRPCRequest(invoker(ctx, fullMethod, request, response, cc, opts...))
 }
 
-var httpStatusCodeRegexp = regexp.MustCompile(`HTTP status code (\d{3})`)
-
 func handleHTTPResponseToGRPCRequest(errInput error) error {
 	if errInput == nil {
 		return nil
@@ -38,24 +35,17 @@ func handleHTTPResponseToGRPCRequest(errInput error) error {
 	// to matching strings.
 	//
 	// These strings are coming from:
-	// "google.golang.org/grpc/internal/transport/http_util.go".
+	// * "google.golang.org/grpc/internal/transport/http_util.go".
+	// * "google.golang.org/grpc/internal/transport/http2_client.go".
 	errStatus := status.Convert(errInput)
 	if errStatus.Code() != codes.Unknown {
 		return errInput
 	}
 	errorMessage := errStatus.Message()
-	if !strings.Contains(errorMessage, `transport: received the unexpected content-type "text/html`) {
+	if !isContentTypeHTML(errorMessage) {
 		return errInput
 	}
-	matches := httpStatusCodeRegexp.FindStringSubmatch(errorMessage)
-	if len(matches) != 2 {
-		return errInput
-	}
-	httpStatusCode, err := strconv.Atoi(matches[1])
-	if err != nil {
-		return errInput
-	}
-	if httpStatusCode == http.StatusForbidden {
+	if isStatusCode(errorMessage, http.StatusForbidden) {
 		// This happens when the gRPC request got rejected due to missing IAM permissions.
 		// The request gets rejected at the HTTP level and a gRPC error will not be available.
 		return status.Errorf(
@@ -67,6 +57,14 @@ func handleHTTPResponseToGRPCRequest(errInput error) error {
 			errorMessage,
 		)
 	}
-	// Other HTTP responses to gRPC requests are assumed to be transient and should be retried.
+	// Other HTTP responses to gRPC requests are assumed to be transient.
 	return status.Errorf(codes.Unavailable, errorMessage)
+}
+
+func isContentTypeHTML(msg string) bool {
+	return strings.Contains(msg, "transport") && strings.Contains(msg, `content-type "text/html`)
+}
+
+func isStatusCode(msg string, statusCode int) bool {
+	return strings.Contains(msg, strconv.Itoa(statusCode))
 }
