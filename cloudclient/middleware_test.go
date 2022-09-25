@@ -51,6 +51,19 @@ func TestHandleHTTPResponseToGRPCRequest(t *testing.T) {
 					"transport: received the unexpected content-type \"text/html; charset=UTF-8\"",
 			),
 		},
+		{
+			name: "HTTP 500 Internal Server Error",
+			err: status.Error(
+				codes.Unknown,
+				"unexpected HTTP status code received from server: 500 (Internal Server Error); "+
+					"transport: received unexpected content-type \"text/html; charset=UTF-8\"",
+			),
+			expected: status.Error(
+				codes.Unavailable,
+				"unexpected HTTP status code received from server: 500 (Internal Server Error); "+
+					"transport: received unexpected content-type \"text/html; charset=UTF-8\"",
+			),
+		},
 
 		{
 			name: "HTTP 403 Forbidden",
@@ -66,16 +79,20 @@ func TestHandleHTTPResponseToGRPCRequest(t *testing.T) {
 					"Forbidden: HTTP status code 403; transport: received the unexpected content-type \"text/html\"",
 			),
 		},
-
 		{
-			name: "missing HTTP status",
+			name: "HTTP 403 Forbidden",
 			err: status.Error(
 				codes.Unknown,
-				"transport: received the unexpected content-type \"text/html\"",
+				"unexpected HTTP status code received from server: 403 (Forbidden); "+
+					"transport: received unexpected content-type \"text/html; charset=UTF-8\"",
 			),
 			expected: status.Error(
-				codes.Unknown,
-				"transport: received the unexpected content-type \"text/html\"",
+				codes.PermissionDenied,
+				"the gRPC request failed with a HTTP 403 error (on Google Cloud this happens when the client "+
+					"service account does not have IAM permissions to call the remote service - on Cloud Run, "+
+					"the client service account must have roles/run.invoker on the remote service): "+
+					"unexpected HTTP status code received from server: 403 (Forbidden); "+
+					"transport: received unexpected content-type \"text/html; charset=UTF-8\"",
 			),
 		},
 	} {
