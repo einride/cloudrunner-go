@@ -12,7 +12,7 @@ require (
 	go.einride.tech/protobuf-sensitive v0.1.1
 	go.opentelemetry.io/contrib/detectors/gcp v1.10.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.0
-	go.opentelemetry.io/contrib/instrumentation/host v0.36.0
+	go.opentelemetry.io/contrib/instrumentation/host v0.36.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.1
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.36.0
 	go.opentelemetry.io/otel v1.10.0
