@@ -36,8 +36,10 @@ func DialService(ctx context.Context, target string, opts ...grpc.DialOption) (*
 		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(systemCertPool, "")),
 		// Enable connection keepalive to mitigate "connection reset by peer".
 		// https://cloud.google.com/run/docs/troubleshooting
+		// For details on keepalive settings, see:
+		// https://github.com/grpc/grpc-go/blob/master/Documentation/keepalive.md
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time:                30 * time.Second,
+			Time:                1 * time.Minute,
 			Timeout:             10 * time.Second,
 			PermitWithoutStream: true,
 		}),

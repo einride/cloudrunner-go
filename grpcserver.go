@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"time"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 // NewGRPCServer creates a new gRPC server preconfigured with middleware for request logging, tracing, etc.
@@ -25,6 +27,14 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 			run.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
 			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
+		// For details on keepalive settings, see:
+		// https://github.com/grpc/grpc-go/blob/master/Documentation/keepalive.md
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			// If a client pings more than once every 30 seconds, terminate the connection
+			MinTime: 30 * time.Second,
+			// Allow pings even when there are no active streams
+			PermitWithoutStream: true,
+		}),
 	}
 	serverOptions = append(serverOptions, run.grpcServerOptions...)
 	serverOptions = append(serverOptions, opts...)
