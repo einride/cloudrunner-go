@@ -270,10 +270,10 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
-go.buf.build/protocolbuffers/go/einride/sensitive v1.2.5 h1:lVOB/ExBOAne8qIrFs7kJy8Cy/U1TovAG/GhMihOte8=
-go.buf.build/protocolbuffers/go/einride/sensitive v1.2.5/go.mod h1:AvrDqKh4D1E8YFqY1dZBaZ44kGi/NYIq3hU0/UdOOPU=
-go.einride.tech/protobuf-sensitive v0.1.1 h1:X15i98IHELhTp681qu267waKLj17VaCkgB9st/UkA0U=
-go.einride.tech/protobuf-sensitive v0.1.1/go.mod h1:19b3P09B3HnmkTvh5a9pXrCOe/pYRa0GrTART26nn4U=
+go.buf.build/protocolbuffers/go/einride/sensitive v1.3.5 h1:9E3IGJeMXUsPx5w1Ch259CU/CyltEXrYxdUo67GIRSE=
+go.buf.build/protocolbuffers/go/einride/sensitive v1.3.5/go.mod h1:dyoJbyZzS0agRQbxY4lo05MSt6jWTtYHqYdHRhKsFmk=
+go.einride.tech/protobuf-sensitive v0.2.0 h1:8cBy8uRV6vctKdczQfgK43aW+CjjVWoZBxhONoH9yW8=
+go.einride.tech/protobuf-sensitive v0.2.0/go.mod h1:iAI0B1/uKV25PChEkJz8udJ6F02o2gUeqvTOMFxR+ng=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
