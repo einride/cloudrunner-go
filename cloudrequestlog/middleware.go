@@ -206,29 +206,7 @@ func (l *Middleware) codeToLevel(code codes.Code) zapcore.Level {
 	if level, ok := l.Config.CodeToLevel[code]; ok {
 		return level
 	}
-	switch code {
-	case codes.OK:
-		return zap.DebugLevel
-	case
-		codes.NotFound,
-		codes.InvalidArgument,
-		codes.AlreadyExists,
-		codes.FailedPrecondition,
-		codes.Unauthenticated,
-		codes.PermissionDenied,
-		codes.DeadlineExceeded,
-		codes.OutOfRange,
-		codes.Canceled,
-		codes.Aborted,
-		codes.Unavailable,
-		codes.ResourceExhausted:
-		return zap.WarnLevel
-	case
-		codes.Unknown, codes.Internal, codes.DataLoss:
-		return zap.ErrorLevel
-	default:
-		return zap.ErrorLevel
-	}
+	return CodeToLevel(code)
 }
 
 func (l *Middleware) statusToLevel(status int) zapcore.Level {
