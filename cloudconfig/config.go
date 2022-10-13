@@ -7,7 +7,8 @@ import (
 )
 
 // envPrefix can be set during build-time to append a prefix to all environment variables loaded into the RunConfig.
-//nolint: gochecknoglobals
+//
+//nolint:gochecknoglobals
 var envPrefix string
 
 // New creates a new Config with the provided name, specification and options.

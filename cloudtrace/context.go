@@ -9,7 +9,7 @@ import (
 //
 // The format of the X-Cloud-Trace-Context header is:
 //
-//  TRACE_ID/SPAN_ID;o=TRACE_TRUE"
+//	TRACE_ID/SPAN_ID;o=TRACE_TRUE"
 //
 // See: https://cloud.google.com/trace/docs/setup
 type Context struct {
