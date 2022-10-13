@@ -8,7 +8,8 @@ import (
 )
 
 // shims for unit testing.
-//nolint: gochecknoglobals
+//
+//nolint:gochecknoglobals
 var (
 	profilerStart = profiler.Start
 )

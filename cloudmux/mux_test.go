@@ -127,7 +127,7 @@ func newTestFixture(t *testing.T) *testFixture {
 	grpcH := &grpcServer{}
 	helloworld.RegisterGreeterServer(grpcS, grpcH)
 	httpH := &httpServer{}
-	//nolint: gosec
+	//nolint:gosec
 	httpS := &http.Server{Handler: httpH}
 
 	return &testFixture{

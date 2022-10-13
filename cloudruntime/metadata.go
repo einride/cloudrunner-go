@@ -10,7 +10,8 @@ import (
 )
 
 // shims for unit testing.
-//nolint: gochecknoglobals
+//
+//nolint:gochecknoglobals
 var (
 	metadataOnGCE                = metadata.OnGCE
 	metadataProjectID            = metadata.ProjectID

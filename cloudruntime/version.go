@@ -5,18 +5,18 @@ import (
 	"runtime/debug"
 )
 
-//nolint: gochecknoglobals
+//nolint:gochecknoglobals
 var serviceVersion string
 
 // ServiceVersionFromLinkerFlags returns the exact value of the variable:
 //
-//  go.einride.tech/cloudrunner/cloudruntime.serviceVersion
+//	go.einride.tech/cloudrunner/cloudruntime.serviceVersion
 //
 // This variable can be set during build-time to provide a default value for the service version.
 //
 // Example:
 //
-//  go build -ldflags="-X 'go.einride.tech/cloudrunner/cloudruntime.serviceVersion=v1.0.0'"
+//	go build -ldflags="-X 'go.einride.tech/cloudrunner/cloudruntime.serviceVersion=v1.0.0'"
 func ServiceVersionFromLinkerFlags() string {
 	return serviceVersion
 }
