@@ -12,11 +12,11 @@ require (
 	go.einride.tech/protobuf-sensitive v0.3.0
 	go.opentelemetry.io/contrib/detectors/gcp v1.11.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.2
-	go.opentelemetry.io/contrib/instrumentation/host v0.36.1
+	go.opentelemetry.io/contrib/instrumentation/host v0.36.3
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.1
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.36.1
 	go.opentelemetry.io/otel v1.11.0
-	go.opentelemetry.io/otel/metric v0.32.1
+	go.opentelemetry.io/otel/metric v0.32.3
 	go.opentelemetry.io/otel/sdk v1.11.0
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.uber.org/zap v1.23.0
@@ -50,7 +50,7 @@ require (
 	github.com/lufia/plan9stats v0.0.0-20220913051719-115f729f3c8c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
-	github.com/shirou/gopsutil/v3 v3.22.8 // indirect
+	github.com/shirou/gopsutil/v3 v3.22.9 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
