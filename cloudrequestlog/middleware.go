@@ -215,7 +215,7 @@ func (l *Middleware) statusToLevel(status int) zapcore.Level {
 	}
 	switch {
 	case status < http.StatusBadRequest:
-		return zap.DebugLevel
+		return zap.InfoLevel
 	case http.StatusBadRequest <= status && status < http.StatusInternalServerError:
 		return zap.WarnLevel
 	case status == http.StatusGatewayTimeout:

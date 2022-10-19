@@ -10,7 +10,7 @@ import (
 func CodeToLevel(code codes.Code) zapcore.Level {
 	switch code {
 	case codes.OK:
-		return zap.DebugLevel
+		return zap.InfoLevel
 	case
 		codes.NotFound,
 		codes.InvalidArgument,
