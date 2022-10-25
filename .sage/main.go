@@ -30,7 +30,7 @@ func main() {
 func All(ctx context.Context) error {
 	sg.Deps(ctx, ConvcoCheck, GoLint, GoReview, GoTest, FormatMarkdown, FormatYAML, ReadmeSnippet)
 	sg.Deps(ctx, GoModTidy)
-	sg.Deps(ctx, GitVerifyNoDiff, GoLicenses)
+	sg.Deps(ctx, GitVerifyNoDiff)
 	return nil
 }
 
@@ -59,6 +59,7 @@ func GoLint(ctx context.Context) error {
 	return sggolangcilint.Run(ctx)
 }
 
+// TODO: Add this to All target once it is working again
 func GoLicenses(ctx context.Context) error {
 	sg.Logger(ctx).Println("checking Go licenses...")
 	return sggolicenses.Check(ctx)
