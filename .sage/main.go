@@ -59,7 +59,7 @@ func GoLint(ctx context.Context) error {
 	return sggolangcilint.Run(ctx)
 }
 
-// TODO: Add this to All target once it is working again
+// TODO: Add this to All target once it is working again.
 func GoLicenses(ctx context.Context) error {
 	sg.Logger(ctx).Println("checking Go licenses...")
 	return sggolicenses.Check(ctx)
