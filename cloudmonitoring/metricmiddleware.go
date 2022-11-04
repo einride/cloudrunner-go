@@ -21,8 +21,8 @@ import (
 // See:
 // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics
 const (
-	serverRequestDurationMetricName = "rpc.server.duration"
-	clientRequestDurationMetricName = "rpc.client.duration"
+	serverRequestDurationMetricName = "rpc.cloudrunner.server.duration"
+	clientRequestDurationMetricName = "rpc.cloudrunner.client.duration"
 
 	// there is no rpc_count equivalent int OTEL semantic conventions yet.
 	serverRequestCountMetricName = "rpc.server.rpc_count"
