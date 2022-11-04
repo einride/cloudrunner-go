@@ -10,7 +10,9 @@ import (
 	"go.einride.tech/cloudrunner/cloudzap"
 	hostinstrumentation "go.opentelemetry.io/contrib/instrumentation/host"
 	runtimeinstrumentation "go.opentelemetry.io/contrib/instrumentation/runtime"
-	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+	"go.opentelemetry.io/otel"
+	globalmetric "go.opentelemetry.io/otel/metric/global"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -38,23 +40,24 @@ func StartExporter(
 	if !ok {
 		return nil, fmt.Errorf("start metric exporter: unknown project ID")
 	}
-	exporter, err := metricexporter.InstallNewPipeline(
-		[]metricexporter.Option{
-			metricexporter.WithProjectID(projectID),
-			metricexporter.WithOnError(func(err error) {
-				if logger, ok := cloudzap.GetLogger(ctx); ok {
-					logger.Warn("metric exporter error", zap.Error(err))
-				}
-			}),
-			metricexporter.WithInterval(exporterConfig.Interval),
-		},
-		controller.WithResource(resource),
+	exporter, err := metricexporter.New(
+		metricexporter.WithProjectID(projectID),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("start metric exporter: %w", err)
+		return nil, fmt.Errorf("new metric exporter: %w", err)
 	}
+	provider := sdkmetric.NewMeterProvider(
+		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter, sdkmetric.WithInterval(exporterConfig.Interval))),
+		sdkmetric.WithResource(resource),
+	)
+	globalmetric.SetMeterProvider(provider)
+	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
+		if logger, ok := cloudzap.GetLogger(ctx); ok {
+			logger.Warn("metric exporter error", zap.Error(err))
+		}
+	}))
 	shutdown := func() {
-		if err := exporter.Stop(context.Background()); err != nil {
+		if err := exporter.Shutdown(context.Background()); err != nil {
 			if logger, ok := cloudzap.GetLogger(ctx); ok {
 				const msg = "error stopping metric exporter, final metric export might have failed"
 				switch status.Code(err) {
