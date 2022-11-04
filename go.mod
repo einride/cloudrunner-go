@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/soheilhy/cmux v0.1.5
 	go.einride.tech/protobuf-sensitive v0.3.0
-	go.opentelemetry.io/contrib/detectors/gcp v1.11.0
+	go.opentelemetry.io/contrib/detectors/gcp v1.11.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/host v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.4
@@ -35,7 +35,7 @@ require (
 	cloud.google.com/go v0.104.0 // indirect
 	cloud.google.com/go/monitoring v1.6.0 // indirect
 	cloud.google.com/go/trace v1.2.0 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.33.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.34.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.34.1 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
