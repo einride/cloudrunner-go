@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.18
 
 require (
-	cloud.google.com/go/compute v1.10.0
+	cloud.google.com/go/compute/metadata v0.2.1
 	cloud.google.com/go/profiler v0.3.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.32.8
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
@@ -20,10 +20,10 @@ require (
 	go.opentelemetry.io/otel/sdk v1.11.1
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.uber.org/zap v1.23.0
-	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.101.0
-	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55
+	google.golang.org/api v0.102.0
+	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
 	google.golang.org/grpc/examples v0.0.0-20220915225546-9c3e589d3ee6
 	google.golang.org/protobuf v1.28.1
@@ -33,6 +33,7 @@ require (
 
 require (
 	cloud.google.com/go v0.104.0 // indirect
+	cloud.google.com/go/compute v1.12.1 // indirect
 	cloud.google.com/go/monitoring v1.6.0 // indirect
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.33.0 // indirect
@@ -58,7 +59,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.11.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/net v0.0.0-20221004154528-8021a29435af // indirect
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
