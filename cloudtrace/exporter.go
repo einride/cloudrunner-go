@@ -10,7 +10,9 @@ import (
 	"go.einride.tech/cloudrunner/cloudotel"
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudzap"
+	octrace "go.opencensus.io/trace"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/bridge/opencensus"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -61,6 +63,9 @@ func StartExporter(
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	))
+	// collect and export traces instrumented by open census
+	tracer := tracerProvider.Tracer("bridge")
+	octrace.DefaultTracer = opencensus.NewTracer(tracer)
 
 	cleanup := func() {
 		if err := tracerProvider.ForceFlush(context.Background()); err != nil {
