@@ -64,7 +64,7 @@ func StartExporter(
 		propagation.Baggage{},
 	))
 	// collect and export traces instrumented by open census
-	tracer := tracerProvider.Tracer("bridge")
+	tracer := tracerProvider.Tracer("go.einride.tech/cloudrunner.cloudtrace")
 	octrace.DefaultTracer = opencensus.NewTracer(tracer)
 
 	cleanup := func() {
