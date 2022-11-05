@@ -6,10 +6,12 @@ import (
 	"time"
 
 	traceexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
+	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
 	"go.einride.tech/cloudrunner/cloudotel"
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
@@ -53,6 +55,13 @@ func StartExporter(
 		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(exporterConfig.SampleProbability))),
 	)
 	otel.SetTracerProvider(tracerProvider)
+	// configure open telemetry to read trace context from GCP `x-cloud-trace-context` header.
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		gcppropagator.CloudTraceFormatPropagator{},
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
+
 	cleanup := func() {
 		if err := tracerProvider.ForceFlush(context.Background()); err != nil {
 			logger.Error("error shutting down trace exporter", zap.Error(err))
