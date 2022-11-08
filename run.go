@@ -34,7 +34,7 @@ type runConfig struct {
 	// Profiler contains profiler config.
 	Profiler cloudprofiler.Config
 	// TraceExporter contains trace exporter config.
-	TraceExporter cloudtrace.ExporterConfig
+	TraceExporter cloudotel.TraceExporterConfig
 	// MetricExporter contains metric exporter config.
 	MetricExporter cloudotel.MetricExporterConfig
 	// Server contains server config.
@@ -112,7 +112,7 @@ func Run(fn func(context.Context) error, options ...Option) error {
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	stopTraceExporter, err := cloudtrace.StartExporter(ctx, run.config.TraceExporter, resource)
+	stopTraceExporter, err := cloudotel.StartTraceExporter(ctx, run.config.TraceExporter, resource)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
