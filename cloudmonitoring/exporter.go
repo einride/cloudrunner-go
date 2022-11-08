@@ -3,6 +3,7 @@ package cloudmonitoring
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	metricexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
@@ -52,6 +53,16 @@ func StartExporter(
 	)
 	globalmetric.SetMeterProvider(provider)
 	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
+		if isUnsupportedSamplerErr(err) {
+			// The OpenCensus bridge does not support all features from OpenCensus,
+			// for example custom samplers which is used in some libraries.
+			// The bridge presumably falls back to the configured sampler, so
+			// this error can be ignored.
+			//
+			// See
+			// https://pkg.go.dev/go.opentelemetry.io/otel/bridge/opencensus
+			return
+		}
 		if logger, ok := cloudzap.GetLogger(ctx); ok {
 			logger.Warn("metric exporter error", zap.Error(err))
 		}
@@ -85,4 +96,11 @@ func StartExporter(
 		}
 	}
 	return shutdown, nil
+}
+
+func isUnsupportedSamplerErr(err error) bool {
+	if err != nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "unsupported sampler")
 }
