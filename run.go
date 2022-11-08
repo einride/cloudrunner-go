@@ -122,6 +122,7 @@ func Run(fn func(context.Context) error, options ...Option) error {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	defer stopMetricExporter()
+	cloudotel.RegisterErrorHandler(ctx)
 	buildInfo, _ := debug.ReadBuildInfo()
 	logger.Info(
 		"up and running",

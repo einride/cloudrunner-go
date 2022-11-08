@@ -44,7 +44,6 @@ func StartTraceExporter(
 	}
 	exporter, err := traceexporter.New(
 		traceexporter.WithProjectID(projectID),
-		traceexporter.WithErrorHandler(NewErrorLogger(logger, zap.WarnLevel, "trace exporter error")),
 		traceexporter.WithTimeout(exporterConfig.Timeout),
 	)
 	if err != nil {
