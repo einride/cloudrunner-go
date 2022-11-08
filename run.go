@@ -36,7 +36,7 @@ type runConfig struct {
 	// TraceExporter contains trace exporter config.
 	TraceExporter cloudtrace.ExporterConfig
 	// MetricExporter contains metric exporter config.
-	MetricExporter cloudmonitoring.ExporterConfig
+	MetricExporter cloudotel.MetricExporterConfig
 	// Server contains server config.
 	Server cloudserver.Config
 	// Client contains client config.
@@ -117,7 +117,7 @@ func Run(fn func(context.Context) error, options ...Option) error {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	defer stopTraceExporter()
-	stopMetricExporter, err := cloudmonitoring.StartExporter(ctx, run.config.MetricExporter, resource)
+	stopMetricExporter, err := cloudotel.StartMetricExporter(ctx, run.config.MetricExporter, resource)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
