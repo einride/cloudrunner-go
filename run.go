@@ -47,7 +47,7 @@ type runConfig struct {
 
 // Run a service.
 // Configuration of the service is loaded from the environment.
-func Run(fn func(context.Context) error, options ...Option) error {
+func Run(fn func(context.Context) error, options ...Option) (err error) {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 	usage := flag.Bool("help", false, "show help then exit")
@@ -131,6 +131,23 @@ func Run(fn func(context.Context) error, options ...Option) error {
 		zap.Object("buildInfo", buildInfoMarshaler{buildInfo: buildInfo}),
 	)
 	defer logger.Info("goodbye")
+	defer func() {
+		if r := recover(); r != nil {
+			var msg zap.Field
+			if err2, ok := r.(error); ok {
+				msg = zap.Error(err2)
+				err = err2
+			} else {
+				msg = zap.Any("msg", r)
+				err = fmt.Errorf("recovered panic")
+			}
+			logger.Error(
+				"recovered panic",
+				msg,
+				zap.Stack("stack"),
+			)
+		}
+	}()
 	return fn(ctx)
 }
 
