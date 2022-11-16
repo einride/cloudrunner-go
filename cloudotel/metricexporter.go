@@ -83,7 +83,7 @@ func StartMetricExporter(
 }
 
 func isUnsupportedSamplerErr(err error) bool {
-	if err != nil {
+	if err == nil {
 		return false
 	}
 	return strings.Contains(err.Error(), "unsupported sampler")
