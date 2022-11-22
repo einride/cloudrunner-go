@@ -2,16 +2,27 @@ package cloudserver
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+
+	"go.einride.tech/cloudrunner/cloudrequestlog"
+	"go.uber.org/zap"
 )
 
 // HTTPServer provides HTTP server middleware.
 func (i *Middleware) HTTPServer(next http.Handler) http.Handler {
-	return i.httpTimeout(next)
-}
-
-func (i *Middleware) httpTimeout(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		defer func() {
+			if r := recover(); r != nil {
+				writer.WriteHeader(http.StatusInternalServerError)
+				if fields, ok := cloudrequestlog.GetAdditionalFields(request.Context()); ok {
+					fields.Add(
+						zap.Stack("stack"),
+						zap.Error(fmt.Errorf("recovered panic: %v", r)),
+					)
+				}
+			}
+		}()
 		if i.Config.Timeout <= 0 {
 			next.ServeHTTP(writer, request)
 			return
