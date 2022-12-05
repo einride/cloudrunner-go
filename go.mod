@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.18
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.1
+	cloud.google.com/go/compute/metadata v0.2.2
 	cloud.google.com/go/profiler v0.3.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.34.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
