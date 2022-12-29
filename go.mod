@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.1
 	cloud.google.com/go/profiler v0.3.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.34.2
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.0.0-20221104160235-e955c204f4f2
 	github.com/google/go-cmp v0.5.9
 	github.com/soheilhy/cmux v0.1.5
