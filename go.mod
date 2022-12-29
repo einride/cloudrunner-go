@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.18
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.1
+	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/profiler v0.3.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.34.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
@@ -26,7 +26,7 @@ require (
 	golang.org/x/oauth2 v0.1.0
 	golang.org/x/sync v0.1.0
 	google.golang.org/api v0.103.0
-	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c
+	google.golang.org/genproto v0.0.0-20221202195650-67e5cbc046fd
 	google.golang.org/grpc v1.51.0
 	google.golang.org/grpc/examples v0.0.0-20220915225546-9c3e589d3ee6
 	google.golang.org/protobuf v1.28.1
@@ -36,8 +36,9 @@ require (
 
 require (
 	cloud.google.com/go v0.105.0 // indirect
-	cloud.google.com/go/compute v1.12.1 // indirect
+	cloud.google.com/go/compute v1.14.0 // indirect
 	cloud.google.com/go/monitoring v1.8.0 // indirect
+	cloud.google.com/go/pubsub v1.27.1 // indirect
 	cloud.google.com/go/trace v1.4.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v0.34.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.34.2 // indirect
