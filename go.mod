@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	cloud.google.com/go/compute/metadata v0.2.1
-	cloud.google.com/go/profiler v0.3.0
+	cloud.google.com/go/profiler v0.3.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.34.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.0.0-20221104160235-e955c204f4f2
@@ -51,6 +51,7 @@ require (
 	github.com/google/pprof v0.0.0-20221103000818-d260c55eee4c // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20220913051719-115f729f3c8c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
