@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/genproto/googleapis/pubsub/v1"
+	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gotest.tools/v3/assert"
@@ -31,7 +31,7 @@ func TestNewHTTPHandler(t *testing.T) {
 		   "subscription": "projects/myproject/subscriptions/mysubscription"
 		}
 	`
-	expectedMessage := &pubsub.PubsubMessage{
+	expectedMessage := &pubsubpb.PubsubMessage{
 		Data:       []byte("Hello Cloud Pub/Sub! Here is my message!"),
 		Attributes: map[string]string{"key": "value"},
 		MessageId:  "2070443601311540",
@@ -40,10 +40,10 @@ func TestNewHTTPHandler(t *testing.T) {
 			Nanos:   749000000,
 		},
 	}
-	var actualMessage *pubsub.PubsubMessage
+	var actualMessage *pubsubpb.PubsubMessage
 	var subscription string
 	var subscriptionOk bool
-	fn := func(ctx context.Context, message *pubsub.PubsubMessage) error {
+	fn := func(ctx context.Context, message *pubsubpb.PubsubMessage) error {
 		actualMessage = message
 		subscription, subscriptionOk = GetSubscription(ctx)
 		return nil
