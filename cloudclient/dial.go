@@ -3,16 +3,12 @@ package cloudclient
 import (
 	"context"
 	"crypto/x509"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
@@ -74,60 +70,6 @@ func newTokenSource(ctx context.Context, target string) (_ oauth2.TokenSource, e
 		}
 	}()
 	audience := "https://" + trimPort(target)
-	idTokenSource, errIDTokenSource := idtoken.NewTokenSource(ctx, audience, option.WithAudiences(audience))
-	if errIDTokenSource == nil {
-		return idTokenSource, nil
-	}
-	// Google's idtoken package does not support credential type other than `service_account`.
-	// This blocks local development with using `impersonated_service_account` type credentials. If that happens,
-	// we work it around by using our Application Default Credentials (which is impersonated already) to fetch
-	// an id_token on the fly.
-	// This however still blocks `authorized_user` type of credentials passing through.
-	// Related issue page: https://github.com/googleapis/google-api-go-client/issues/873
-	defaultCredentials, err := google.FindDefaultCredentials(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var defaultCredentialsJSON struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(defaultCredentials.JSON, &defaultCredentialsJSON); err != nil {
-		return nil, err
-	}
-	if defaultCredentialsJSON.Type != "impersonated_service_account" {
-		// We only patch the case where type of "impersonated_service_account" is used
-		// if not return original error.
-		return nil, err
-	}
-	defaultTokenSource, err := google.DefaultTokenSource(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if logger, ok := cloudzap.GetLogger(ctx); ok {
-		logger.Warn("using default token source - this should not happen in production", zap.Error(errIDTokenSource))
-	}
-	return oauth2.ReuseTokenSource(nil, &idTokenSourceWrapper{TokenSource: defaultTokenSource}), nil
-}
-
-// idTokenSourceWrapper is an oauth2.TokenSource wrapper used for getting id_token for local development using
-// `authorized_user` type credentials
-// It takes the id_token from TokenSource and passes that on as a bearer token.
-type idTokenSourceWrapper struct {
-	TokenSource oauth2.TokenSource
-}
-
-func (s *idTokenSourceWrapper) Token() (*oauth2.Token, error) {
-	token, err := s.TokenSource.Token()
-	if err != nil {
-		return nil, err
-	}
-	idToken, ok := token.Extra("id_token").(string)
-	if !ok {
-		return nil, fmt.Errorf("token did not contain an id_token")
-	}
-	return &oauth2.Token{
-		AccessToken: idToken,
-		TokenType:   "Bearer",
-		Expiry:      token.Expiry,
-	}, nil
+	idTokenSource, err := idtoken.NewTokenSource(ctx, audience, option.WithAudiences(audience))
+	return idTokenSource, err
 }
