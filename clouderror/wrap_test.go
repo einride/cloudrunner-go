@@ -2,6 +2,7 @@ package clouderror
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -18,14 +19,9 @@ func Test_WrapTransient(t *testing.T) {
 		expectedCode codes.Code
 	}{
 		{
-			name:         "nil",
-			err:          nil,
+			name:         "non gRPC error",
+			err:          errors.New("err"),
 			expectedCode: codes.Internal,
-		},
-		{
-			name:         "codes.DeadlineExceeded",
-			err:          status.Error(codes.DeadlineExceeded, "transient"),
-			expectedCode: codes.DeadlineExceeded,
 		},
 		{
 			name:         "codes.Canceled",
@@ -33,19 +29,74 @@ func Test_WrapTransient(t *testing.T) {
 			expectedCode: codes.Canceled,
 		},
 		{
-			name:         "codes.Unavailable",
-			err:          status.Error(codes.Unavailable, "transient"),
-			expectedCode: codes.Unavailable,
+			name:         "codes.Unknown",
+			err:          status.Error(codes.Unknown, "transient"),
+			expectedCode: codes.Unknown,
 		},
 		{
-			name:         "codes.Unauthenticated",
-			err:          status.Error(codes.Unauthenticated, "transient"),
-			expectedCode: codes.Unauthenticated,
+			name:         "codes.InvalidArgument",
+			err:          status.Error(codes.InvalidArgument, "transient"),
+			expectedCode: codes.InvalidArgument,
+		},
+		{
+			name:         "codes.DeadlineExceeded",
+			err:          status.Error(codes.DeadlineExceeded, "transient"),
+			expectedCode: codes.DeadlineExceeded,
+		},
+		{
+			name:         "codes.NotFound",
+			err:          status.Error(codes.NotFound, "transient"),
+			expectedCode: codes.NotFound,
+		},
+		{
+			name:         "codes.AlreadyExists",
+			err:          status.Error(codes.AlreadyExists, "transient"),
+			expectedCode: codes.AlreadyExists,
 		},
 		{
 			name:         "codes.PermissionDenied",
 			err:          status.Error(codes.PermissionDenied, "transient"),
 			expectedCode: codes.PermissionDenied,
+		},
+		{
+			name:         "codes.ResourceExhausted",
+			err:          status.Error(codes.ResourceExhausted, "transient"),
+			expectedCode: codes.ResourceExhausted,
+		},
+		{
+			name:         "codes.FailedPrecondition",
+			err:          status.Error(codes.FailedPrecondition, "transient"),
+			expectedCode: codes.FailedPrecondition,
+		},
+		{
+			name:         "codes.Aborted",
+			err:          status.Error(codes.Aborted, "transient"),
+			expectedCode: codes.Aborted,
+		},
+		{
+			name:         "codes.OutOfRange",
+			err:          status.Error(codes.OutOfRange, "transient"),
+			expectedCode: codes.OutOfRange,
+		},
+		{
+			name:         "codes.Unimplemented",
+			err:          status.Error(codes.Unimplemented, "transient"),
+			expectedCode: codes.Unimplemented,
+		},
+		{
+			name:         "codes.Unavailable",
+			err:          status.Error(codes.Unavailable, "transient"),
+			expectedCode: codes.Unavailable,
+		},
+		{
+			name:         "codes.DataLoss",
+			err:          status.Error(codes.DataLoss, "transient"),
+			expectedCode: codes.DataLoss,
+		},
+		{
+			name:         "codes.Unauthenticated",
+			err:          status.Error(codes.Unauthenticated, "transient"),
+			expectedCode: codes.Unauthenticated,
 		},
 		{
 			name: "wrapped transient",
