@@ -15,7 +15,7 @@ require (
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/contrib/detectors/gcp v1.14.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.38.0
-	go.opentelemetry.io/contrib/instrumentation/host v0.38.0
+	go.opentelemetry.io/contrib/instrumentation/host v0.39.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.39.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.38.0
 	go.opentelemetry.io/otel v1.13.0
