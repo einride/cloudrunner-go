@@ -20,7 +20,6 @@ import (
 // See:
 // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics
 const (
-	serverRequestDurationMetricName = "rpc.server.duration"
 	clientRequestDurationMetricName = "rpc.client.duration"
 
 	// there is no rpc_count equivalent int OTEL semantic conventions yet.
@@ -38,14 +37,6 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 	)
 	if err != nil {
 		return MetricMiddleware{}, fmt.Errorf("create server request count counter: %w", err)
-	}
-	serverRequestDuration, err := meter.Int64Histogram(
-		serverRequestDurationMetricName,
-		instrument.WithUnit(unit.Milliseconds),
-		instrument.WithDescription("Duration of RPCs received by a gRPC server."),
-	)
-	if err != nil {
-		return MetricMiddleware{}, fmt.Errorf("create server request duration histogram: %w", err)
 	}
 	clientRequestCount, err := meter.Int64Counter(
 		clientRequestCountMetricName,
@@ -65,7 +56,6 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 	}
 	return MetricMiddleware{
 		serverRequestCount:    serverRequestCount,
-		serverRequestDuration: serverRequestDuration,
 		clientRequestCount:    clientRequestCount,
 		clientRequestDuration: clientRequestDuration,
 	}, nil
@@ -73,7 +63,6 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 
 type MetricMiddleware struct {
 	serverRequestCount    instrument.Int64Counter
-	serverRequestDuration instrument.Int64Histogram
 	clientRequestCount    instrument.Int64Counter
 	clientRequestDuration instrument.Int64Histogram
 }
@@ -87,14 +76,11 @@ func (m *MetricMiddleware) GRPCUnaryServerInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
-	startTime := time.Now()
 	response, err := handler(ctx, request)
-	duration := time.Since(startTime)
 	code := status.Code(err)
 
 	attrs := rpcAttrs(info.FullMethod, code)
 	m.serverRequestCount.Add(ctx, 1, attrs...)
-	m.serverRequestDuration.Record(ctx, duration.Milliseconds(), attrs...)
 	return response, err
 }
 
