@@ -11,9 +11,12 @@ import (
 	"go.einride.tech/cloudrunner/cloudzap"
 	hostinstrumentation "go.opentelemetry.io/contrib/instrumentation/host"
 	runtimeinstrumentation "go.opentelemetry.io/contrib/instrumentation/runtime"
+	"go.opentelemetry.io/otel/attribute"
 	globalmetric "go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.14.0"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -49,6 +52,26 @@ func StartMetricExporter(
 	provider := sdkmetric.NewMeterProvider(
 		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter, sdkmetric.WithInterval(exporterConfig.Interval))),
 		sdkmetric.WithResource(resource),
+		sdkmetric.WithView(
+			// `net.sock.peer.port`, `net.port.peer` and `http.client_ip are high-cardinality attributes (essentially
+			// one unique value per request) which causes failures when exporting metrics as the request limit
+			// towards GCP is reached (200 time series per request).
+			//
+			// The following views masks these attributes from both otelhttp and otelgrpc so
+			// that metrics can still be exported.
+			// Based on https://github.com/open-telemetry/opentelemetry-go-contrib/issues/3071#issuecomment-1416137206
+			maskInstrumentAttrs(
+				"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
+				semconv.NetPeerPortKey,
+				semconv.NetSockPeerPortKey,
+				semconv.HTTPClientIPKey,
+			),
+			maskInstrumentAttrs(
+				"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
+				semconv.NetPeerPortKey,
+				semconv.NetSockPeerPortKey,
+			),
+		),
 	)
 	globalmetric.SetMeterProvider(provider)
 	shutdown := func() {
@@ -87,4 +110,20 @@ func isUnsupportedSamplerErr(err error) bool {
 		return false
 	}
 	return strings.Contains(err.Error(), "unsupported sampler")
+}
+
+func maskInstrumentAttrs(instrumentScopeName string, attrs ...attribute.Key) sdkmetric.View {
+	masked := make(map[attribute.Key]struct{})
+	for _, attr := range attrs {
+		masked[attr] = struct{}{}
+	}
+	return sdkmetric.NewView(
+		sdkmetric.Instrument{Scope: instrumentation.Scope{Name: instrumentScopeName}},
+		sdkmetric.Stream{
+			AttributeFilter: func(value attribute.KeyValue) bool {
+				_, ok := masked[value.Key]
+				return !ok
+			},
+		},
+	)
 }
