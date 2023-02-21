@@ -22,7 +22,7 @@ require (
 	go.opentelemetry.io/otel/bridge/opencensus v0.36.0
 	go.opentelemetry.io/otel/metric v0.36.0
 	go.opentelemetry.io/otel/sdk v1.13.0
-	go.opentelemetry.io/otel/sdk/metric v0.36.0
+	go.opentelemetry.io/otel/sdk/metric v0.36.1-0.20230218004541-ecf0838245b3
 	go.uber.org/zap v1.24.0
 	golang.org/x/oauth2 v0.5.0
 	golang.org/x/sync v0.1.0
