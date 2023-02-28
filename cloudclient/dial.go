@@ -66,7 +66,7 @@ func withDefaultPort(target string, port int) string {
 func newTokenSource(ctx context.Context, target string) (_ oauth2.TokenSource, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("new token source: %w", err)
+			err = fmt.Errorf("new token source error: %w", err)
 		}
 	}()
 	audience := "https://" + trimPort(target)
