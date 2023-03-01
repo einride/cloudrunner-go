@@ -26,9 +26,9 @@ require (
 	go.uber.org/zap v1.24.0
 	golang.org/x/oauth2 v0.5.0
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.109.0
-	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57
-	google.golang.org/grpc v1.52.3
+	google.golang.org/api v0.111.0
+	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923
+	google.golang.org/grpc v1.53.0
 	google.golang.org/grpc/examples v0.0.0-20220915225546-9c3e589d3ee6
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -50,7 +50,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/pprof v0.0.0-20230131232505-5a9e8f65f08f // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.2.1 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230110061619-bbe2e5e100de // indirect
