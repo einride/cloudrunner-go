@@ -9,7 +9,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
-	"go.opentelemetry.io/otel/metric/unit"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -32,7 +31,7 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 
 	serverRequestCount, err := meter.Int64Counter(
 		serverRequestCountMetricName,
-		instrument.WithUnit(unit.Dimensionless),
+		instrument.WithUnit("1"),
 		instrument.WithDescription("Count of RPCs received by a gRPC server."),
 	)
 	if err != nil {
@@ -40,7 +39,7 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 	}
 	clientRequestCount, err := meter.Int64Counter(
 		clientRequestCountMetricName,
-		instrument.WithUnit(unit.Dimensionless),
+		instrument.WithUnit("1"),
 		instrument.WithDescription("Count of RPCs sent by a gRPC client."),
 	)
 	if err != nil {
@@ -48,7 +47,7 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 	}
 	clientRequestDuration, err := meter.Int64Histogram(
 		clientRequestDurationMetricName,
-		instrument.WithUnit(unit.Milliseconds),
+		instrument.WithUnit("ms"),
 		instrument.WithDescription("Duration of RPCs sent by a gRPC client."),
 	)
 	if err != nil {
