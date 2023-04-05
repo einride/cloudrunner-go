@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/profiler v0.3.1
 	cloud.google.com/go/pubsub v1.28.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.35.2
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.37.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.35.2
 	github.com/google/go-cmp v0.5.9
@@ -41,7 +41,7 @@ require (
 	cloud.google.com/go/monitoring v1.12.0 // indirect
 	cloud.google.com/go/trace v1.8.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.11.2 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.2 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.37.0 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
