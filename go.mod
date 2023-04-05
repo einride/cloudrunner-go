@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/pubsub v1.28.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.35.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.2
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.35.2
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.37.0
 	github.com/google/go-cmp v0.5.9
 	github.com/soheilhy/cmux v0.1.5
 	go.einride.tech/protobuf-sensitive v0.3.0
