@@ -5,7 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/profiler v0.3.1
-	cloud.google.com/go/pubsub v1.28.0
+	cloud.google.com/go/pubsub v1.30.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.35.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.35.2
@@ -26,20 +26,20 @@ require (
 	go.uber.org/zap v1.24.0
 	golang.org/x/oauth2 v0.6.0
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.114.0
-	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
-	google.golang.org/grpc v1.53.0
+	google.golang.org/api v0.116.0
+	google.golang.org/genproto v0.0.0-20230403163135-c38d8f061ccd
+	google.golang.org/grpc v1.54.0
 	google.golang.org/grpc/examples v0.0.0-20220915225546-9c3e589d3ee6
-	google.golang.org/protobuf v1.29.1
+	google.golang.org/protobuf v1.30.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.4.0
 )
 
 require (
 	cloud.google.com/go v0.110.0 // indirect
-	cloud.google.com/go/compute v1.18.0 // indirect
-	cloud.google.com/go/monitoring v1.12.0 // indirect
-	cloud.google.com/go/trace v1.8.0 // indirect
+	cloud.google.com/go/compute v1.19.0 // indirect
+	cloud.google.com/go/monitoring v1.13.0 // indirect
+	cloud.google.com/go/trace v1.9.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.11.2 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.2 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
@@ -48,10 +48,10 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/pprof v0.0.0-20230131232505-5a9e8f65f08f // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
-	github.com/googleapis/gax-go/v2 v2.7.1 // indirect
+	github.com/googleapis/gax-go/v2 v2.8.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230110061619-bbe2e5e100de // indirect
 	github.com/pkg/errors v0.9.1 // indirect
