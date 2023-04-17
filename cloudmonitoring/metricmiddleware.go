@@ -77,10 +77,25 @@ func (m *MetricMiddleware) GRPCUnaryServerInterceptor(
 ) (resp interface{}, err error) {
 	response, err := handler(ctx, request)
 	code := status.Code(err)
-
 	attrs := rpcAttrs(info.FullMethod, code)
 	m.serverRequestCount.Add(ctx, 1, attrs...)
 	return response, err
+}
+
+// GRPCStreamServerInterceptor implements grpc.UnaryServerInterceptor and
+// emits metrics for request count and request duration when a gRPC server
+// receives streaming requests.
+func (m *MetricMiddleware) GRPCStreamServerInterceptor(
+	srv interface{},
+	ss grpc.ServerStream,
+	info *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) (err error) {
+	err = handler(srv, ss)
+	code := status.Code(err)
+	attrs := rpcAttrs(info.FullMethod, code)
+	m.serverRequestCount.Add(ss.Context(), 1, attrs...)
+	return err
 }
 
 // GRPCUnaryClientInterceptor provides request logging as a grpc.UnaryClientInterceptor.

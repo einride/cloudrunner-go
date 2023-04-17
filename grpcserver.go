@@ -27,6 +27,14 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 			run.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
 			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
+		grpc.ChainStreamInterceptor(
+			otelgrpc.StreamServerInterceptor(),
+			run.loggerMiddleware.GRPCStreamServerInterceptor,
+			run.traceMiddleware.GRPCStreamServerInterceptor,
+			run.metricMiddleware.GRPCStreamServerInterceptor,
+			run.requestLoggerMiddleware.GRPCStreamServerInterceptor,
+			run.serverMiddleware.GRPCStreamServerInterceptor,
+		),
 		// For details on keepalive settings, see:
 		// https://github.com/grpc/grpc-go/blob/master/Documentation/keepalive.md
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{

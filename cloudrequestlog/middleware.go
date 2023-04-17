@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 
+	"go.einride.tech/cloudrunner/cloudstream"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -75,6 +76,53 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	fields = append(fields, cloudzap.SourceLocationForCaller(checkedEntry.Caller))
 	checkedEntry.Write(fields...)
 	return response, err
+}
+
+// GRPCStreamServerInterceptor implements request logging as a grpc.UnaryServerInterceptor.
+// This middleware differs from the unary one in that it does not log request or response payload.
+// The reason for this is that this info is not readily available in the middleware layer.
+func (l *Middleware) GRPCStreamServerInterceptor(
+	srv interface{},
+	ss grpc.ServerStream,
+	info *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) error {
+	startTime := time.Now()
+	ctx := WithAdditionalFields(ss.Context())
+	ss = cloudstream.NewContextualServerStream(ctx, ss)
+	err := handler(srv, ss)
+	code := status.Code(err)
+	checkedEntry := l.logger(ctx).Check(
+		l.codeToLevel(code),
+		grpcServerLogMessage(code, info.FullMethod),
+	)
+	if checkedEntry == nil {
+		return err
+	}
+	grpcRequest := cloudzap.HTTPRequestObject{
+		Protocol: "gRPC",
+		Latency:  time.Since(startTime),
+	}
+	fields := []zapcore.Field{
+		zap.Stringer("code", code),
+		zap.Object("httpRequest", &grpcRequest),
+		zap.Error(err),
+		ErrorDetails(err),
+	}
+	fields = appendFullMethodFields(info.FullMethod, fields)
+	if additionalFields, ok := GetAdditionalFields(ctx); ok {
+		fields = additionalFields.AppendTo(fields)
+	}
+	var errCaller interface {
+		Caller() (pc uintptr, file string, line int, ok bool)
+	}
+	if errors.As(err, &errCaller) {
+		checkedEntry.Caller = zapcore.NewEntryCaller(errCaller.Caller())
+		checkedEntry.Entry.Caller = checkedEntry.Caller
+	}
+	fields = append(fields, cloudzap.SourceLocationForCaller(checkedEntry.Caller))
+	checkedEntry.Write(fields...)
+	return err
 }
 
 func (l *Middleware) logger(ctx context.Context) *zap.Logger {

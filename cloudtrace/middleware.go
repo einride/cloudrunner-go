@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"go.einride.tech/cloudrunner/cloudstream"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -37,6 +38,28 @@ func (i *Middleware) GRPCServerUnaryInterceptor(
 	ctx = i.withLogTracing(ctx, values[0])
 	ctx = i.withInternalContext(ctx, values[0])
 	return handler(ctx, req)
+}
+
+// GRPCStreamServerInterceptor adds tracing metadata to streaming RPCs.
+func (i *Middleware) GRPCStreamServerInterceptor(
+	srv interface{},
+	ss grpc.ServerStream,
+	_ *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) (err error) {
+	md, ok := metadata.FromIncomingContext(ss.Context())
+	if !ok {
+		return handler(srv, ss)
+	}
+	values := md.Get(ContextHeader)
+	if len(values) != 1 {
+		return handler(srv, ss)
+	}
+	ctx := ss.Context()
+	ctx = i.withOutgoingRequestTracing(ctx, values[0])
+	ctx = i.withLogTracing(ctx, values[0])
+	ctx = i.withInternalContext(ctx, values[0])
+	return handler(srv, cloudstream.NewContextualServerStream(ctx, ss))
 }
 
 // HTTPServer provides middleware for HTTP servers.

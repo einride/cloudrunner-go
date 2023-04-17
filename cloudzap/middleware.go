@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"go.einride.tech/cloudrunner/cloudstream"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -27,4 +28,14 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	return handler(WithLogger(ctx, l.Logger), request)
+}
+
+// GRPCStreamServerInterceptor adds a zap logger to the server stream context.
+func (l *Middleware) GRPCStreamServerInterceptor(
+	srv interface{},
+	ss grpc.ServerStream,
+	_ *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) (err error) {
+	return handler(srv, cloudstream.NewContextualServerStream(WithLogger(ss.Context(), l.Logger), ss))
 }
