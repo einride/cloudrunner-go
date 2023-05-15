@@ -30,6 +30,7 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		run.loggerMiddleware.HTTPServer,
 		run.traceMiddleware.HTTPServer,
 		run.requestLoggerMiddleware.HTTPServer,
+		run.securityHeadersMiddleware.HTTPServer,
 		run.serverMiddleware.HTTPServer,
 	}
 	return &http.Server{
