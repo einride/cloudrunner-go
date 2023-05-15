@@ -152,15 +152,16 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 }
 
 type runContext struct {
-	config                  runConfig
-	configOptions           []cloudconfig.Option
-	grpcServerOptions       []grpc.ServerOption
-	loggerMiddleware        cloudzap.Middleware
-	serverMiddleware        cloudserver.Middleware
-	clientMiddleware        cloudclient.Middleware
-	requestLoggerMiddleware cloudrequestlog.Middleware
-	traceMiddleware         cloudtrace.Middleware
-	metricMiddleware        cloudmonitoring.MetricMiddleware
+	config                    runConfig
+	configOptions             []cloudconfig.Option
+	grpcServerOptions         []grpc.ServerOption
+	loggerMiddleware          cloudzap.Middleware
+	serverMiddleware          cloudserver.Middleware
+	clientMiddleware          cloudclient.Middleware
+	requestLoggerMiddleware   cloudrequestlog.Middleware
+	traceMiddleware           cloudtrace.Middleware
+	metricMiddleware          cloudmonitoring.MetricMiddleware
+	securityHeadersMiddleware cloudserver.SecurityHeadersMiddleware
 }
 
 type runContextKey struct{}
