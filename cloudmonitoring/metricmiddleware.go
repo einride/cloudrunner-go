@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
+	"go.opentelemetry.io/otel/metric"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -27,28 +27,28 @@ const (
 )
 
 func NewMetricMiddleware() (MetricMiddleware, error) {
-	meter := global.MeterProvider().Meter("cloudrunner-go/cloudmonitoring")
+	meter := otel.GetMeterProvider().Meter("cloudrunner-go/cloudmonitoring")
 
 	serverRequestCount, err := meter.Int64Counter(
 		serverRequestCountMetricName,
-		instrument.WithUnit("1"),
-		instrument.WithDescription("Count of RPCs received by a gRPC server."),
+		metric.WithUnit("1"),
+		metric.WithDescription("Count of RPCs received by a gRPC server."),
 	)
 	if err != nil {
 		return MetricMiddleware{}, fmt.Errorf("create server request count counter: %w", err)
 	}
 	clientRequestCount, err := meter.Int64Counter(
 		clientRequestCountMetricName,
-		instrument.WithUnit("1"),
-		instrument.WithDescription("Count of RPCs sent by a gRPC client."),
+		metric.WithUnit("1"),
+		metric.WithDescription("Count of RPCs sent by a gRPC client."),
 	)
 	if err != nil {
 		return MetricMiddleware{}, fmt.Errorf("create client request count counter: %w", err)
 	}
 	clientRequestDuration, err := meter.Int64Histogram(
 		clientRequestDurationMetricName,
-		instrument.WithUnit("ms"),
-		instrument.WithDescription("Duration of RPCs sent by a gRPC client."),
+		metric.WithUnit("ms"),
+		metric.WithDescription("Duration of RPCs sent by a gRPC client."),
 	)
 	if err != nil {
 		return MetricMiddleware{}, fmt.Errorf("create client request duration histogram: %w", err)
@@ -61,9 +61,9 @@ func NewMetricMiddleware() (MetricMiddleware, error) {
 }
 
 type MetricMiddleware struct {
-	serverRequestCount    instrument.Int64Counter
-	clientRequestCount    instrument.Int64Counter
-	clientRequestDuration instrument.Int64Histogram
+	serverRequestCount    metric.Int64Counter
+	clientRequestCount    metric.Int64Counter
+	clientRequestDuration metric.Int64Histogram
 }
 
 // GRPCUnaryServerInterceptor implements grpc.UnaryServerInterceptor and
@@ -78,7 +78,7 @@ func (m *MetricMiddleware) GRPCUnaryServerInterceptor(
 	response, err := handler(ctx, request)
 	code := status.Code(err)
 	attrs := rpcAttrs(info.FullMethod, code)
-	m.serverRequestCount.Add(ctx, 1, attrs...)
+	m.serverRequestCount.Add(ctx, 1, attrs)
 	return response, err
 }
 
@@ -94,7 +94,7 @@ func (m *MetricMiddleware) GRPCStreamServerInterceptor(
 	err = handler(srv, ss)
 	code := status.Code(err)
 	attrs := rpcAttrs(info.FullMethod, code)
-	m.serverRequestCount.Add(ss.Context(), 1, attrs...)
+	m.serverRequestCount.Add(ss.Context(), 1, attrs)
 	return err
 }
 
@@ -114,12 +114,12 @@ func (m *MetricMiddleware) GRPCUnaryClientInterceptor(
 	duration := time.Since(startTime)
 
 	attrs := rpcAttrs(fullMethod, code)
-	m.clientRequestCount.Add(ctx, 1, attrs...)
-	m.clientRequestDuration.Record(ctx, duration.Milliseconds(), attrs...)
+	m.clientRequestCount.Add(ctx, 1, attrs)
+	m.clientRequestDuration.Record(ctx, duration.Milliseconds(), attrs)
 	return err
 }
 
-func rpcAttrs(fullMethod string, code codes.Code) []attribute.KeyValue {
+func rpcAttrs(fullMethod string, code codes.Code) metric.MeasurementOption {
 	attrs := make([]attribute.KeyValue, 0, 5)
 	attrs = append(
 		attrs,
@@ -136,7 +136,7 @@ func rpcAttrs(fullMethod string, code codes.Code) []attribute.KeyValue {
 			semconv.RPCMethodKey.String(method),
 		)
 	}
-	return attrs
+	return metric.WithAttributes(attrs...)
 }
 
 func splitFullMethod(fullMethod string) (service, method string, ok bool) {
