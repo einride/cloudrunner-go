@@ -11,8 +11,8 @@ import (
 	"go.einride.tech/cloudrunner/cloudzap"
 	hostinstrumentation "go.opentelemetry.io/contrib/instrumentation/host"
 	runtimeinstrumentation "go.opentelemetry.io/contrib/instrumentation/runtime"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	globalmetric "go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -73,7 +73,7 @@ func StartMetricExporter(
 			),
 		),
 	)
-	globalmetric.SetMeterProvider(provider)
+	otel.SetMeterProvider(provider)
 	shutdown := func() {
 		if err := exporter.Shutdown(context.Background()); err != nil {
 			if logger, ok := cloudzap.GetLogger(ctx); ok {
