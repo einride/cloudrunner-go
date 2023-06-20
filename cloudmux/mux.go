@@ -26,7 +26,10 @@ func ServeGRPCHTTP(
 	httpServer *http.Server,
 ) error {
 	m := cmux.New(l)
-	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+	grpcL := m.MatchWithWriters(
+		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"),
+		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc+proto"),
+	)
 	httpL := m.Match(cmux.Any())
 	logger, ok := cloudzap.GetLogger(ctx)
 	if !ok {
