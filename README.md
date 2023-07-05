@@ -84,6 +84,11 @@ cloudrunner    PORT                                     int                     
 cloudrunner    K_SERVICE                                string                                                 
 cloudrunner    K_REVISION                               string                                                 
 cloudrunner    K_CONFIGURATION                          string                                                 
+cloudrunner    CLOUD_RUN_JOB                            string                                                 
+cloudrunner    CLOUD_RUN_EXECUTION                      string                                                 
+cloudrunner    CLOUD_RUN_TASK_INDEX                     int                                                    
+cloudrunner    CLOUD_RUN_TASK_ATTEMPT                   int                                                    
+cloudrunner    CLOUD_RUN_TASK_COUNT                     int                                                    
 cloudrunner    GOOGLE_CLOUD_PROJECT                     string                                                 
 cloudrunner    RUNTIME_SERVICEACCOUNT                   string                                                 
 cloudrunner    SERVICE_VERSION                          string                                                 

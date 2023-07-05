@@ -25,6 +25,16 @@ type Config struct {
 	Revision string `env:"K_REVISION"`
 	// Configuration of the service, as assigned by a Knative runtime.
 	Configuration string `env:"K_CONFIGURATION"`
+	// Job name, if running as a Cloud Run job.
+	Job string `env:"CLOUD_RUN_JOB"`
+	// Execution name, if running as a Cloud Run job.
+	Execution string `env:"CLOUD_RUN_EXECUTION"`
+	// TaskIndex of the current task, if running as a Cloud Run job.
+	TaskIndex int `env:"CLOUD_RUN_TASK_INDEX"`
+	// TaskAttempt of the current task, if running as a Cloud Run job.
+	TaskAttempt int `env:"CLOUD_RUN_TASK_ATTEMPT"`
+	// TaskCount of the job, if running as a Cloud Run job.
+	TaskCount int `env:"CLOUD_RUN_TASK_COUNT"`
 	// ProjectID is the GCP project ID the service is running in.
 	// In production, defaults to the project where the service is deployed.
 	ProjectID string `env:"GOOGLE_CLOUD_PROJECT"`
@@ -54,6 +64,21 @@ func (c *Config) Autodetect() error {
 	}
 	if configuration, ok := Configuration(); ok {
 		c.Configuration = configuration
+	}
+	if job, ok := Job(); ok {
+		c.Job = job
+	}
+	if execution, ok := Execution(); ok {
+		c.Execution = execution
+	}
+	if taskIndex, ok := TaskIndex(); ok {
+		c.TaskIndex = taskIndex
+	}
+	if taskAttempt, ok := TaskAttempt(); ok {
+		c.TaskAttempt = taskAttempt
+	}
+	if taskCount, ok := TaskCount(); ok {
+		c.TaskCount = taskCount
 	}
 	return nil
 }
