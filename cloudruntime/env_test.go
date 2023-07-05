@@ -79,6 +79,107 @@ func TestPort(t *testing.T) {
 	})
 }
 
+func TestJob(t *testing.T) {
+	t.Run("from env", func(t *testing.T) {
+		const expected = "foo"
+		setEnv(t, "CLOUD_RUN_JOB", expected)
+		actual, ok := Job()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("undefined", func(t *testing.T) {
+		actual, ok := Job()
+		assert.Assert(t, !ok)
+		assert.Equal(t, "", actual)
+	})
+}
+
+func TestExecution(t *testing.T) {
+	t.Run("from env", func(t *testing.T) {
+		const expected = "foo"
+		setEnv(t, "CLOUD_RUN_EXECUTION", expected)
+		actual, ok := Execution()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("undefined", func(t *testing.T) {
+		actual, ok := Execution()
+		assert.Assert(t, !ok)
+		assert.Equal(t, "", actual)
+	})
+}
+
+func TestTaskIndex(t *testing.T) {
+	t.Run("from env", func(t *testing.T) {
+		const expected = 42
+		setEnv(t, "CLOUD_RUN_TASK_INDEX", strconv.Itoa(expected))
+		actual, ok := TaskIndex()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		setEnv(t, "CLOUD_RUN_TASK_INDEX", "invalid")
+		actual, ok := TaskIndex()
+		assert.Assert(t, !ok)
+		assert.Equal(t, 0, actual)
+	})
+
+	t.Run("undefined", func(t *testing.T) {
+		actual, ok := TaskIndex()
+		assert.Assert(t, !ok)
+		assert.Equal(t, 0, actual)
+	})
+}
+
+func TestTaskAttempt(t *testing.T) {
+	t.Run("from env", func(t *testing.T) {
+		const expected = 42
+		setEnv(t, "CLOUD_RUN_TASK_ATTEMPT", strconv.Itoa(expected))
+		actual, ok := TaskAttempt()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		setEnv(t, "CLOUD_RUN_TASK_ATTEMPT", "invalid")
+		actual, ok := TaskAttempt()
+		assert.Assert(t, !ok)
+		assert.Equal(t, 0, actual)
+	})
+
+	t.Run("undefined", func(t *testing.T) {
+		actual, ok := TaskAttempt()
+		assert.Assert(t, !ok)
+		assert.Equal(t, 0, actual)
+	})
+}
+
+func TestTaskCount(t *testing.T) {
+	t.Run("from env", func(t *testing.T) {
+		const expected = 42
+		setEnv(t, "CLOUD_RUN_TASK_COUNT", strconv.Itoa(expected))
+		actual, ok := TaskCount()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		setEnv(t, "CLOUD_RUN_TASK_COUNT", "invalid")
+		actual, ok := TaskCount()
+		assert.Assert(t, !ok)
+		assert.Equal(t, 0, actual)
+	})
+
+	t.Run("undefined", func(t *testing.T) {
+		actual, ok := TaskCount()
+		assert.Assert(t, !ok)
+		assert.Equal(t, 0, actual)
+	})
+}
+
 // setEnv will be available in the standard library from Go 1.17 as t.SetEnv.
 func setEnv(t *testing.T, key, value string) {
 	prevValue, ok := os.LookupEnv(key)
