@@ -13,7 +13,7 @@ func NewResource(ctx context.Context) (*resource.Resource, error) {
 	result, err := resource.New(
 		ctx,
 		resource.WithTelemetrySDK(),
-		resource.WithDetectors(gcp.NewCloudRun()),
+		resource.WithDetectors(gcp.NewDetector()),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("init telemetry resource: %w", err)
