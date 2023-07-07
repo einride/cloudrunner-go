@@ -28,8 +28,8 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.15.
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.39.2 h1:Wrmrz5DzrFUug42f/bmHtZ5jZoAVzIYj8bIGJdebLQM=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.39.2 h1:XIERWzKobhRJHSzZwhPKCY7TCPiYJp/mEbSSKEgYCzU=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.39.2/go.mod h1:lz6DEePTxmjvYMtusOoS3qDAErC0STi/wmvqJucKY28=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.39.2 h1:mBXmAspgouCXbJwNc3E5uJHn4DJNtKZEma8XkDCTGdg=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.39.2/go.mod h1:ML9pY4SjdBE/fTBnIwTaJu+5ZahLW3e/snaUPuOdcck=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.40.1 h1:UNrOtOs5D+aEj0dtqp+2sAstD58zQJvtBxgoQmpqnEI=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.40.1/go.mod h1:ML9pY4SjdBE/fTBnIwTaJu+5ZahLW3e/snaUPuOdcck=
 github.com/benbjohnson/clock v1.3.0 h1:ip6w0uFQkncKQ979AypyG0ER7mqUSBdKLOgAle/AT8A=
 github.com/benbjohnson/clock v1.3.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
