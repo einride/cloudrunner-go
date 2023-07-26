@@ -23,11 +23,11 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.13.1
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.13.1/go.mod h1:Xx0VKh7GJ4si3rmElbh19Mejxz68ibWg/J30ZOMrqzU=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.39.2 h1:Z99Gh6RPaaDVKb0NqqvDd63WPBj3Ua1xpzo0Xt7i3Ng=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.39.2/go.mod h1:+2cosZ+V7giVe+D9UaZfDevw58/6KVx7hkkX3LZw8o0=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.15.2 h1:L8Rzas9w4DGt1bMOhT3DI7DD0jJUX1StWGZJEQ+JoJY=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.15.2/go.mod h1:9sKVjE4anClH/s9HTxPfCUA/LvKjCSXQT43KV+3GETg=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.39.2 h1:Wrmrz5DzrFUug42f/bmHtZ5jZoAVzIYj8bIGJdebLQM=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.39.2 h1:XIERWzKobhRJHSzZwhPKCY7TCPiYJp/mEbSSKEgYCzU=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.39.2/go.mod h1:lz6DEePTxmjvYMtusOoS3qDAErC0STi/wmvqJucKY28=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.18.0 h1:82lUmcpHzBEpGP4qURZvMSU1rJV0AAfXtOCh7Qz6oDw=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.18.0/go.mod h1:6abS6wU43wU97qP+JseSJq2+C8/XL50co74AhoMJwwU=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.42.0 h1:thAXdOpdEJPWW7kZmD8wU/yhQjd7PA6L01TxFcR5OOY=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.42.0 h1:4gL61NwEDGAFvLJeEMjTYJm6r1T26k3QYuDZK9YEaAk=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.42.0/go.mod h1:lz6DEePTxmjvYMtusOoS3qDAErC0STi/wmvqJucKY28=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.42.0 h1:mLzW3MReW5yySvXJUfmUycK29Tym11kelVkQgKuiS/k=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.42.0/go.mod h1:ML9pY4SjdBE/fTBnIwTaJu+5ZahLW3e/snaUPuOdcck=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
