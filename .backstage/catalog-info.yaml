@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cloudrunner-go
+  description: |
+    A lightweight, opinionated, batteries-included service SDK for running Go and gRPC in the Google Cloud Platform
+  annotations:
+    github.com/project-slug: einride/cloudrunner-go
+    github.com/team-slug: einride/team-cloud-control
+    backstage.io/source-location: url:https://github.com/einride/cloudrunner-go/tree/master/
+spec:
+  type: library
+  lifecycle: production
+  owner: team-cloud-control
