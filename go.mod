@@ -11,7 +11,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.42.0
 	github.com/google/go-cmp v0.5.9
 	github.com/soheilhy/cmux v0.1.5
-	go.einride.tech/protobuf-sensitive v0.4.0
+	go.einride.tech/protobuf-sensitive v0.5.0
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/contrib/detectors/gcp v1.17.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.42.0
