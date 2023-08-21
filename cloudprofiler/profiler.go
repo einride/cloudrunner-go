@@ -1,6 +1,7 @@
 package cloudprofiler
 
 import (
+	"errors"
 	"fmt"
 
 	"cloud.google.com/go/profiler"
@@ -29,26 +30,51 @@ func Start(config Config) error {
 	if !config.Enabled {
 		return nil
 	}
-	service, ok := cloudruntime.Service()
-	if !ok {
-		return fmt.Errorf("start profiler: missing service")
+
+	var cloudConfig cloudruntime.Config
+	if err := cloudConfig.Autodetect(); err != nil {
+		return fmt.Errorf("start profiler: %w", err)
 	}
-	projectID, ok := cloudruntime.ProjectID()
-	if !ok {
-		return fmt.Errorf("start profiler: missing project ID")
+
+	var svcConfig profiler.Config
+	switch {
+	case cloudConfig.Service != "":
+		var err error
+		svcConfig, err = cloudRunServiceConfig(cloudConfig)
+		if err != nil {
+			return fmt.Errorf("start profiler: %w", err)
+		}
+	case cloudConfig.Job != "":
+		var err error
+		svcConfig, err = cloudRunJobConfig(cloudConfig)
+		if err != nil {
+			return fmt.Errorf("start profiler: %w", err)
+		}
+	default:
+		return errors.New("unable to autodetect runtime environment")
 	}
-	serviceVersion, ok := cloudruntime.ServiceVersion()
-	if !ok {
-		return fmt.Errorf("start profiler: missing service version")
-	}
-	if err := profilerStart(profiler.Config{
-		ProjectID:      projectID,
-		Service:        service,
-		ServiceVersion: serviceVersion,
-		MutexProfiling: config.MutexProfiling,
-		AllocForceGC:   config.AllocForceGC,
-	}); err != nil {
+
+	svcConfig.MutexProfiling = config.MutexProfiling
+	svcConfig.AllocForceGC = config.AllocForceGC
+
+	if err := profilerStart(svcConfig); err != nil {
 		return fmt.Errorf("start profiler: %w", err)
 	}
 	return nil
+}
+
+func cloudRunServiceConfig(cloudCfg cloudruntime.Config) (profiler.Config, error) {
+	return profiler.Config{
+		ProjectID:      cloudCfg.ProjectID,
+		Service:        cloudCfg.Service,
+		ServiceVersion: cloudCfg.ServiceVersion,
+	}, nil
+}
+
+func cloudRunJobConfig(cloudCfg cloudruntime.Config) (profiler.Config, error) {
+	return profiler.Config{
+		ProjectID:      cloudCfg.ProjectID,
+		Service:        cloudCfg.Job,
+		ServiceVersion: cloudCfg.Execution,
+	}, nil
 }
