@@ -1,6 +1,7 @@
 module go.einride.tech/cloudrunner
 
 go 1.19
+toolchain go1.21.0
 
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
@@ -8,7 +9,7 @@ require (
 	cloud.google.com/go/pubsub v1.33.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.42.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.18.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.42.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.43.0
 	github.com/google/go-cmp v0.5.9
 	github.com/soheilhy/cmux v0.1.5
 	go.einride.tech/protobuf-sensitive v0.5.0
