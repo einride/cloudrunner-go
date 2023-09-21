@@ -10,6 +10,10 @@ updates:
     directory: /
     schedule:
       interval: daily
+    groups:
+      opentelemetry:
+        patterns:
+          - "*opentelemetry*"  # Include all dependencies in one PR
 
   - package-ecosystem: gomod
     directory: .sage
