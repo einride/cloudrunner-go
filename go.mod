@@ -32,7 +32,7 @@ require (
 	google.golang.org/grpc/examples v0.0.0-20230724170852-2aa261560586
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v3 v3.0.1
-	gotest.tools/v3 v3.5.0
+	gotest.tools/v3 v3.5.1
 )
 
 require (
