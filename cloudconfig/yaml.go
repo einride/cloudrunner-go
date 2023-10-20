@@ -11,42 +11,89 @@ import (
 func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("set env from YAML service specification file %s: %w", name, err)
+			err = fmt.Errorf("set env from YAML service/job specification file %s: %w", name, err)
 		}
 	}()
-	var config struct {
-		Metadata struct {
-			Name string
-		}
-		Spec struct {
-			Template struct {
-				Spec struct {
-					Containers []struct {
-						Env []struct {
-							Name  string
-							Value string
-						}
-					}
-				}
-			}
-		}
+	var kind struct {
+		Kind string
+	}
+	type env struct {
+		Name  string
+		Value string
 	}
 	data, err := os.ReadFile(name)
 	if err != nil {
 		return err
 	}
-	if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&config); err != nil {
+	if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&kind); err != nil {
 		return err
 	}
-	if len(config.Spec.Template.Spec.Containers) != 1 {
-		return fmt.Errorf("unexpected number of containers: %d", len(config.Spec.Template.Spec.Containers))
-	}
-	if config.Metadata.Name != "" {
-		if err := os.Setenv("K_SERVICE", config.Metadata.Name); err != nil {
+	var envs []env
+	switch kind.Kind {
+	case "Service": // Cloud Run Services
+		var config struct {
+			Metadata struct {
+				Name string
+			}
+			Spec struct {
+				Template struct {
+					Spec struct {
+						Containers []struct {
+							Env []env
+						}
+					}
+				}
+			}
+		}
+		if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&config); err != nil {
 			return err
 		}
+		containers := config.Spec.Template.Spec.Containers
+		if len(containers) != 1 {
+			return fmt.Errorf("unexpected number of containers: %d", len(containers))
+		}
+		if config.Metadata.Name != "" {
+			if err := os.Setenv("K_SERVICE", config.Metadata.Name); err != nil {
+				return err
+			}
+		}
+		envs = containers[0].Env
+	case "Job": // Cloud Run Jobs
+		var config struct {
+			Metadata struct {
+				Name string
+			}
+			Spec struct {
+				Template struct {
+					Spec struct {
+						Template struct {
+							Spec struct {
+								Containers []struct {
+									Env []env
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&config); err != nil {
+			return err
+		}
+		containers := config.Spec.Template.Spec.Template.Spec.Containers
+		if len(containers) != 1 {
+			return fmt.Errorf("unexpected number of containers: %d", len(containers))
+		}
+		if config.Metadata.Name != "" {
+			if err := os.Setenv("K_SERVICE", config.Metadata.Name); err != nil {
+				return err
+			}
+		}
+		envs = containers[0].Env
+	default:
+		return fmt.Errorf("unknown config kind: %s", kind.Kind)
 	}
-	for _, env := range config.Spec.Template.Spec.Containers[0].Env {
+	for _, env := range envs {
 		// Prefer variables from local environment.
 		if _, ok := os.LookupEnv(env.Name); !ok {
 			if err := os.Setenv(env.Name, env.Value); err != nil {
