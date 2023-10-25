@@ -13,6 +13,7 @@ import (
 	runtimeinstrumentation "go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	ocbridge "go.opentelemetry.io/otel/bridge/opencensus"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -28,6 +29,7 @@ type MetricExporterConfig struct {
 	Interval               time.Duration `default:"60s"`
 	RuntimeInstrumentation bool          `onGCE:"true"`
 	HostInstrumentation    bool          `onGCE:"true"`
+	OpenCensusProducer     bool          `default:"false"`
 }
 
 // StartMetricExporter starts the OpenTelemetry Cloud Monitoring exporter.
@@ -49,8 +51,15 @@ func StartMetricExporter(
 	if err != nil {
 		return nil, fmt.Errorf("new metric exporter: %w", err)
 	}
+	readerOpts := []sdkmetric.PeriodicReaderOption{
+		sdkmetric.WithInterval(exporterConfig.Interval),
+	}
+	if exporterConfig.OpenCensusProducer {
+		readerOpts = append(readerOpts, sdkmetric.WithProducer(ocbridge.NewMetricProducer()))
+	}
+	reader := sdkmetric.NewPeriodicReader(exporter, readerOpts...)
 	provider := sdkmetric.NewMeterProvider(
-		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter, sdkmetric.WithInterval(exporterConfig.Interval))),
+		sdkmetric.WithReader(reader),
 		sdkmetric.WithResource(resource),
 		sdkmetric.WithView(
 			// `net.sock.peer.port`, `net.port.peer` and `http.client_ip are high-cardinality attributes (essentially
