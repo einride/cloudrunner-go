@@ -105,6 +105,7 @@ cloudrunner    METRICEXPORTER_ENABLED                   bool                    
 cloudrunner    METRICEXPORTER_INTERVAL                  time.Duration                   60s                    
 cloudrunner    METRICEXPORTER_RUNTIMEINSTRUMENTATION    bool                                                   true
 cloudrunner    METRICEXPORTER_HOSTINSTRUMENTATION       bool                                                   true
+cloudrunner    METRICEXPORTER_OPENCENSUSPRODUCER        bool                            false                  
 cloudrunner    SERVER_TIMEOUT                           time.Duration                   290s                   
 cloudrunner    CLIENT_TIMEOUT                           time.Duration                   10s                    
 cloudrunner    CLIENT_RETRY_ENABLED                     bool                            true                   
