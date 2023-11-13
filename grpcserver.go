@@ -20,6 +20,7 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 	}
 	serverOptions := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
+			//nolint:staticcheck // package is deprecated, replace when possible
 			otelgrpc.UnaryServerInterceptor(),
 			run.loggerMiddleware.GRPCUnaryServerInterceptor, // adds context logger
 			run.traceMiddleware.GRPCServerUnaryInterceptor,  // needs the context logger
@@ -28,6 +29,7 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
 		grpc.ChainStreamInterceptor(
+			//nolint:staticcheck // package is deprecated, replace when possible
 			otelgrpc.StreamServerInterceptor(),
 			run.loggerMiddleware.GRPCStreamServerInterceptor,
 			run.traceMiddleware.GRPCStreamServerInterceptor,
