@@ -2,7 +2,9 @@ package cloudserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"runtime"
 
 	"go.einride.tech/cloudrunner/clouderror"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
@@ -42,7 +44,16 @@ func (i *Middleware) GRPCUnaryServerInterceptor(
 	}
 	ctx, cancel := context.WithTimeout(ctx, i.Config.Timeout)
 	defer cancel()
-	return handler(ctx, req)
+	resp, err = handler(ctx, req)
+	if errors.Is(err, context.DeadlineExceeded) {
+		// below call is an inline version of cloudrunner.Wrap in order to avoid circular imports
+		return nil, clouderror.WrapCaller(
+			err,
+			status.New(codes.DeadlineExceeded, "context deadline exceeded"),
+			clouderror.NewCaller(runtime.Caller(1)),
+		)
+	}
+	return resp, err
 }
 
 // GRPCStreamServerInterceptor implements grpc.StreamServerInterceptor.
@@ -69,5 +80,15 @@ func (i *Middleware) GRPCStreamServerInterceptor(
 	ctx, cancel := context.WithTimeout(ss.Context(), i.Config.Timeout)
 	defer cancel()
 
-	return handler(srv, cloudstream.NewContextualServerStream(ctx, ss))
+	if err := handler(srv, cloudstream.NewContextualServerStream(ctx, ss)); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return clouderror.WrapCaller(
+				err,
+				status.New(codes.DeadlineExceeded, "context deadline exceeded"),
+				clouderror.NewCaller(runtime.Caller(1)),
+			)
+		}
+		return err
+	}
+	return nil
 }
