@@ -9,7 +9,6 @@ import (
 	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudzap"
-	octrace "go.opencensus.io/trace"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/bridge/opencensus"
 	"go.opentelemetry.io/otel/propagation"
@@ -61,10 +60,7 @@ func StartTraceExporter(
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	))
-	// collect and export traces instrumented by open census
-	tracer := tracerProvider.Tracer("go.einride.tech/cloudrunner.cloudtrace")
-	//nolint:staticcheck // package is deprecated, replace when possible
-	octrace.DefaultTracer = opencensus.NewTracer(tracer)
+	opencensus.InstallTraceBridge()
 
 	cleanup := func() {
 		if err := tracerProvider.ForceFlush(context.Background()); err != nil {
