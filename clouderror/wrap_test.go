@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"golang.org/x/net/http2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gotest.tools/v3/assert"
@@ -69,6 +70,15 @@ func Test_WrapTransient(t *testing.T) {
 			name:         "wrapped context.Canceled",
 			err:          fmt.Errorf("bad: %w", context.Canceled),
 			expectedCode: codes.Canceled,
+		},
+		{
+			name: "http2.GoAwayError",
+			err: http2.GoAwayError{
+				LastStreamID: 123,
+				ErrCode:      http2.ErrCodeNo,
+				DebugData:    "deadbeef",
+			},
+			expectedCode: codes.Unavailable,
 		},
 	} {
 		tt := tt

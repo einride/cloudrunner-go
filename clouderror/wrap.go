@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"syscall"
 
+	"golang.org/x/net/http2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -43,6 +44,8 @@ func WrapTransientCaller(err error, msg string, caller Caller) error {
 	case errors.Is(err, context.Canceled):
 		return &wrappedStatusError{status: status.New(codes.Canceled, msg), err: err, caller: caller}
 	case errors.Is(err, syscall.ECONNRESET):
+		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
+	case errors.As(err, &http2.GoAwayError{}):
 		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
 	default:
 		return &wrappedStatusError{status: status.New(codes.Internal, msg), err: err, caller: caller}
