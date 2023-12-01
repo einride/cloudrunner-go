@@ -1,25 +1,31 @@
-Cloud Runner
-============
+# Cloud Runner
 
-Get up and running with [Go](https://golang.org/) and [gRPC](https://grpc.io) on [Google Cloud Platform](https://cloud.google.com/), with this lightweight, opinionated, batteries-included service SDK.
+Get up and running with [Go](https://golang.org/) and [gRPC](https://grpc.io) on
+[Google Cloud Platform](https://cloud.google.com/), with this lightweight,
+opinionated, batteries-included service SDK.
 
-Features
---------
+## Features
 
 Run your application with [`cloudrunner.Run`](./run.go), and you get:
 
--	Logging integrated with [Cloud Logging](https://cloud.google.com/logging) using [Zap](https://go.uber.org/zap).
--	Tracing integrated with [Cloud Trace](https://cloud.google.com/trace) using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
--	Metrics integrated with [Cloud Monitoring](https://cloud.google.com/monitoring) using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
--	Profiling integrated with [Cloud Profiler](https://cloud.google.com/profiler) using the [Google Cloud Go SDK](https://cloud.google.com/go).
+- Logging integrated with [Cloud Logging](https://cloud.google.com/logging)
+  using [Zap](https://go.uber.org/zap).
+- Tracing integrated with [Cloud Trace](https://cloud.google.com/trace)
+  using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
+- Metrics integrated with
+  [Cloud Monitoring](https://cloud.google.com/monitoring)
+  using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
+- Profiling integrated with [Cloud Profiler](https://cloud.google.com/profiler)
+  using the [Google Cloud Go SDK](https://cloud.google.com/go).
 
 To help you build gRPC microservices, you also get:
 
--	Server-to-server authentication, client retries, and more for gRPC clients with [`cloudrunner.DialService`](./dialservice.go).
--	Request logging, tracing, and more, for gRPC servers with[`cloudrunner.NewGRPCServer`](./grpcserver.go).
+- Server-to-server authentication, client retries, and more for gRPC clients
+  with [`cloudrunner.DialService`](./dialservice.go).
+- Request logging, tracing, and more, for gRPC servers
+  with[`cloudrunner.NewGRPCServer`](./grpcserver.go).
 
-Get up and running
-------------------
+## Get up and running
 
 Install the package:
 
@@ -54,12 +60,13 @@ func main() {
 }
 ```
 
-Configuration
--------------
+## Configuration
 
 The service is configured with environment variables.
 
-When the service is running [on GCE](https://pkg.go.dev/cloud.google.com/go/compute/metadata#OnGCE), all built-in integrations are turned on by default.
+When the service is running
+[on GCE](https://pkg.go.dev/cloud.google.com/go/compute/metadata#OnGCE), all
+built-in integrations are turned on by default.
 
 [Service-specific config](./options.go) is supported out of the box.
 
