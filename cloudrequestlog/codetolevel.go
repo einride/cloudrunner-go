@@ -23,7 +23,8 @@ func CodeToLevel(code codes.Code) zapcore.Level {
 		codes.Canceled,
 		codes.Aborted,
 		codes.Unavailable,
-		codes.ResourceExhausted:
+		codes.ResourceExhausted,
+		codes.Unimplemented:
 		return zap.WarnLevel
 	default:
 		return zap.ErrorLevel
