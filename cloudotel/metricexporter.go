@@ -17,7 +17,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.14.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -73,7 +73,7 @@ func StartMetricExporter(
 				"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
 				semconv.NetPeerPortKey,
 				semconv.NetSockPeerPortKey,
-				semconv.HTTPClientIPKey,
+				attribute.Key("http.client_ip"),
 			),
 			maskInstrumentAttrs(
 				"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
