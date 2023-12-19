@@ -3,6 +3,7 @@ package cloudrequestlog
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -37,6 +38,11 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	ctx = WithAdditionalFields(ctx)
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
+	slog.Warn(
+		"incoming request",
+		slog.String("method", info.FullMethod),
+		slog.Int("requestSize", proto.Size(requestClone)),
+	)
 	response, err := handler(ctx, request)
 	code := status.Code(err)
 	checkedEntry := l.logger(ctx).Check(
@@ -44,6 +50,7 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 		grpcServerLogMessage(code, info.FullMethod),
 	)
 	if checkedEntry == nil {
+		slog.Warn("skipping logging due to nil logger")
 		return response, err
 	}
 	grpcRequest := cloudzap.HTTPRequestObject{
@@ -146,6 +153,11 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	startTime := time.Now()
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
+	slog.Warn(
+		"outgoing request",
+		slog.String("method", fullMethod),
+		slog.Int("requestSize", proto.Size(requestClone)),
+	)
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
 	code := status.Code(err)
 	checkedEntry := l.logger(ctx).Check(
@@ -198,6 +210,10 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		ctx := WithAdditionalFields(r.Context())
 		r = r.WithContext(ctx)
 		startTime := time.Now()
+		slog.Warn(
+			"incoming request",
+			slog.String("requestURI", r.RequestURI),
+		)
 		next.ServeHTTP(responseWriter, r)
 		checkedEntry := l.logger(ctx).Check(
 			l.statusToLevel(responseWriter.Status()),
