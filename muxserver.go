@@ -12,7 +12,9 @@ import (
 
 // ListenGRPCHTTP binds a listener on the configured port and listens for gRPC and HTTP requests.
 func ListenGRPCHTTP(ctx context.Context, grpcServer *grpc.Server, httpServer *http.Server) error {
-	l, err := (&net.ListenConfig{}).Listen(ctx, "tcp", fmt.Sprintf(":%d", Runtime(ctx).Port))
+	grpcctx, grpccancel := context.WithCancel(context.WithoutCancel(ctx))
+	defer grpccancel()
+	l, err := (&net.ListenConfig{}).Listen(grpcctx, "tcp", fmt.Sprintf(":%d", Runtime(ctx).Port))
 	if err != nil {
 		return fmt.Errorf("serve gRPC and HTTP: %w", err)
 	}
