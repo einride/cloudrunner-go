@@ -38,10 +38,10 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	ctx = WithAdditionalFields(ctx)
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
-	slog.Warn(
+	l.logger(ctx).Warn(
 		"incoming request",
-		slog.String("method", info.FullMethod),
-		slog.Int("requestSize", proto.Size(requestClone)),
+		zap.String("method", info.FullMethod),
+		zap.Int("requestSize", proto.Size(requestClone)),
 	)
 	response, err := handler(ctx, request)
 	code := status.Code(err)
@@ -153,10 +153,10 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	startTime := time.Now()
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
-	slog.Warn(
+	l.logger(ctx).Warn(
 		"outgoing request",
-		slog.String("method", fullMethod),
-		slog.Int("requestSize", proto.Size(requestClone)),
+		zap.String("method", fullMethod),
+		zap.Int("requestSize", proto.Size(requestClone)),
 	)
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
 	code := status.Code(err)
