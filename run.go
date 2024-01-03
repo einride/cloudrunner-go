@@ -50,7 +50,7 @@ type runConfig struct {
 	// process all incoming requests properly, before cancelling
 	// the root context.
 	// Note: Values higher than 10s will not be respected by cloudrun itself.
-	ShutdownDelay time.Duration `optional:"true" required:"true"`
+	ShutdownDelay time.Duration
 }
 
 // Run a service.
