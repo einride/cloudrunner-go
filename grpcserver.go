@@ -57,12 +57,9 @@ func ListenGRPC(ctx context.Context, grpcServer *grpc.Server) error {
 	if !ok {
 		return fmt.Errorf("cloudrunner.ListenGRPC: must be called with a context from cloudrunner.Run")
 	}
-	listenerCtx, cancel := context.WithCancel(context.WithoutCancel(ctx))
-	// only after we've already gracefully shut down the server do we cancel the inherent grpcContext
-	defer cancel()
 	address := fmt.Sprintf(":%d", run.config.Runtime.Port)
 	listener, err := (&net.ListenConfig{}).Listen(
-		listenerCtx,
+		ctx,
 		"tcp",
 		address,
 	)
@@ -70,8 +67,6 @@ func ListenGRPC(ctx context.Context, grpcServer *grpc.Server) error {
 		return err
 	}
 	go func() {
-		// The root context is done, gracefully shutdown the grpcServer. Requests attached to
-		// the grpc server are still in flight, as grpcctx is still not canceled.
 		<-ctx.Done()
 		Logger(ctx).Info("gRPCServer shutting down")
 		grpcServer.GracefulStop()
