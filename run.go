@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"syscall"
+	"time"
 
 	"go.einride.tech/cloudrunner/cloudclient"
 	"go.einride.tech/cloudrunner/cloudconfig"
@@ -45,6 +46,11 @@ type runConfig struct {
 	Client cloudclient.Config
 	// RequestLogger contains request logging config.
 	RequestLogger cloudrequestlog.Config
+	// Artificial shutdown delay, allows for the service to
+	// process all incoming requests properly, before cancelling
+	// the root context.
+	// Note: Values higher than 10s will not be respected by cloudrun itself.
+	ShutdownDelay time.Duration `optional:"true" required:"true"`
 }
 
 // Run a service.
@@ -109,6 +115,18 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	slog.SetDefault(newSlogger(logger))
 	run.loggerMiddleware.Logger = logger
 	ctx = cloudzap.WithLogger(ctx, logger)
+	// Set up shutdown delay
+	if run.config.ShutdownDelay.Seconds() != 0 {
+		sigCtx := ctx
+		ctx, cancel = context.WithCancel(context.WithoutCancel(ctx))
+		go func() {
+			<-sigCtx.Done()
+			logger.Info("delaying shutdown", zap.Duration("duration", run.config.ShutdownDelay))
+			time.Sleep(run.config.ShutdownDelay)
+			cancel()
+		}()
+		defer cancel()
+	}
 	if err := cloudprofiler.Start(run.config.Profiler); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
