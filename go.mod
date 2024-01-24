@@ -28,8 +28,8 @@ require (
 	golang.org/x/net v0.20.0
 	golang.org/x/oauth2 v0.16.0
 	golang.org/x/sync v0.6.0
-	google.golang.org/api v0.156.0
-	google.golang.org/genproto v0.0.0-20231212172506-995d672761c0
+	google.golang.org/api v0.157.0
+	google.golang.org/genproto v0.0.0-20240102182953-50ed04b92917
 	google.golang.org/grpc v1.60.1
 	google.golang.org/grpc/examples v0.0.0-20231016201810-e14d5831b59b
 	google.golang.org/protobuf v1.32.0
@@ -40,7 +40,7 @@ require (
 require (
 	cloud.google.com/go v0.111.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
-	cloud.google.com/go/monitoring v1.16.3 // indirect
+	cloud.google.com/go/monitoring v1.17.0 // indirect
 	cloud.google.com/go/trace v1.10.4 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.21.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.45.0 // indirect
@@ -70,5 +70,5 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240102182953-50ed04b92917 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240116215550-a9fa1716bcac // indirect
 )
