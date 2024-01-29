@@ -5,7 +5,7 @@ go 1.21
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/profiler v0.4.0
-	cloud.google.com/go/pubsub v1.34.0
+	cloud.google.com/go/pubsub v1.36.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.45.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.21.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.45.0
@@ -29,7 +29,7 @@ require (
 	golang.org/x/oauth2 v0.16.0
 	golang.org/x/sync v0.6.0
 	google.golang.org/api v0.158.0
-	google.golang.org/genproto v0.0.0-20240102182953-50ed04b92917
+	google.golang.org/genproto v0.0.0-20240116215550-a9fa1716bcac
 	google.golang.org/grpc v1.61.0
 	google.golang.org/grpc/examples v0.0.0-20231016201810-e14d5831b59b
 	google.golang.org/protobuf v1.32.0
@@ -38,7 +38,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.111.0 // indirect
+	cloud.google.com/go v0.112.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/monitoring v1.17.0 // indirect
 	cloud.google.com/go/trace v1.10.4 // indirect
@@ -69,6 +69,6 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240122161410-6c6643bf1457 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240116215550-a9fa1716bcac // indirect
 )
