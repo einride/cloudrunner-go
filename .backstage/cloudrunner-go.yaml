@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cloudrunner-go
+  title: Cloud Runner Go
+  description: A lightweight, opinionated, batteries-included service SDK for running Go and gRPC in GCP.
+spec:
+  type: go-library
+  lifecycle: production
+  owner: platform-engineering
+  system: backend-sdk
