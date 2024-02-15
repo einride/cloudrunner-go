@@ -10,7 +10,7 @@ import (
 )
 
 func TestHTTPServer_RescuePanicsWithStatusInternalServerError(t *testing.T) {
-	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var handler http.Handler = http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		panic("boom!")
 	})
 	res := serveHTTP(handler)
@@ -18,7 +18,7 @@ func TestHTTPServer_RescuePanicsWithStatusInternalServerError(t *testing.T) {
 }
 
 func TestHTTPServer_WorksWhenHeaderIsAlreadyWritten(t *testing.T) {
-	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		panic("boom!")
 	})

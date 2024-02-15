@@ -87,7 +87,7 @@ func TestServiceAccount(t *testing.T) {
 
 func withGoogleDefaultCredentials(t *testing.T, credentials *google.Credentials, err error) {
 	prev := googleFindDefaultCredentials
-	googleFindDefaultCredentials = func(ctx context.Context, scopes ...string) (*google.Credentials, error) {
+	googleFindDefaultCredentials = func(_ context.Context, _ ...string) (*google.Credentials, error) {
 		return credentials, err
 	}
 	t.Cleanup(func() {
