@@ -30,7 +30,7 @@ require (
 	golang.org/x/sync v0.6.0
 	google.golang.org/api v0.169.0
 	google.golang.org/genproto v0.0.0-20240304212257-790db918fca8
-	google.golang.org/grpc v1.62.0
+	google.golang.org/grpc v1.62.1
 	google.golang.org/grpc/examples v0.0.0-20240228223710-2a617ca67a6b
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v3 v3.0.1
