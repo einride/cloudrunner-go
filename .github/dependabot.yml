@@ -4,16 +4,17 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
 
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
     groups:
       opentelemetry:
-        patterns:
-          - "*opentelemetry*"  # Include all dependencies in one PR
+        patterns: ["*opentelemetry*"]
+      all:
+        patterns: ["*"]
 
   - package-ecosystem: gomod
     directory: .sage
