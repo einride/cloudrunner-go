@@ -164,7 +164,7 @@ func (fx *testFixture) listen() {
 
 func greeterClient(t *testing.T, addr net.Addr) helloworld.GreeterClient {
 	t.Helper()
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		addr.String(),
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

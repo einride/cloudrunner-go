@@ -36,7 +36,7 @@ func DialServiceInsecure(ctx context.Context, target string, opts ...grpc.DialOp
 		grpc.WithPerRPCCredentials(insecureTokenSource{TokenSource: idTokenSource}),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	conn, err := grpc.DialContext(ctx, parsedTarget.Host, append(defaultOpts, opts...)...)
+	conn, err := grpc.NewClient(parsedTarget.Host, append(defaultOpts, opts...)...)
 	if err != nil {
 		return nil, fmt.Errorf("dial insecure '%s': %w", target, err)
 	}

@@ -69,7 +69,7 @@ func bufDialer(lis *bufconn.Listener) func(context.Context, string) (net.Conn, e
 
 func TestGRPCUnary_ContextTimeoutWithDeadlineExceededErr(t *testing.T) {
 	ctx := context.Background()
-	server, client := grpcSetup(ctx, t)
+	server, client := grpcSetup(t)
 	server.deadlineExceeeded = true
 
 	_, err := client.Ping(ctx, &testproto.PingRequest{})
@@ -78,7 +78,7 @@ func TestGRPCUnary_ContextTimeoutWithDeadlineExceededErr(t *testing.T) {
 
 func TestGRPCUnary_RescuePanicsWithStatusInternalError(t *testing.T) {
 	ctx := context.Background()
-	server, client := grpcSetup(ctx, t)
+	server, client := grpcSetup(t)
 	server.panicOnRequest = true
 
 	_, err := client.Ping(ctx, &testproto.PingRequest{})
@@ -87,7 +87,7 @@ func TestGRPCUnary_RescuePanicsWithStatusInternalError(t *testing.T) {
 
 func TestGRPCStream_ContextTimeoutWithDeadlineExceededErr(t *testing.T) {
 	ctx := context.Background()
-	server, client := grpcSetup(ctx, t)
+	server, client := grpcSetup(t)
 	server.deadlineExceeeded = true
 
 	stream, err := client.PingStream(ctx)
@@ -98,7 +98,7 @@ func TestGRPCStream_ContextTimeoutWithDeadlineExceededErr(t *testing.T) {
 
 func TestGRPCStream_RescuePanicsWithStatusInternalError(t *testing.T) {
 	ctx := context.Background()
-	server, client := grpcSetup(ctx, t)
+	server, client := grpcSetup(t)
 	server.panicOnRequest = true
 
 	stream, err := client.PingStream(ctx)
@@ -110,7 +110,7 @@ func TestGRPCStream_RescuePanicsWithStatusInternalError(t *testing.T) {
 
 func TestGRPCUnary_NoRequestError(t *testing.T) {
 	ctx := context.Background()
-	_, client := grpcSetup(ctx, t)
+	_, client := grpcSetup(t)
 
 	_, err := client.Ping(ctx, &testproto.PingRequest{})
 	assert.NilError(t, err)
@@ -118,7 +118,7 @@ func TestGRPCUnary_NoRequestError(t *testing.T) {
 
 func TestGRPCStream_NoRequestError(t *testing.T) {
 	ctx := context.Background()
-	_, client := grpcSetup(ctx, t)
+	_, client := grpcSetup(t)
 
 	stream, err := client.PingStream(ctx)
 	assert.NilError(t, err) // while it looks strange, this is setting up the stream
@@ -129,7 +129,7 @@ func TestGRPCStream_NoRequestError(t *testing.T) {
 	assert.Error(t, err, "EOF")
 }
 
-func grpcSetup(ctx context.Context, t *testing.T) (*Server, testproto.TestServiceClient) {
+func grpcSetup(t *testing.T) (*Server, testproto.TestServiceClient) {
 	lis := bufconn.Listen(bufSize)
 	middleware := cloudserver.Middleware{Config: cloudserver.Config{Timeout: time.Second * 5}}
 	server := grpc.NewServer(
@@ -143,9 +143,8 @@ func grpcSetup(ctx context.Context, t *testing.T) (*Server, testproto.TestServic
 			log.Fatalf("Server exited with error: %v", err)
 		}
 	}()
-	conn, err := grpc.DialContext(
-		ctx,
-		"bufnet",
+	conn, err := grpc.NewClient(
+		"passthrough://bufnet",
 		grpc.WithContextDialer(bufDialer(lis)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)

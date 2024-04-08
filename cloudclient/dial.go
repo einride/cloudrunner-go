@@ -40,7 +40,7 @@ func DialService(ctx context.Context, target string, opts ...grpc.DialOption) (*
 			PermitWithoutStream: true,
 		}),
 	}
-	conn, err := grpc.DialContext(ctx, withDefaultPort(target, 443), append(defaultOpts, opts...)...)
+	conn, err := grpc.NewClient(withDefaultPort(target, 443), append(defaultOpts, opts...)...)
 	if err != nil {
 		return nil, fmt.Errorf("dial %s: %w", target, err)
 	}
