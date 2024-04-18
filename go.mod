@@ -3,7 +3,7 @@ module go.einride.tech/cloudrunner
 go 1.21
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.3
+	cloud.google.com/go/compute/metadata v0.3.0
 	cloud.google.com/go/profiler v0.4.0
 	cloud.google.com/go/pubsub v1.37.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.46.0
@@ -28,20 +28,21 @@ require (
 	golang.org/x/net v0.24.0
 	golang.org/x/oauth2 v0.19.0
 	golang.org/x/sync v0.7.0
-	google.golang.org/api v0.172.0
-	google.golang.org/genproto v0.0.0-20240304212257-790db918fca8
+	google.golang.org/api v0.174.0
+	google.golang.org/genproto v0.0.0-20240415180920-8c6c420018be
 	google.golang.org/grpc v1.63.2
-	google.golang.org/grpc/examples v0.0.0-20240228223710-2a617ca67a6b
+	google.golang.org/grpc/examples v0.0.0-20240418005221-81d3f06aab8a
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.1
 )
 
 require (
-	cloud.google.com/go v0.112.1 // indirect
-	cloud.google.com/go/compute v1.24.0 // indirect
-	cloud.google.com/go/monitoring v1.18.0 // indirect
-	cloud.google.com/go/trace v1.10.5 // indirect
+	cloud.google.com/go v0.112.2 // indirect
+	cloud.google.com/go/auth v0.2.0 // indirect
+	cloud.google.com/go/auth/oauth2adapt v0.2.0 // indirect
+	cloud.google.com/go/monitoring v1.18.1 // indirect
+	cloud.google.com/go/trace v1.10.6 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.22.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.46.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -68,6 +69,6 @@ require (
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240311132316-a219d84964c2 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240415141817-7cd4c1c1f9ec // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be // indirect
 )
