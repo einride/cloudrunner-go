@@ -49,7 +49,7 @@ func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
 			return err
 		}
 		containers := config.Spec.Template.Spec.Containers
-		if len(containers) != 1 {
+		if len(containers) == 0 || len(containers) > 10 {
 			return fmt.Errorf("unexpected number of containers: %d", len(containers))
 		}
 		if config.Metadata.Name != "" {
@@ -81,7 +81,7 @@ func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
 			return err
 		}
 		containers := config.Spec.Template.Spec.Template.Spec.Containers
-		if len(containers) != 1 {
+		if len(containers) == 0 || len(containers) > 10 {
 			return fmt.Errorf("unexpected number of containers: %d", len(containers))
 		}
 		if config.Metadata.Name != "" {
