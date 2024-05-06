@@ -6,9 +6,9 @@ require (
 	cloud.google.com/go/compute/metadata v0.3.0
 	cloud.google.com/go/profiler v0.4.0
 	cloud.google.com/go/pubsub v1.37.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.46.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.22.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.46.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.47.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.23.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator v0.47.0
 	github.com/google/go-cmp v0.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/soheilhy/cmux v0.1.5
@@ -44,7 +44,7 @@ require (
 	cloud.google.com/go/monitoring v1.18.1 // indirect
 	cloud.google.com/go/trace v1.10.6 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.22.0 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.46.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.47.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
