@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/soheilhy/cmux v0.1.5
-	go.einride.tech/protobuf-sensitive v0.5.0
+	go.einride.tech/protobuf-sensitive v0.6.0
 	go.opentelemetry.io/contrib/detectors/gcp v1.27.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.52.0
 	go.opentelemetry.io/contrib/instrumentation/host v0.52.0
