@@ -3,6 +3,7 @@ package clouderror
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 
 	"golang.org/x/net/http2"
@@ -78,6 +79,11 @@ func Test_WrapTransient(t *testing.T) {
 				ErrCode:      http2.ErrCodeNo,
 				DebugData:    "deadbeef",
 			},
+			expectedCode: codes.Unavailable,
+		},
+		{
+			name:         "os timeout error",
+			err:          os.ErrDeadlineExceeded,
 			expectedCode: codes.Unavailable,
 		},
 	} {

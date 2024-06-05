@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"runtime"
 	"syscall"
 
@@ -46,6 +47,8 @@ func WrapTransientCaller(err error, msg string, caller Caller) error {
 	case errors.Is(err, syscall.ECONNRESET):
 		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
 	case errors.As(err, &http2.GoAwayError{}):
+		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
+	case os.IsTimeout(err):
 		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
 	default:
 		return &wrappedStatusError{status: status.New(codes.Internal, msg), err: err, caller: caller}
