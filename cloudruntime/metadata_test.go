@@ -96,23 +96,23 @@ func withGoogleDefaultCredentials(t *testing.T, credentials *google.Credentials,
 }
 
 func withMetadataProjectID(t *testing.T, value string, err error) {
-	prev := metadataProjectID
-	metadataProjectID = func() (string, error) {
+	prev := metadataProjectIDWithContext
+	metadataProjectIDWithContext = func(context.Context) (string, error) {
 		return value, err
 	}
 	t.Cleanup(func() {
-		metadataProjectID = prev
+		metadataProjectIDWithContext = prev
 	})
 }
 
 func withMetadataEmail(t *testing.T, expectedServiceAccount, value string, err error) {
-	prev := metadataEmail
-	metadataEmail = func(serviceAccount string) (string, error) {
+	prev := metadataEmailWithContext
+	metadataEmailWithContext = func(_ context.Context, serviceAccount string) (string, error) {
 		assert.Equal(t, expectedServiceAccount, serviceAccount)
 		return value, err
 	}
 	t.Cleanup(func() {
-		metadataEmail = prev
+		metadataEmailWithContext = prev
 	})
 }
 
