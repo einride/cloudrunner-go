@@ -33,7 +33,7 @@ func StartTraceExporter(
 	if !exporterConfig.Enabled {
 		return func() {}, nil
 	}
-	projectID, ok := cloudruntime.ProjectID()
+	projectID, ok := cloudruntime.ResolveProjectID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("start trace exporter: unknown project ID")
 	}

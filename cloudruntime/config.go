@@ -45,15 +45,15 @@ type Config struct {
 	ServiceVersion string `env:"SERVICE_VERSION"`
 }
 
-// Autodetect the runtime config.
-func (c *Config) Autodetect() error {
-	if projectID, ok := ProjectID(); ok {
+// Resolve the runtime config.
+func (c *Config) Resolve(ctx context.Context) error {
+	if projectID, ok := ResolveProjectID(ctx); ok {
 		c.ProjectID = projectID
 	}
 	if serviceVersion, ok := ServiceVersion(); ok {
 		c.ServiceVersion = serviceVersion
 	}
-	if serviceAccount, ok := ServiceAccount(); ok {
+	if serviceAccount, ok := ResolveServiceAccount(ctx); ok {
 		c.ServiceAccount = serviceAccount
 	}
 	if service, ok := Service(); ok {
@@ -81,4 +81,10 @@ func (c *Config) Autodetect() error {
 		c.TaskCount = taskCount
 	}
 	return nil
+}
+
+// Autodetect the runtime config.
+// Deprecated: Use the context-based [Config.Resolve] method instead.
+func (c *Config) Autodetect() error {
+	return c.Resolve(context.Background())
 }

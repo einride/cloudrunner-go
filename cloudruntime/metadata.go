@@ -14,42 +14,54 @@ import (
 //nolint:gochecknoglobals
 var (
 	metadataOnGCE                = metadata.OnGCE
-	metadataProjectID            = metadata.ProjectID
-	metadataEmail                = metadata.Email
+	metadataProjectIDWithContext = metadata.ProjectIDWithContext
+	metadataEmailWithContext     = metadata.EmailWithContext
 	googleFindDefaultCredentials = google.FindDefaultCredentials
 )
 
 // ProjectID returns the Google Cloud Project ID of the current runtime.
+// Deprecated: Use the context-based [ResolveProjectID] function.
 func ProjectID() (string, bool) {
+	return ResolveProjectID(context.Background())
+}
+
+// ResolveProjectID resolves the Google Cloud Project ID of the current runtime.
+func ResolveProjectID(ctx context.Context) (string, bool) {
 	if !metadataOnGCE() {
 		if projectFromEnv, ok := os.LookupEnv("GOOGLE_CLOUD_PROJECT"); ok {
 			return projectFromEnv, true
 		}
-		return projectIDFromDefaultCredentials()
+		return projectIDFromDefaultCredentials(ctx)
 	}
-	projectID, err := metadataProjectID()
+	projectID, err := metadataProjectIDWithContext(ctx)
 	return projectID, err == nil
 }
 
 // ServiceAccount returns the default service account of the current runtime.
+// Deprecated: Use the context-based [ResolveServiceAccount] function.
 func ServiceAccount() (string, bool) {
+	return ResolveServiceAccount(context.Background())
+}
+
+// ResolveServiceAccount resolves the default service account of the current runtime.
+func ResolveServiceAccount(ctx context.Context) (string, bool) {
 	if !metadataOnGCE() {
-		return serviceAccountFromDefaultCredentials()
+		return serviceAccountFromDefaultCredentials(ctx)
 	}
-	serviceAccount, err := metadataEmail("default")
+	serviceAccount, err := metadataEmailWithContext(ctx, "default")
 	return serviceAccount, err == nil
 }
 
-func projectIDFromDefaultCredentials() (string, bool) {
-	defaultCredentials, err := googleFindDefaultCredentials(context.Background())
+func projectIDFromDefaultCredentials(ctx context.Context) (string, bool) {
+	defaultCredentials, err := googleFindDefaultCredentials(ctx)
 	if err != nil {
 		return "", false
 	}
 	return defaultCredentials.ProjectID, defaultCredentials.ProjectID != ""
 }
 
-func serviceAccountFromDefaultCredentials() (string, bool) {
-	defaultCredentials, err := googleFindDefaultCredentials(context.Background())
+func serviceAccountFromDefaultCredentials(ctx context.Context) (string, bool) {
+	defaultCredentials, err := googleFindDefaultCredentials(ctx)
 	if err != nil || defaultCredentials.JSON == nil {
 		return "", false
 	}
