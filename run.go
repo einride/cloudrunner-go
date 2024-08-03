@@ -13,7 +13,6 @@ import (
 
 	"go.einride.tech/cloudrunner/cloudclient"
 	"go.einride.tech/cloudrunner/cloudconfig"
-	"go.einride.tech/cloudrunner/cloudmonitoring"
 	"go.einride.tech/cloudrunner/cloudotel"
 	"go.einride.tech/cloudrunner/cloudprofiler"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
@@ -101,10 +100,6 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	if run.requestLoggerMiddleware.MessageTransformer == nil {
 		run.requestLoggerMiddleware.MessageTransformer = protosensitive.Redact
 	}
-	run.metricMiddleware, err = cloudmonitoring.NewMetricMiddleware()
-	if err != nil {
-		return fmt.Errorf("cloudrunner.Run: %w", err)
-	}
 	ctx = withRunContext(ctx, &run)
 	ctx = cloudruntime.WithConfig(ctx, run.config.Runtime)
 	logger, err := cloudzap.NewLogger(run.config.Logger)
@@ -182,7 +177,6 @@ type runContext struct {
 	clientMiddleware          cloudclient.Middleware
 	requestLoggerMiddleware   cloudrequestlog.Middleware
 	traceMiddleware           cloudtrace.Middleware
-	metricMiddleware          cloudmonitoring.MetricMiddleware
 	securityHeadersMiddleware cloudserver.SecurityHeadersMiddleware
 }
 
