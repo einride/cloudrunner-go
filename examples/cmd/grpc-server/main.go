@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 
 	"go.einride.tech/cloudrunner"
 	"google.golang.org/grpc/health"
@@ -11,7 +12,7 @@ import (
 
 func main() {
 	if err := cloudrunner.Run(func(ctx context.Context) error {
-		cloudrunner.Logger(ctx).Info("hello world")
+		slog.InfoContext(ctx, "hello world")
 		grpcServer := cloudrunner.NewGRPCServer(ctx)
 		healthServer := health.NewServer()
 		grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)

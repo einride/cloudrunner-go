@@ -1,6 +1,7 @@
 package cloudconfig
 
 import (
+	"log/slog"
 	"time"
 
 	"go.uber.org/zap/zapcore"
@@ -15,6 +16,28 @@ func (c *Config) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		}
 	}
 	return nil
+}
+
+func (c *Config) LogValue() slog.Value {
+	attrs := make([]slog.Attr, 0, len(c.configSpecs))
+	for _, configSpec := range c.configSpecs {
+		attrs = append(attrs, slog.Any(configSpec.name, fieldSpecsValue(configSpec.fieldSpecs)))
+	}
+	return slog.GroupValue(attrs...)
+}
+
+type fieldSpecsValue []fieldSpec
+
+func (fsv fieldSpecsValue) LogValue() slog.Value {
+	attrs := make([]slog.Attr, 0, len(fsv))
+	for _, fs := range fsv {
+		if fs.Secret {
+			attrs = append(attrs, slog.String(fs.Key, "<secret>"))
+			continue
+		}
+		attrs = append(attrs, slog.Any(fs.Key, fs.Value.Interface()))
+	}
+	return slog.GroupValue(attrs...)
 }
 
 type fieldSpecsMarshaler []fieldSpec

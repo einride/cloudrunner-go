@@ -3,6 +3,7 @@ package cloudrequestlog
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -12,10 +13,12 @@ import (
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	ltype "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 // Middleware for request logging.
@@ -46,16 +49,16 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	if checkedEntry == nil {
 		return response, err
 	}
-	grpcRequest := cloudzap.HTTPRequestObject{
+	grpcRequest := &ltype.HttpRequest{
 		Protocol: "gRPC",
-		Latency:  time.Since(startTime),
+		Latency:  durationpb.New(time.Since(startTime)),
 	}
-	grpcRequest.RequestSize = proto.Size(requestClone)
+	grpcRequest.RequestSize = int64(proto.Size(requestClone))
 	if protoResponse, ok := response.(proto.Message); ok {
-		grpcRequest.ResponseSize = proto.Size(protoResponse)
+		grpcRequest.ResponseSize = int64(proto.Size(protoResponse))
 	}
-	fields := []zapcore.Field{
-		zap.Stringer("code", code),
+	attrs := []slog.Attr{
+		slog.String("code", code.String()),
 		zap.Object("httpRequest", &grpcRequest),
 		l.messageField("request", requestClone),
 		l.messageField("response", response),
