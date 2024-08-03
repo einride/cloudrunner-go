@@ -20,11 +20,9 @@ func DialService(ctx context.Context, target string, opts ...grpc.DialOption) (*
 		target,
 		append(
 			[]grpc.DialOption{
+				grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 				grpc.WithDefaultServiceConfig(run.config.Client.AsServiceConfigJSON()),
 				grpc.WithChainUnaryInterceptor(
-					//nolint:staticcheck // package is deprecated, replace when possible
-					otelgrpc.UnaryClientInterceptor(),
-					run.metricMiddleware.GRPCUnaryClientInterceptor,
 					run.requestLoggerMiddleware.GRPCUnaryClientInterceptor,
 					run.clientMiddleware.GRPCUnaryClientInterceptor,
 				),
