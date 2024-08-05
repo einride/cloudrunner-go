@@ -94,7 +94,7 @@ func StartMetricExporter(
 					// so only warn about it.
 					logger.Warn(msg, zap.Error(err))
 				default:
-					logger.Error(msg, zap.Error(err))
+					logger.Warn(msg, zap.Error(err))
 				}
 			}
 		}
