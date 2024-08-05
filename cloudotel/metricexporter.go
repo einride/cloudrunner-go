@@ -82,9 +82,9 @@ func StartMetricExporter(
 	)
 	otel.SetMeterProvider(provider)
 	shutdown := func() {
-		if err := reader.Shutdown(context.Background()); err != nil {
+		if err := provider.Shutdown(context.Background()); err != nil {
 			if logger, ok := cloudzap.GetLogger(ctx); ok {
-				logger.Warn("error stopping periodic reader, final metric export might have failed", zap.Error(err))
+				logger.Warn("error stopping metric provider, final metric export might have failed", zap.Error(err))
 			}
 		}
 	}
