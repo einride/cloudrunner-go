@@ -20,7 +20,6 @@ import (
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"go.einride.tech/cloudrunner/cloudzap"
-	"go.einride.tech/protobuf-sensitive/protosensitive"
 	"go.uber.org/zap"
 	"go.uber.org/zap/exp/zapslog"
 	"go.uber.org/zap/zapcore"
@@ -97,9 +96,6 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	}
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
-	if run.requestLoggerMiddleware.MessageTransformer == nil {
-		run.requestLoggerMiddleware.MessageTransformer = protosensitive.Redact
-	}
 	ctx = withRunContext(ctx, &run)
 	ctx = cloudruntime.WithConfig(ctx, run.config.Runtime)
 	logger, err := cloudzap.NewLogger(run.config.Logger)

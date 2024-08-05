@@ -6,18 +6,10 @@ import (
 	"go.einride.tech/cloudrunner/cloudconfig"
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/proto"
 )
 
 // Option provides optional configuration for a run context.
 type Option func(*runContext)
-
-// WithRequestLoggerMessageTransformer configures the request logger with a message transformer.
-func WithRequestLoggerMessageTransformer(transformer func(proto.Message) proto.Message) Option {
-	return func(run *runContext) {
-		run.requestLoggerMiddleware.MessageTransformer = transformer
-	}
-}
 
 // WithConfig configures an additional config struct to be loaded.
 func WithConfig(name string, config interface{}) Option {
