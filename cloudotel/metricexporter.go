@@ -19,8 +19,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // MetricExporterConfig configures the metrics exporter.
@@ -86,16 +84,7 @@ func StartMetricExporter(
 	shutdown := func() {
 		if err := reader.Shutdown(context.Background()); err != nil {
 			if logger, ok := cloudzap.GetLogger(ctx); ok {
-				const msg = "error stopping periodic reader, final metric export might have failed"
-				switch status.Code(err) {
-				case codes.InvalidArgument:
-					// In case final export happens within the minimum frequency time from the previous export,
-					// Cloud Monitoring API will fail with InvalidArgument. In that case, there's nothing to do
-					// so only warn about it.
-					logger.Warn(msg, zap.Error(err))
-				default:
-					logger.Error(msg, zap.Error(err))
-				}
+				logger.Warn("error stopping periodic reader, final metric export might have failed", zap.Error(err))
 			}
 		}
 	}
