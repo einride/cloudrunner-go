@@ -16,6 +16,6 @@ func StartExporter(
 	ctx context.Context,
 	exporterConfig ExporterConfig,
 	resource *resource.Resource,
-) (func(), error) {
+) (func(context.Context) error, error) {
 	return cloudotel.StartTraceExporter(ctx, exporterConfig, resource)
 }

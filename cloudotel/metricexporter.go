@@ -2,13 +2,13 @@ package cloudotel
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	metricexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
 	"go.einride.tech/cloudrunner/cloudruntime"
-	"go.einride.tech/cloudrunner/cloudzap"
 	hostinstrumentation "go.opentelemetry.io/contrib/instrumentation/host"
 	runtimeinstrumentation "go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
@@ -18,7 +18,6 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
-	"go.uber.org/zap"
 )
 
 // MetricExporterConfig configures the metrics exporter.
@@ -35,9 +34,9 @@ func StartMetricExporter(
 	ctx context.Context,
 	exporterConfig MetricExporterConfig,
 	resource *resource.Resource,
-) (func(), error) {
+) (func(context.Context) error, error) {
 	if !exporterConfig.Enabled {
-		return func() {}, nil
+		return func(context.Context) error { return nil }, nil
 	}
 	projectID, ok := cloudruntime.ResolveProjectID(ctx)
 	if !ok {
@@ -81,23 +80,26 @@ func StartMetricExporter(
 		),
 	)
 	otel.SetMeterProvider(provider)
-	shutdown := func() {
-		if err := provider.Shutdown(context.Background()); err != nil {
-			if logger, ok := cloudzap.GetLogger(ctx); ok {
-				logger.Warn("error stopping metric provider, final metric export might have failed", zap.Error(err))
-			}
+	shutdown := func(ctx context.Context) error {
+		if err := provider.Shutdown(ctx); err != nil {
+			return fmt.Errorf("error stopping metric provider, final metric export might have failed: %v", err)
 		}
+		return nil
 	}
 	if exporterConfig.RuntimeInstrumentation {
 		if err := runtimeinstrumentation.Start(); err != nil {
-			shutdown()
-			return nil, fmt.Errorf("start metric exporter: start runtime instrumentation: %w", err)
+			return nil, errors.Join(
+				shutdown(ctx),
+				fmt.Errorf("start metric exporter: start runtime instrumentation: %w", err),
+			)
 		}
 	}
 	if exporterConfig.HostInstrumentation {
 		if err := hostinstrumentation.Start(); err != nil {
-			shutdown()
-			return nil, fmt.Errorf("start metric exporter: start host instrumentation: %w", err)
+			return nil, errors.Join(
+				shutdown(ctx),
+				fmt.Errorf("start metric exporter: start host instrumentation: %w", err),
+			)
 		}
 	}
 	return shutdown, nil
