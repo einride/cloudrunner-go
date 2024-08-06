@@ -8,13 +8,11 @@ import (
 	traceexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
 	"go.einride.tech/cloudrunner/cloudruntime"
-	"go.einride.tech/cloudrunner/cloudzap"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/bridge/opencensus"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.uber.org/zap"
 )
 
 // TraceExporterConfig configures the trace exporter.
@@ -29,17 +27,13 @@ func StartTraceExporter(
 	ctx context.Context,
 	exporterConfig TraceExporterConfig,
 	resource *resource.Resource,
-) (func(), error) {
+) (func(context.Context) error, error) {
 	if !exporterConfig.Enabled {
-		return func() {}, nil
+		return func(context.Context) error { return nil }, nil
 	}
 	projectID, ok := cloudruntime.ResolveProjectID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("start trace exporter: unknown project ID")
-	}
-	logger, ok := cloudzap.GetLogger(ctx)
-	if !ok {
-		return nil, fmt.Errorf("start trace exporter: no logger in context")
 	}
 	exporter, err := traceexporter.New(
 		traceexporter.WithProjectID(projectID),
@@ -62,13 +56,14 @@ func StartTraceExporter(
 	))
 	opencensus.InstallTraceBridge()
 
-	cleanup := func() {
-		if err := tracerProvider.ForceFlush(context.Background()); err != nil {
-			logger.Error("error shutting down trace exporter", zap.Error(err))
+	cleanup := func(ctx context.Context) error {
+		if err := tracerProvider.ForceFlush(ctx); err != nil {
+			return fmt.Errorf("error shutting down trace exporter: %v", err)
 		}
-		if err := tracerProvider.Shutdown(context.Background()); err != nil {
-			logger.Error("error shutting down trace exporter", zap.Error(err))
+		if err := tracerProvider.Shutdown(ctx); err != nil {
+			return fmt.Errorf("error shutting down trace exporter: %v", err)
 		}
+		return nil
 	}
 	return cleanup, nil
 }

@@ -2,6 +2,7 @@ package cloudrunner
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -45,11 +46,6 @@ type runConfig struct {
 	Client cloudclient.Config
 	// RequestLogger contains request logging config.
 	RequestLogger cloudrequestlog.Config
-	// Artificial shutdown delay, allows for the service to
-	// process all incoming requests properly, before cancelling
-	// the root context.
-	// Note: Values higher than 10s will not be respected by cloudrun itself.
-	ShutdownDelay time.Duration
 }
 
 // Run a service.
@@ -110,18 +106,6 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	slog.SetDefault(newSlogger(logger))
 	run.loggerMiddleware.Logger = logger
 	ctx = cloudzap.WithLogger(ctx, logger)
-	// Set up shutdown delay
-	if run.config.ShutdownDelay.Seconds() != 0 {
-		sigCtx := ctx
-		ctx, cancel = context.WithCancel(context.WithoutCancel(ctx))
-		go func() {
-			<-sigCtx.Done()
-			logger.Info("delaying shutdown", zap.Duration("duration", run.config.ShutdownDelay))
-			time.Sleep(run.config.ShutdownDelay)
-			cancel()
-		}()
-		defer cancel()
-	}
 	if err := cloudprofiler.Start(run.config.Profiler); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
@@ -133,14 +117,28 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	defer stopTraceExporter()
 	stopMetricExporter, err := cloudotel.StartMetricExporter(ctx, run.config.MetricExporter, resource)
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	defer stopMetricExporter()
 	cloudotel.RegisterErrorHandler(ctx)
 	buildInfo, _ := debug.ReadBuildInfo()
+	go func() {
+		<-ctx.Done()
+		// Cloud Run sends a SIGTERM and allows for 10 seconds before it completely shuts down
+		// the instance.
+		// See https://cloud.google.com/run/docs/container-contract#instance-shutdown for more details.
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		logger.Info("shutting down")
+		err := errors.Join(
+			stopTraceExporter(shutdownCtx),
+			stopMetricExporter(shutdownCtx),
+		)
+		if err != nil {
+			logger.Warn("unable to call shutdown routines:\n", zap.Error(err))
+		}
+	}()
 	logger.Info(
 		"up and running",
 		zap.Object("config", config),
