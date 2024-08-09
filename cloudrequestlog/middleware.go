@@ -22,8 +22,6 @@ import (
 type Middleware struct {
 	// Config for the request logger middleware.
 	Config Config
-	// MessageTransformer is an optional transform applied to proto.Message request and responses.
-	MessageTransformer func(proto.Message) proto.Message
 }
 
 // GRPCUnaryServerInterceptor implements request logging as a grpc.UnaryServerInterceptor.
@@ -244,10 +242,7 @@ func (l *Middleware) messageField(key string, message interface{}) zap.Field {
 }
 
 func (l *Middleware) applyMessageTransform(message proto.Message) proto.Message {
-	if l.MessageTransformer == nil {
-		return message
-	}
-	return l.MessageTransformer(message)
+	return redact(message)
 }
 
 func (l *Middleware) codeToLevel(code codes.Code) zapcore.Level {
