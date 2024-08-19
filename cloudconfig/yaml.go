@@ -8,7 +8,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
+type env struct {
+	Name      string
+	Value     string
+	ValueFrom struct {
+		SecretKeyRef struct {
+			Key  string
+			Name string
+		} `yaml:"secretKeyRef"`
+	} `yaml:"valueFrom"`
+}
+
+func getEnvFromYAMLServiceSpecificationFile(name string) (envValues []env, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("set env from YAML service/job specification file %s: %w", name, err)
@@ -17,16 +28,12 @@ func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
 	var kind struct {
 		Kind string
 	}
-	type env struct {
-		Name  string
-		Value string
-	}
 	data, err := os.ReadFile(name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&kind); err != nil {
-		return err
+		return nil, err
 	}
 	var envs []env
 	switch kind.Kind {
@@ -46,15 +53,15 @@ func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
 			}
 		}
 		if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&config); err != nil {
-			return err
+			return nil, err
 		}
 		containers := config.Spec.Template.Spec.Containers
 		if len(containers) == 0 || len(containers) > 10 {
-			return fmt.Errorf("unexpected number of containers: %d", len(containers))
+			return nil, fmt.Errorf("unexpected number of containers: %d", len(containers))
 		}
 		if config.Metadata.Name != "" {
 			if err := os.Setenv("K_SERVICE", config.Metadata.Name); err != nil {
-				return err
+				return nil, err
 			}
 		}
 		envs = containers[0].Env
@@ -78,28 +85,27 @@ func setEnvFromYAMLServiceSpecificationFile(name string) (err error) {
 			}
 		}
 		if err := yaml.NewDecoder(bytes.NewReader(data)).Decode(&config); err != nil {
-			return err
+			return nil, err
 		}
 		containers := config.Spec.Template.Spec.Template.Spec.Containers
 		if len(containers) == 0 || len(containers) > 10 {
-			return fmt.Errorf("unexpected number of containers: %d", len(containers))
+			return nil, fmt.Errorf("unexpected number of containers: %d", len(containers))
 		}
 		if config.Metadata.Name != "" {
 			if err := os.Setenv("K_SERVICE", config.Metadata.Name); err != nil {
-				return err
+				return nil, err
 			}
 		}
 		envs = containers[0].Env
 	default:
-		return fmt.Errorf("unknown config kind: %s", kind.Kind)
+		return nil, fmt.Errorf("unknown config kind: %s", kind.Kind)
 	}
+	envValues = make([]env, 0, len(envs))
 	for _, env := range envs {
 		// Prefer variables from local environment.
 		if _, ok := os.LookupEnv(env.Name); !ok {
-			if err := os.Setenv(env.Name, env.Value); err != nil {
-				return err
-			}
+			envValues = append(envValues, env)
 		}
 	}
-	return nil
+	return envValues, nil
 }
