@@ -68,7 +68,10 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 		)
 	}
 	if *validate {
-		run.configOptions = append(run.configOptions, cloudconfig.WithOptionalSecrets())
+		run.configOptions = append(
+			run.configOptions,
+			cloudconfig.WithOptionalSecrets(),
+		)
 	}
 	config, err := cloudconfig.New("cloudrunner", &run.config, run.configOptions...)
 	if err != nil {

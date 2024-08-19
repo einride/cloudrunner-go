@@ -3,6 +3,7 @@ package cloudconfig
 import (
 	"fmt"
 	"io"
+	"os"
 	"text/tabwriter"
 )
 
@@ -49,13 +50,40 @@ type configSpec struct {
 // Load values into the config.
 func (c *Config) Load() error {
 	if c.yamlServiceSpecificationFilename != "" {
-		if err := setEnvFromYAMLServiceSpecificationFile(c.yamlServiceSpecificationFilename); err != nil {
+		envs, err := getEnvFromYAMLServiceSpecificationFile(c.yamlServiceSpecificationFilename)
+		if err != nil {
 			return err
+		}
+		if err := validateEnvSecretTags(envs, c.configSpecs); err != nil {
+			return err
+		}
+		for _, e := range envs {
+			if err := os.Setenv(e.Name, e.Value); err != nil {
+				return err
+			}
 		}
 	}
 	for _, cs := range c.configSpecs {
 		if err := c.process(cs.fieldSpecs); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func validateEnvSecretTags(envs []env, configSpecs []*configSpec) error {
+	for _, env := range envs {
+		if env.ValueFrom.SecretKeyRef.Key == "" && env.ValueFrom.SecretKeyRef.Name == "" {
+			continue
+		}
+		for _, spec := range configSpecs {
+			for _, f := range spec.fieldSpecs {
+				if f.Key == env.Name {
+					if !f.Secret {
+						return fmt.Errorf("field %s does not have the correct secret tag", f.Name)
+					}
+				}
+			}
 		}
 	}
 	return nil
