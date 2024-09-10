@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudstatus"
 	"go.einride.tech/cloudrunner/cloudzap"
+	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -56,6 +58,7 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fields.Add(cloudzap.ProtoMessage("pubsubMessage", &pubsubMessage))
 	}
 	ctx := withSubscription(r.Context(), payload.Subscription)
+	ctx = propagation.TraceContext{}.Extract(ctx, pubsub.NewMessageCarrierFromPB(&pubsubMessage))
 	if err := fn(ctx, &pubsubMessage); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 			fields.Add(zap.Error(err))
