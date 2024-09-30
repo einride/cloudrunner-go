@@ -35,7 +35,7 @@ func WrapTransient(err error, msg string) error {
 func WrapTransientCaller(err error, msg string, caller Caller) error {
 	if s, ok := status.FromError(err); ok {
 		switch s.Code() {
-		case codes.Unavailable, codes.DeadlineExceeded, codes.Canceled, codes.Unauthenticated, codes.PermissionDenied:
+		case codes.Unavailable, codes.DeadlineExceeded, codes.Canceled:
 			return &wrappedStatusError{status: status.New(s.Code(), msg), err: err, caller: caller}
 		}
 	}
