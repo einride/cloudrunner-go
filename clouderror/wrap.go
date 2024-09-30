@@ -13,25 +13,28 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Wrap an error with a gRPC status.
+// Wrap masks the gRPC status of the provided error by replacing it with the provided status.
 func Wrap(err error, s *status.Status) error {
 	return &wrappedStatusError{status: s, err: err, caller: NewCaller(runtime.Caller(1))}
 }
 
-// WrapCaller wraps an error with a gRPC status and a caller.
+// WrapCaller masks the gRPC status of the provided error by replacing it with the provided status.
+// The call site of the error is captured from the provided caller.
 func WrapCaller(err error, s *status.Status, caller Caller) error {
 	return &wrappedStatusError{status: s, err: err, caller: caller}
 }
 
-// WrapTransient wraps transient errors (possibly status.Status) with
-// appropriate codes.Code. The returned error will always be a status.Status
-// with description set to msg.
+// WrapTransient masks the gRPC status of the provided error by replacing the status message.
+// If the original error has transient (retryable) gRPC status code, the status code is forwarded.
+// Otherwise, the status code is masked with INTERNAL.
 func WrapTransient(err error, msg string) error {
 	return WrapTransientCaller(err, msg, NewCaller(runtime.Caller(1)))
 }
 
-// WrapTransientCaller wraps transient errors with an appropriate codes.Code and caller.
-// The returned error will always be a status.Status with description set to msg.
+// WrapTransient masks the gRPC status of the provided error by replacing the status message.
+// If the original error has transient (retryable) gRPC status code, the status code is forwarded.
+// Otherwise, the status code is masked with INTERNAL.
+// The call site of the error is captured from the provided caller.
 func WrapTransientCaller(err error, msg string, caller Caller) error {
 	if s, ok := status.FromError(err); ok {
 		switch s.Code() {
