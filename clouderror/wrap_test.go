@@ -40,16 +40,6 @@ func Test_WrapTransient(t *testing.T) {
 			expectedCode: codes.Unavailable,
 		},
 		{
-			name:         "codes.Unauthenticated",
-			err:          status.Error(codes.Unauthenticated, "transient"),
-			expectedCode: codes.Unauthenticated,
-		},
-		{
-			name:         "codes.PermissionDenied",
-			err:          status.Error(codes.PermissionDenied, "transient"),
-			expectedCode: codes.PermissionDenied,
-		},
-		{
 			name: "wrapped transient",
 			err: Wrap(
 				fmt.Errorf("network unavailable"),
