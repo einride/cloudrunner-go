@@ -58,7 +58,7 @@ func handleHTTPResponseToGRPCRequest(errInput error) error {
 		)
 	}
 	// Other HTTP responses to gRPC requests are assumed to be transient.
-	return status.Errorf(codes.Unavailable, errorMessage)
+	return status.Error(codes.Unavailable, errorMessage)
 }
 
 func isContentTypeHTML(msg string) bool {
