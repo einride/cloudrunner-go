@@ -87,7 +87,6 @@ func Test_WrapTransient(t *testing.T) {
 			expectedCode: codes.Unavailable,
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := WrapTransient(tt.err, "boom")

@@ -96,7 +96,6 @@ func TestHandleHTTPResponseToGRPCRequest(t *testing.T) {
 			),
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			actual := handleHTTPResponseToGRPCRequest(tt.err)
 			assert.Equal(t, status.Code(actual), status.Code(tt.expected))
