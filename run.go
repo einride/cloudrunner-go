@@ -19,11 +19,11 @@ import (
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudserver"
+	"go.einride.tech/cloudrunner/cloudslog"
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.einride.tech/protobuf-sensitive/protosensitive"
 	"go.uber.org/zap"
-	"go.uber.org/zap/exp/zapslog"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 )
@@ -105,10 +105,14 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	// Set the global default log/slog logger to write to our zap logger
-	slog.SetDefault(newSlogger(logger))
 	run.loggerMiddleware.Logger = logger
 	ctx = cloudzap.WithLogger(ctx, logger)
+	// Set the global default log/slog logger.
+	slog.SetDefault(slog.New(cloudslog.NewHandler(cloudslog.LoggerConfig{
+		Development:           run.config.Logger.Development,
+		Level:                 cloudzap.LevelToSlog(run.config.Logger.Level),
+		ProtoMessageSizeLimit: run.config.RequestLogger.MessageSizeLimit,
+	})))
 	if err := cloudprofiler.Start(run.config.Profiler); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
@@ -142,11 +146,12 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 			logger.Warn("unable to call shutdown routines:\n", zap.Error(err))
 		}
 	}()
-	logger.Info(
+	slog.InfoContext(
+		ctx,
 		"up and running",
-		zap.Object("config", config),
-		cloudzap.Resource("resource", resource),
-		zap.Object("buildInfo", buildInfoMarshaler{buildInfo: buildInfo}),
+		slog.Any("config", config),
+		slog.Any("resource", resource),
+		slog.Any("buildInfo", buildInfo),
 	)
 	defer logger.Info("goodbye")
 	defer func() {
@@ -212,14 +217,4 @@ func (b buildSettingsMarshaler) MarshalLogObject(encoder zapcore.ObjectEncoder) 
 		encoder.AddString(setting.Key, setting.Value)
 	}
 	return nil
-}
-
-// newSlogger returns a slog logger in which the underlying handler writes to the given zap logger.
-// this func is kept here instead of in the cloudslog package to avoid having a api surface
-// that encompasses zap in that package.
-func newSlogger(zl *zap.Logger) *slog.Logger {
-	slogHandler := zapslog.NewHandler(zl.Core(), &zapslog.HandlerOptions{
-		AddSource: true, // same as zap's AddCaller
-	})
-	return slog.New(slogHandler)
 }
