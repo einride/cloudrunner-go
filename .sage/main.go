@@ -27,7 +27,8 @@ func main() {
 }
 
 func All(ctx context.Context) error {
-	sg.Deps(ctx, ConvcoCheck, GoLint, GoTest, FormatMarkdown, FormatYAML, ReadmeSnippet)
+	sg.Deps(ctx, ConvcoCheck, FormatMarkdown, FormatYAML, ReadmeSnippet)
+	sg.Deps(ctx, GoLint, GoTest)
 	sg.Deps(ctx, GoModTidy)
 	sg.Deps(ctx, GitVerifyNoDiff)
 	return nil
@@ -51,6 +52,11 @@ func GoTest(ctx context.Context) error {
 func GoLint(ctx context.Context) error {
 	sg.Logger(ctx).Println("linting Go files...")
 	return sggolangcilint.Run(ctx)
+}
+
+func GoLintFix(ctx context.Context) error {
+	sg.Logger(ctx).Println("fixing Go files...")
+	return sggolangcilint.Fix(ctx)
 }
 
 // TODO: Add this to All target once it is working again.
