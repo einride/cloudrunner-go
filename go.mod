@@ -6,6 +6,7 @@ toolchain go1.23.1
 
 require (
 	cloud.google.com/go/compute/metadata v0.5.2
+	cloud.google.com/go/logging v1.11.0
 	cloud.google.com/go/profiler v0.4.1
 	cloud.google.com/go/pubsub v1.43.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48.2
@@ -24,6 +25,7 @@ require (
 	go.opentelemetry.io/otel/bridge/opencensus v1.30.0
 	go.opentelemetry.io/otel/sdk v1.30.0
 	go.opentelemetry.io/otel/sdk/metric v1.30.0
+	go.opentelemetry.io/otel/trace v1.30.0
 	go.uber.org/zap v1.27.0
 	go.uber.org/zap/exp v0.2.0
 	golang.org/x/net v0.29.0
@@ -44,6 +46,7 @@ require (
 	cloud.google.com/go v0.115.1 // indirect
 	cloud.google.com/go/auth v0.9.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
+	cloud.google.com/go/longrunning v0.6.1 // indirect
 	cloud.google.com/go/monitoring v1.21.1 // indirect
 	cloud.google.com/go/trace v1.11.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.24.1 // indirect
@@ -68,7 +71,6 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.30.0 // indirect
-	go.opentelemetry.io/otel/trace v1.30.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect

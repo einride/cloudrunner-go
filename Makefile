@@ -71,6 +71,10 @@ go-licenses: $(sagefile)
 go-lint: $(sagefile)
 	@$(sagefile) GoLint
 
+.PHONY: go-lint-fix
+go-lint-fix: $(sagefile)
+	@$(sagefile) GoLintFix
+
 .PHONY: go-mod-tidy
 go-mod-tidy: $(sagefile)
 	@$(sagefile) GoModTidy
