@@ -63,6 +63,7 @@ func (t *handler) Handle(ctx context.Context, record slog.Record) error {
 		record.AddAttrs(slog.Any("logging.googleapis.com/spanId", s.SpanID()))
 		record.AddAttrs(slog.Bool("logging.googleapis.com/trace_sampled", s.TraceFlags().IsSampled()))
 	}
+	record.AddAttrs(attributesFromContext(ctx)...)
 	return t.Handler.Handle(ctx, record)
 }
 
