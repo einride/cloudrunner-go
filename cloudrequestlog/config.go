@@ -1,7 +1,8 @@
 package cloudrequestlog
 
 import (
-	"go.uber.org/zap/zapcore"
+	"log/slog"
+
 	"google.golang.org/grpc/codes"
 )
 
@@ -12,7 +13,7 @@ type Config struct {
 	// Default value, 0, means that no messages will be truncated.
 	MessageSizeLimit int `onGCE:"1024"`
 	// CodeToLevel enables overriding the default gRPC code to level conversion.
-	CodeToLevel map[codes.Code]zapcore.Level
+	CodeToLevel map[codes.Code]slog.Level
 	// StatusToLevel enables overriding the default HTTP status code to level conversion.
-	StatusToLevel map[int]zapcore.Level
+	StatusToLevel map[int]slog.Level
 }
