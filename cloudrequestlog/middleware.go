@@ -254,14 +254,14 @@ func (l *Middleware) applyMessageTransform(message proto.Message) proto.Message 
 
 func (l *Middleware) codeToLevel(code codes.Code) zapcore.Level {
 	if level, ok := l.Config.CodeToLevel[code]; ok {
-		return level
+		return slogToLevel(level)
 	}
 	return CodeToLevel(code)
 }
 
 func (l *Middleware) statusToLevel(status int) zapcore.Level {
 	if level, ok := l.Config.StatusToLevel[status]; ok {
-		return level
+		return slogToLevel(level)
 	}
 	switch {
 	case status < http.StatusBadRequest:
