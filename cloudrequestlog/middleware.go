@@ -3,6 +3,7 @@ package cloudrequestlog
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -12,10 +13,12 @@ import (
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	ltype "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 // Middleware for request logging.
@@ -194,38 +197,37 @@ func measureHeaderSize(h http.Header) int {
 // HTTPServer provides request logging for HTTP servers.
 func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		responseWriter := &httpResponseWriter{ResponseWriter: w}
+		startTime := time.Now()
 		ctx := WithAdditionalFields(r.Context())
 		r = r.WithContext(ctx)
-		startTime := time.Now()
+		responseWriter := &httpResponseWriter{ResponseWriter: w}
 		next.ServeHTTP(responseWriter, r)
-		checkedEntry := l.logger(ctx).Check(
-			l.statusToLevel(responseWriter.Status()),
-			httpServerLogMessage(responseWriter, r),
-		)
-		if checkedEntry == nil {
+		level := l.statusToLevel(responseWriter.Status())
+		logger := slog.Default()
+		if !logger.Enabled(ctx, levelToSlog(level)) {
 			return
 		}
-		httpRequest := cloudzap.HTTPRequestObject{
+		logMessage := httpServerLogMessage(responseWriter, r)
+		httpRequest := &ltype.HttpRequest{
 			RequestMethod: r.Method,
-			Status:        responseWriter.Status(),
-			ResponseSize:  responseWriter.size + measureHeaderSize(w.Header()),
+			Status:        int32(responseWriter.Status()),
+			ResponseSize:  int64(responseWriter.size + measureHeaderSize(w.Header())),
 			UserAgent:     r.UserAgent(),
-			RemoteIP:      r.RemoteAddr,
+			RemoteIp:      r.RemoteAddr,
 			Referer:       r.Referer(),
-			Latency:       time.Since(startTime),
+			Latency:       durationpb.New(time.Since(startTime)),
 			Protocol:      r.Proto,
 		}
 		if r.URL != nil {
-			httpRequest.RequestURL = r.URL.String()
+			httpRequest.RequestUrl = r.URL.String()
 		}
-		fields := []zapcore.Field{
-			cloudzap.HTTPRequest(&httpRequest),
+		attrs := []slog.Attr{
+			slog.Any("httpRequest", &httpRequest),
 		}
 		if additionalFields, ok := GetAdditionalFields(ctx); ok {
-			fields = additionalFields.AppendTo(fields)
+			attrs = additionalFields.appendTo(attrs)
 		}
-		checkedEntry.Write(fields...)
+		logger.LogAttrs(ctx, levelToSlog(level), logMessage, attrs...)
 	})
 }
 
