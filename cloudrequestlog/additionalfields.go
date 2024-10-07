@@ -70,6 +70,18 @@ func (m *AdditionalFields) AppendTo(fields []zap.Field) []zap.Field {
 	return fields
 }
 
+func (m *AdditionalFields) appendTo(attrs []slog.Attr) []slog.Attr {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, field := range m.fields {
+		attrs = append(attrs, fieldToAttr(field))
+	}
+	for _, array := range m.arrays {
+		attrs = append(attrs, slog.Any(array.key, array.values))
+	}
+	return attrs
+}
+
 type anyArray []any
 
 func (oa anyArray) MarshalLogArray(encoder zapcore.ArrayEncoder) error {
@@ -86,7 +98,7 @@ func argsToFieldSlice(args []any) []zap.Field {
 	fields := make([]zap.Field, 0, len(args))
 	for len(args) > 0 {
 		attr, args = argsToAttr(args)
-		fields = append(fields, convertAttrToField(attr))
+		fields = append(fields, attrToField(attr))
 	}
 	return fields
 }
@@ -100,56 +112,11 @@ func argsToAttr(args []any) (slog.Attr, []any) {
 			return slog.String(badKey, x), nil
 		}
 		return slog.Any(x, args[1]), args[2:]
+	case zapcore.Field:
+		return fieldToAttr(x), args[1:]
 	case slog.Attr:
 		return x, args[1:]
 	default:
 		return slog.Any(badKey, x), args[1:]
 	}
-}
-
-// convertAttrToField is copied from go.uber.org/zap/exp/zapslog.
-func convertAttrToField(attr slog.Attr) zap.Field {
-	if attr.Equal(slog.Attr{}) {
-		// Ignore empty attrs.
-		return zap.Skip()
-	}
-	switch attr.Value.Kind() {
-	case slog.KindBool:
-		return zap.Bool(attr.Key, attr.Value.Bool())
-	case slog.KindDuration:
-		return zap.Duration(attr.Key, attr.Value.Duration())
-	case slog.KindFloat64:
-		return zap.Float64(attr.Key, attr.Value.Float64())
-	case slog.KindInt64:
-		return zap.Int64(attr.Key, attr.Value.Int64())
-	case slog.KindString:
-		return zap.String(attr.Key, attr.Value.String())
-	case slog.KindTime:
-		return zap.Time(attr.Key, attr.Value.Time())
-	case slog.KindUint64:
-		return zap.Uint64(attr.Key, attr.Value.Uint64())
-	case slog.KindGroup:
-		if attr.Key == "" {
-			// Inlines recursively.
-			return zap.Inline(groupObject(attr.Value.Group()))
-		}
-		return zap.Object(attr.Key, groupObject(attr.Value.Group()))
-	case slog.KindLogValuer:
-		return convertAttrToField(slog.Attr{
-			Key:   attr.Key,
-			Value: attr.Value.Resolve(),
-		})
-	default:
-		return zap.Any(attr.Key, attr.Value.Any())
-	}
-}
-
-// groupObject holds all the Attrs saved in a slog.GroupValue.
-type groupObject []slog.Attr
-
-func (gs groupObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	for _, attr := range gs {
-		convertAttrToField(attr).AddTo(enc)
-	}
-	return nil
 }
