@@ -3,10 +3,11 @@ package cloudserver
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"runtime/debug"
 
 	"go.einride.tech/cloudrunner/cloudrequestlog"
-	"go.uber.org/zap"
 )
 
 // HTTPServer provides HTTP server middleware.
@@ -17,8 +18,8 @@ func (i *Middleware) HTTPServer(next http.Handler) http.Handler {
 				writer.WriteHeader(http.StatusInternalServerError)
 				if fields, ok := cloudrequestlog.GetAdditionalFields(request.Context()); ok {
 					fields.Add(
-						zap.Stack("stack"),
-						zap.Error(fmt.Errorf("recovered panic: %v", r)),
+						slog.String("stack", string(debug.Stack())),
+						slog.Any("error", fmt.Errorf("recovered panic: %v", r)),
 					)
 				}
 			}

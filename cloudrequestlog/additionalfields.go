@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type additionalFieldsKey struct{}
@@ -25,7 +24,7 @@ func WithAdditionalFields(ctx context.Context) context.Context {
 // AdditionalFields for a request log message.
 type AdditionalFields struct {
 	mu     sync.Mutex
-	fields []zap.Field
+	attrs  []slog.Attr
 	arrays []*arrayField
 }
 
@@ -37,7 +36,7 @@ type arrayField struct {
 // Add additional fields.
 func (m *AdditionalFields) Add(args ...any) {
 	m.mu.Lock()
-	m.fields = append(m.fields, argsToFieldSlice(args)...)
+	m.attrs = append(m.attrs, argsToAttrSlice(args)...)
 	m.mu.Unlock()
 }
 
@@ -60,47 +59,29 @@ func (m *AdditionalFields) AddToArray(key string, objects ...any) {
 }
 
 // AppendTo appends the additional fields to the input fields.
+// Deprecated: This is a no-op as part of migration from zap to slog.
 func (m *AdditionalFields) AppendTo(fields []zap.Field) []zap.Field {
-	m.mu.Lock()
-	fields = append(fields, m.fields...)
-	for _, array := range m.arrays {
-		fields = append(fields, zap.Array(array.key, anyArray(array.values)))
-	}
-	m.mu.Unlock()
 	return fields
 }
 
 func (m *AdditionalFields) appendTo(attrs []slog.Attr) []slog.Attr {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	for _, field := range m.fields {
-		attrs = append(attrs, fieldToAttr(field))
-	}
+	m.attrs = append(m.attrs, attrs...)
 	for _, array := range m.arrays {
 		attrs = append(attrs, slog.Any(array.key, array.values))
 	}
 	return attrs
 }
 
-type anyArray []any
-
-func (oa anyArray) MarshalLogArray(encoder zapcore.ArrayEncoder) error {
-	for _, o := range oa {
-		if err := encoder.AppendReflected(o); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func argsToFieldSlice(args []any) []zap.Field {
+func argsToAttrSlice(args []any) []slog.Attr {
 	var attr slog.Attr
-	fields := make([]zap.Field, 0, len(args))
+	attrs := make([]slog.Attr, 0, len(args))
 	for len(args) > 0 {
 		attr, args = argsToAttr(args)
-		fields = append(fields, attrToField(attr))
+		attrs = append(attrs, attr)
 	}
-	return fields
+	return attrs
 }
 
 // argsToAttr is copied from the slog stdlib.
@@ -112,8 +93,6 @@ func argsToAttr(args []any) (slog.Attr, []any) {
 			return slog.String(badKey, x), nil
 		}
 		return slog.Any(x, args[1]), args[2:]
-	case zapcore.Field:
-		return fieldToAttr(x), args[1:]
 	case slog.Attr:
 		return x, args[1:]
 	default:

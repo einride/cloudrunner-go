@@ -5,14 +5,10 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"reflect"
 	"runtime"
 	"time"
 
 	"go.einride.tech/cloudrunner/cloudstream"
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	ltype "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -25,8 +21,6 @@ import (
 type Middleware struct {
 	// Config for the request logger middleware.
 	Config Config
-	// MessageTransformer is an optional transform applied to proto.Message request and responses.
-	MessageTransformer func(proto.Message) proto.Message
 }
 
 // GRPCUnaryServerInterceptor implements request logging as a grpc.UnaryServerInterceptor.
@@ -41,43 +35,41 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
 	response, err := handler(ctx, request)
-	code := status.Code(err)
-	checkedEntry := l.logger(ctx).Check(
-		l.codeToLevel(code),
-		grpcServerLogMessage(code, info.FullMethod),
-	)
-	if checkedEntry == nil {
+	responseStatus := status.Convert(err)
+	level := l.codeToLevel(responseStatus.Code())
+	logger := slog.Default()
+	if !logger.Enabled(ctx, level) {
 		return response, err
 	}
-	grpcRequest := cloudzap.HTTPRequestObject{
+	grpcRequest := &ltype.HttpRequest{
 		Protocol: "gRPC",
-		Latency:  time.Since(startTime),
+		Latency:  durationpb.New(time.Since(startTime)),
 	}
-	grpcRequest.RequestSize = proto.Size(requestClone)
+	grpcRequest.RequestSize = int64(proto.Size(requestClone))
 	if protoResponse, ok := response.(proto.Message); ok {
-		grpcRequest.ResponseSize = proto.Size(protoResponse)
+		grpcRequest.ResponseSize = int64(proto.Size(protoResponse))
 	}
-	fields := []zapcore.Field{
-		zap.Stringer("code", code),
-		zap.Object("httpRequest", &grpcRequest),
-		l.messageField("request", requestClone),
-		l.messageField("response", response),
-		zap.Error(err),
-		ErrorDetails(err),
+	attrs := []slog.Attr{
+		slog.String("code", responseStatus.Code().String()),
+		slog.Any("status", responseStatus),
+		slog.Any("httpRequest", grpcRequest),
+		slog.Any("request", requestClone),
+		slog.Any("response", response),
 	}
-	fields = appendFullMethodFields(info.FullMethod, fields)
+	if err != nil {
+		attrs = append(attrs, slog.Any("error", err))
+	}
+	attrs = appendFullMethodAttrs(info.FullMethod, attrs)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
-		fields = additionalFields.AppendTo(fields)
+		attrs = additionalFields.appendTo(attrs)
 	}
 	var errCaller interface {
 		Caller() (pc uintptr, file string, line int, ok bool)
 	}
 	if errors.As(err, &errCaller) {
-		checkedEntry.Caller = zapcore.NewEntryCaller(errCaller.Caller())
-		checkedEntry.Entry.Caller = checkedEntry.Caller
+		attrs = append(attrs, newSourceAttr(errCaller.Caller()))
 	}
-	fields = append(fields, cloudzap.SourceLocationForCaller(checkedEntry.Caller))
-	checkedEntry.Write(fields...)
+	logger.LogAttrs(ctx, level, grpcServerLogMessage(responseStatus.Code(), info.FullMethod), attrs...)
 	return response, err
 }
 
@@ -94,46 +86,36 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 	ctx := WithAdditionalFields(ss.Context())
 	ss = cloudstream.NewContextualServerStream(ctx, ss)
 	err := handler(srv, ss)
-	code := status.Code(err)
-	checkedEntry := l.logger(ctx).Check(
-		l.codeToLevel(code),
-		grpcServerLogMessage(code, info.FullMethod),
-	)
-	if checkedEntry == nil {
+	responseStatus := status.Convert(err)
+	level := l.codeToLevel(responseStatus.Code())
+	logger := slog.Default()
+	if !logger.Enabled(ctx, level) {
 		return err
 	}
-	grpcRequest := cloudzap.HTTPRequestObject{
+	grpcRequest := &ltype.HttpRequest{
 		Protocol: "gRPC",
-		Latency:  time.Since(startTime),
+		Latency:  durationpb.New(time.Since(startTime)),
 	}
-	fields := []zapcore.Field{
-		zap.Stringer("code", code),
-		zap.Object("httpRequest", &grpcRequest),
-		zap.Error(err),
-		ErrorDetails(err),
+	attrs := []slog.Attr{
+		slog.String("code", responseStatus.Code().String()),
+		slog.Any("status", responseStatus),
+		slog.Any("httpRequest", grpcRequest),
 	}
-	fields = appendFullMethodFields(info.FullMethod, fields)
+	if err != nil {
+		attrs = append(attrs, slog.Any("error", err))
+	}
+	attrs = appendFullMethodAttrs(info.FullMethod, attrs)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
-		fields = additionalFields.AppendTo(fields)
+		attrs = additionalFields.appendTo(attrs)
 	}
 	var errCaller interface {
 		Caller() (pc uintptr, file string, line int, ok bool)
 	}
 	if errors.As(err, &errCaller) {
-		checkedEntry.Caller = zapcore.NewEntryCaller(errCaller.Caller())
-		checkedEntry.Entry.Caller = checkedEntry.Caller
+		attrs = append(attrs, newSourceAttr(errCaller.Caller()))
 	}
-	fields = append(fields, cloudzap.SourceLocationForCaller(checkedEntry.Caller))
-	checkedEntry.Write(fields...)
+	logger.LogAttrs(ctx, level, grpcServerLogMessage(responseStatus.Code(), info.FullMethod), attrs...)
 	return err
-}
-
-func (l *Middleware) logger(ctx context.Context) *zap.Logger {
-	logger, ok := cloudzap.GetLogger(ctx)
-	if !ok {
-		panic("cloudrequestlog.Middleware requires a logger in the context")
-	}
-	return logger
 }
 
 // GRPCUnaryClientInterceptor provides request logging as a grpc.UnaryClientInterceptor.
@@ -150,37 +132,46 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
-	code := status.Code(err)
-	checkedEntry := l.logger(ctx).Check(
-		l.codeToLevel(code),
-		grpcClientLogMessage(code, fullMethod),
-	)
-	if checkedEntry == nil {
+	responseStatus := status.Convert(err)
+	level := l.codeToLevel(responseStatus.Code())
+	logger := slog.Default()
+	if !logger.Enabled(ctx, level) {
 		return err
 	}
-	grpcRequest := cloudzap.HTTPRequestObject{
+	grpcRequest := &ltype.HttpRequest{
 		Protocol: "gRPC",
-		Latency:  time.Since(startTime),
+		Latency:  durationpb.New(time.Since(startTime)),
 	}
-	grpcRequest.RequestSize = proto.Size(requestClone)
+	grpcRequest.RequestSize = int64(proto.Size(requestClone))
 	if protoResponse, ok := response.(proto.Message); ok {
-		grpcRequest.ResponseSize = proto.Size(protoResponse)
+		grpcRequest.ResponseSize = int64(proto.Size(protoResponse))
 	}
-	// assuming this middleware is first in the chain, the caller of the client method is 4 stack frames up
-	checkedEntry.Caller = zapcore.NewEntryCaller(runtime.Caller(4))
-	checkedEntry.Entry.Caller = checkedEntry.Caller
-	fields := []zap.Field{
-		zap.Stringer("code", code),
-		zap.Object("httpRequest", &grpcRequest),
-		l.messageField("request", requestClone),
-		l.messageField("response", response),
-		zap.Error(err),
-		ErrorDetails(err),
-		cloudzap.SourceLocationForCaller(checkedEntry.Caller),
+	attrs := []slog.Attr{
+		slog.String("code", responseStatus.Code().String()),
+		slog.Any("status", responseStatus),
+		slog.Any("httpRequest", grpcRequest),
+		slog.Any("request", requestClone),
+		slog.Any("response", response),
+		// assuming this middleware is first in the chain, the caller of the client method is 4 stack frames up
+		newSourceAttr(runtime.Caller(4)),
 	}
-	fields = appendFullMethodFields(fullMethod, fields)
-	checkedEntry.Write(fields...)
+	if err != nil {
+		attrs = append(attrs, slog.Any("error", err))
+	}
+	attrs = appendFullMethodAttrs(fullMethod, attrs)
+	logger.LogAttrs(ctx, level, grpcClientLogMessage(responseStatus.Code(), fullMethod), attrs...)
 	return err
+}
+
+func newSourceAttr(pc uintptr, file string, line int, _ bool) slog.Attr {
+	return slog.Any(
+		slog.SourceKey,
+		&slog.Source{
+			Function: runtime.FuncForPC(pc).Name(),
+			File:     file,
+			Line:     line,
+		},
+	)
 }
 
 func measureHeaderSize(h http.Header) int {
@@ -204,7 +195,7 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		next.ServeHTTP(responseWriter, r)
 		level := l.statusToLevel(responseWriter.Status())
 		logger := slog.Default()
-		if !logger.Enabled(ctx, levelToSlog(level)) {
+		if !logger.Enabled(ctx, level) {
 			return
 		}
 		logMessage := httpServerLogMessage(responseWriter, r)
@@ -227,63 +218,42 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		if additionalFields, ok := GetAdditionalFields(ctx); ok {
 			attrs = additionalFields.appendTo(attrs)
 		}
-		logger.LogAttrs(ctx, levelToSlog(level), logMessage, attrs...)
+		logger.LogAttrs(ctx, level, logMessage, attrs...)
 	})
 }
 
-func (l *Middleware) messageField(key string, message interface{}) zap.Field {
-	protoMessage, ok := message.(proto.Message)
-	if !ok || protoMessage == nil || reflect.ValueOf(protoMessage).IsNil() {
-		return zap.Skip()
-	}
-	if l.Config.MessageSizeLimit > 0 {
-		size := proto.Size(protoMessage)
-		if size > l.Config.MessageSizeLimit {
-			return zap.Object(key, truncatedMessageField{size: size, sizeLimit: l.Config.MessageSizeLimit})
-		}
-	}
-	return cloudzap.ProtoMessage(key, l.applyMessageTransform(protoMessage))
-}
-
-func (l *Middleware) applyMessageTransform(message proto.Message) proto.Message {
-	if l.MessageTransformer == nil {
-		return message
-	}
-	return l.MessageTransformer(message)
-}
-
-func (l *Middleware) codeToLevel(code codes.Code) zapcore.Level {
+func (l *Middleware) codeToLevel(code codes.Code) slog.Level {
 	if level, ok := l.Config.CodeToLevel[code]; ok {
-		return slogToLevel(level)
+		return level
 	}
-	return CodeToLevel(code)
+	return codeToLevel(code)
 }
 
-func (l *Middleware) statusToLevel(status int) zapcore.Level {
+func (l *Middleware) statusToLevel(status int) slog.Level {
 	if level, ok := l.Config.StatusToLevel[status]; ok {
-		return slogToLevel(level)
+		return level
 	}
 	switch {
 	case status < http.StatusBadRequest:
-		return zap.InfoLevel
+		return slog.LevelInfo
 	case http.StatusBadRequest <= status && status < http.StatusInternalServerError:
-		return zap.WarnLevel
+		return slog.LevelWarn
 	case status == http.StatusGatewayTimeout || status == http.StatusServiceUnavailable:
 		// special case for 503 (unavailable) and 504 (timeout) to match severity for gRPC status codes
-		return zap.WarnLevel
+		return slog.LevelWarn
 	default:
-		return zap.ErrorLevel
+		return slog.LevelError
 	}
 }
 
-func appendFullMethodFields(fullMethod string, dst []zap.Field) []zap.Field {
+func appendFullMethodAttrs(fullMethod string, dst []slog.Attr) []slog.Attr {
 	service, method, ok := splitFullMethod(fullMethod)
 	if !ok {
 		return dst
 	}
 	return append(
 		dst,
-		zap.String("service", service),
-		zap.String("method", method),
+		slog.String("service", service),
+		slog.String("method", method),
 	)
 }

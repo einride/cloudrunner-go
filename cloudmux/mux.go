@@ -4,14 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/soheilhy/cmux"
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
@@ -31,54 +30,45 @@ func ServeGRPCHTTP(
 		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc+proto"),
 	)
 	httpL := m.Match(cmux.Any())
-	logger, ok := cloudzap.GetLogger(ctx)
-	if !ok {
-		logger = zap.NewNop()
-	}
-
 	var g errgroup.Group
-
 	// wait for context to be canceled and gracefully stop all servers.
 	g.Go(func() error {
 		<-ctx.Done()
-
-		logger.Debug("stopping cmux server")
+		slog.DebugContext(ctx, "stopping cmux server")
 		m.Close()
-
-		logger.Debug("stopping HTTP server")
+		slog.DebugContext(ctx, "stopping HTTP server")
 		// use a new context because the parent ctx is already canceled.
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 		if err := httpServer.Shutdown(ctx); err != nil && !isClosedErr(err) {
-			logger.Warn("stopping http server", zap.Error(err))
+			slog.WarnContext(ctx, "stopping http server", slog.Any("error", err))
 		}
-
-		logger.Debug("stopping gRPC server")
+		slog.DebugContext(ctx, "stopping gRPC server")
 		grpcServer.GracefulStop()
-		logger.Debug("stopped both http and grpc server")
+		slog.DebugContext(ctx, "stopped both http and grpc server")
 		return nil
 	})
 
 	g.Go(func() error {
-		logger.Debug("serving gRPC")
+		slog.DebugContext(ctx, "serving gRPC")
 		if err := grpcServer.Serve(grpcL); err != nil && !isClosedErr(err) {
 			return fmt.Errorf("serve gRPC: %w", err)
 		}
-		logger.Debug("stopped serving gRPC")
+		slog.DebugContext(ctx, "stopped serving gRPC")
 		return nil
 	})
 
 	g.Go(func() error {
-		logger.Debug("serving HTTP")
+		slog.DebugContext(ctx, "serving HTTP")
 		if err := httpServer.Serve(httpL); err != nil && !isClosedErr(err) {
 			return fmt.Errorf("serve HTTP: %w", err)
 		}
-		logger.Debug("stopped serving HTTP")
+		slog.DebugContext(ctx, "stopped serving HTTP")
 		return nil
 	})
 
 	if err := m.Serve(); err != nil && !isClosedErr(err) {
-		logger.Error("oops", zap.Error(err))
+		slog.ErrorContext(ctx, "oops", slog.Any("error", err))
 		return fmt.Errorf("serve cmux: %w", err)
 	}
 	return g.Wait()
