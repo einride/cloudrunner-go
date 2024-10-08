@@ -13,10 +13,9 @@ import (
 type Option func(*runContext)
 
 // WithRequestLoggerMessageTransformer configures the request logger with a message transformer.
-func WithRequestLoggerMessageTransformer(transformer func(proto.Message) proto.Message) Option {
-	return func(run *runContext) {
-		run.requestLoggerMiddleware.MessageTransformer = transformer
-	}
+// Deprecated: This was historically used for redaction. All proto messages are now automatically redacted.
+func WithRequestLoggerMessageTransformer(func(proto.Message) proto.Message) Option {
+	return func(*runContext) {}
 }
 
 // WithConfig configures an additional config struct to be loaded.

@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"runtime"
+	"runtime/debug"
 
 	"go.einride.tech/cloudrunner/clouderror"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudstream"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -35,7 +36,7 @@ func (i *Middleware) GRPCUnaryServerInterceptor(
 				status.New(codes.Internal, "internal error"),
 			)
 			if additionalFields, ok := cloudrequestlog.GetAdditionalFields(ctx); ok {
-				additionalFields.Add(zap.Stack("stack"))
+				additionalFields.Add(slog.String("stack", string(debug.Stack())))
 			}
 		}
 	}()
@@ -70,7 +71,7 @@ func (i *Middleware) GRPCStreamServerInterceptor(
 				status.New(codes.Internal, "internal error"),
 			)
 			if additionalFields, ok := cloudrequestlog.GetAdditionalFields(ss.Context()); ok {
-				additionalFields.Add(zap.Stack("stack"))
+				additionalFields.Add(slog.String("stack", string(debug.Stack())))
 			}
 		}
 	}()

@@ -12,7 +12,7 @@ import (
 
 func main() {
 	if err := cloudrunner.Run(func(ctx context.Context) error {
-		cloudrunner.Logger(ctx).Info("hello world")
+		slog.InfoContext(ctx, "hello world")
 		httpServer := cloudrunner.NewHTTPServer(ctx, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			slog.InfoContext(ctx, "hello from handler")
 			cloudrunner.AddRequestLogFields(r.Context(), "foo", "bar")

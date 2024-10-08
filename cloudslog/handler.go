@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
 	ltype "google.golang.org/genproto/googleapis/logging/type"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -94,6 +95,8 @@ func (r *attrReplacer) replaceAttr(_ []string, attr slog.Attr) slog.Attr {
 			attr.Value = slog.AnyValue(newBuildInfoValue(value))
 		case *ltype.HttpRequest:
 			attr.Value = slog.AnyValue(newProtoValue(fixHTTPRequest(value), r.config.ProtoMessageSizeLimit))
+		case *status.Status:
+			attr.Value = slog.AnyValue(newProtoValue(value.Proto(), r.config.ProtoMessageSizeLimit))
 		case proto.Message:
 			if needsRedact(value) {
 				value = proto.Clone(value)

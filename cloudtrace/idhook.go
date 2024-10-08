@@ -2,9 +2,9 @@ package cloudtrace
 
 import (
 	"context"
+	"log/slog"
 
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
+	"go.einride.tech/cloudrunner/cloudslog"
 )
 
 // IDKey is the log entry key for trace IDs.
@@ -15,5 +15,5 @@ const IDKey = "traceId"
 // The trace ID can be used to filter on logs for the same trace across multiple projects.
 // Experimental: May be removed in a future update.
 func IDHook(ctx context.Context, traceContext Context) context.Context {
-	return cloudzap.WithLoggerFields(ctx, zap.String(IDKey, traceContext.TraceID))
+	return cloudslog.With(ctx, slog.String(IDKey, traceContext.TraceID))
 }
