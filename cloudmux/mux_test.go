@@ -9,8 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/examples/helloworld/helloworld"
@@ -118,7 +116,6 @@ func TestServe_GracefulHTTP(t *testing.T) {
 func newTestFixture(t *testing.T) *testFixture {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx = cloudzap.WithLogger(ctx, zaptest.NewLogger(t))
 	var lc net.ListenConfig
 	lis, err := lc.Listen(ctx, "tcp", ":0")
 	assert.NilError(t, err)
