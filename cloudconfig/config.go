@@ -3,8 +3,12 @@ package cloudconfig
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"text/tabwriter"
+	"time"
+
+	"go.opentelemetry.io/otel/codes"
 )
 
 // envPrefix can be set during build-time to append a prefix to all environment variables loaded into the RunConfig.
@@ -107,4 +111,44 @@ func (c *Config) PrintUsage(w io.Writer) {
 		}
 	}
 	_ = tabs.Flush()
+}
+
+// LogValue implements [slog.LogValuer].
+func (c *Config) LogValue() slog.Value {
+	attrs := make([]slog.Attr, 0, len(c.configSpecs))
+	for _, configSpec := range c.configSpecs {
+		attrs = append(attrs, slog.Any(configSpec.name, fieldSpecsValue(configSpec.fieldSpecs)))
+	}
+	return slog.GroupValue(attrs...)
+}
+
+type fieldSpecsValue []fieldSpec
+
+func (fsv fieldSpecsValue) LogValue() slog.Value {
+	attrs := make([]slog.Attr, 0, len(fsv))
+	for _, fs := range fsv {
+		if fs.Secret {
+			attrs = append(attrs, slog.String(fs.Key, "<secret>"))
+			continue
+		}
+		switch value := fs.Value.Interface().(type) {
+		case time.Duration:
+			attrs = append(attrs, slog.Duration(fs.Key, value))
+		case []codes.Code:
+			logValue := make([]string, 0, len(value))
+			for _, code := range value {
+				logValue = append(logValue, code.String())
+			}
+			attrs = append(attrs, slog.Any(fs.Key, logValue))
+		case map[codes.Code]slog.Level:
+			logValue := make(map[string]string, len(value))
+			for code, level := range value {
+				logValue[code.String()] = level.String()
+			}
+			attrs = append(attrs, slog.Any(fs.Key, logValue))
+		default:
+			attrs = append(attrs, slog.Any(fs.Key, fs.Value.Interface()))
+		}
+	}
+	return slog.GroupValue(attrs...)
 }

@@ -3,11 +3,11 @@ package cloudrunner
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"time"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -63,9 +63,9 @@ func ListenGRPC(ctx context.Context, grpcServer *grpc.Server) error {
 	}
 	go func() {
 		<-ctx.Done()
-		Logger(ctx).Info("gRPCServer shutting down")
+		slog.InfoContext(ctx, "gRPCServer shutting down")
 		grpcServer.GracefulStop()
 	}()
-	Logger(ctx).Info("gRPCServer listening", zap.String("address", address))
+	slog.InfoContext(ctx, "gRPCServer listening", slog.String("address", address))
 	return grpcServer.Serve(listener)
 }

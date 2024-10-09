@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"go.einride.tech/cloudrunner/cloudserver"
@@ -55,7 +56,7 @@ func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
 			Logger(ctx).Error("HTTPServer shutdown error", zap.Error(err))
 		}
 	}()
-	Logger(ctx).Info("HTTPServer listening", zap.String("address", httpServer.Addr))
+	slog.InfoContext(ctx, "HTTPServer listening", slog.String("address", httpServer.Addr))
 	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

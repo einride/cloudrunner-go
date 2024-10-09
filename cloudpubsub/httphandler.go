@@ -3,14 +3,13 @@ package cloudpubsub
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudstatus"
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -40,7 +39,7 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
-			fields.Add(zap.Error(err))
+			fields.Add(slog.Any("error", err))
 		}
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -53,12 +52,12 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		OrderingKey: payload.Message.OrderingKey,
 	}
 	if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
-		fields.Add(cloudzap.ProtoMessage("pubsubMessage", &pubsubMessage))
+		fields.Add(slog.Any("pubsubMessage", &pubsubMessage))
 	}
 	ctx := withSubscription(r.Context(), payload.Subscription)
 	if err := fn(ctx, &pubsubMessage); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
-			fields.Add(zap.Error(err))
+			fields.Add(slog.Any("error", err))
 		}
 		code := status.Code(err)
 		httpStatus := cloudstatus.ToHTTP(code)

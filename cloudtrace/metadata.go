@@ -31,11 +31,13 @@ func FromIncomingContext(ctx context.Context) (Context, bool) {
 type contextKey struct{}
 
 // SetContext sets the cloud trace context to the provided context.
+// Deprecated: Use OpenTelemetry middleware for trace extraction.
 func SetContext(ctx context.Context, ctxx Context) context.Context {
 	return context.WithValue(ctx, contextKey{}, ctxx)
 }
 
 // GetContext gets the cloud trace context from the provided context if it exists.
+// Deprecated: Use OpenTelemetry trace.SpanContextFromContext.
 func GetContext(ctx context.Context) (Context, bool) {
 	result, ok := ctx.Value(contextKey{}).(Context)
 	if !ok {
