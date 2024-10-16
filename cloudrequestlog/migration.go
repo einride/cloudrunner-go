@@ -9,34 +9,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func slogToLevel(l slog.Level) zapcore.Level {
-	switch {
-	case l >= slog.LevelError:
-		return zapcore.ErrorLevel
-	case l >= slog.LevelWarn:
-		return zapcore.WarnLevel
-	case l >= slog.LevelInfo:
-		return zapcore.InfoLevel
-	default:
-		return zapcore.DebugLevel
-	}
-}
-
-func levelToSlog(l zapcore.Level) slog.Level {
-	switch l {
-	case zapcore.DebugLevel:
-		return slog.LevelDebug
-	case zapcore.InfoLevel:
-		return slog.LevelInfo
-	case zapcore.WarnLevel:
-		return slog.LevelWarn
-	case zapcore.ErrorLevel, zapcore.DPanicLevel, zapcore.PanicLevel, zapcore.FatalLevel:
-		return slog.LevelError
-	default:
-		return slog.LevelDebug
-	}
-}
-
 func attrToField(attr slog.Attr) zapcore.Field {
 	if attr.Equal(slog.Attr{}) {
 		// Ignore empty attrs.
