@@ -226,7 +226,7 @@ func (l *Middleware) codeToLevel(code codes.Code) slog.Level {
 	if level, ok := l.Config.CodeToLevel[code]; ok {
 		return level
 	}
-	return codeToLevel(code)
+	return CodeToLevel(code)
 }
 
 func (l *Middleware) statusToLevel(status int) slog.Level {
