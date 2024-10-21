@@ -60,17 +60,7 @@ func (m *AdditionalFields) AddToArray(key string, objects ...any) {
 }
 
 // AppendTo appends the additional fields to the input fields.
-func (m *AdditionalFields) AppendTo(fields []zap.Field) []zap.Field {
-	m.mu.Lock()
-	fields = append(fields, m.fields...)
-	for _, array := range m.arrays {
-		fields = append(fields, zap.Array(array.key, anyArray(array.values)))
-	}
-	m.mu.Unlock()
-	return fields
-}
-
-func (m *AdditionalFields) appendTo(attrs []slog.Attr) []slog.Attr {
+func (m *AdditionalFields) AppendTo(attrs []slog.Attr) []slog.Attr {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for _, field := range m.fields {
@@ -80,17 +70,6 @@ func (m *AdditionalFields) appendTo(attrs []slog.Attr) []slog.Attr {
 		attrs = append(attrs, slog.Any(array.key, array.values))
 	}
 	return attrs
-}
-
-type anyArray []any
-
-func (oa anyArray) MarshalLogArray(encoder zapcore.ArrayEncoder) error {
-	for _, o := range oa {
-		if err := encoder.AppendReflected(o); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func argsToFieldSlice(args []any) []zap.Field {
