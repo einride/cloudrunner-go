@@ -61,7 +61,7 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	}
 	attrs = appendFullMethodAttrs(info.FullMethod, attrs)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
-		attrs = additionalFields.appendTo(attrs)
+		attrs = additionalFields.AppendTo(attrs)
 	}
 	var errCaller interface {
 		Caller() (pc uintptr, file string, line int, ok bool)
@@ -106,7 +106,7 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 	}
 	attrs = appendFullMethodAttrs(info.FullMethod, attrs)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
-		attrs = additionalFields.appendTo(attrs)
+		attrs = additionalFields.AppendTo(attrs)
 	}
 	var errCaller interface {
 		Caller() (pc uintptr, file string, line int, ok bool)
@@ -216,7 +216,7 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 			slog.Any("httpRequest", &httpRequest),
 		}
 		if additionalFields, ok := GetAdditionalFields(ctx); ok {
-			attrs = additionalFields.appendTo(attrs)
+			attrs = additionalFields.AppendTo(attrs)
 		}
 		logger.LogAttrs(ctx, level, logMessage, attrs...)
 	})
