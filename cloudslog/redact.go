@@ -40,7 +40,6 @@ func redact(input proto.Message) {
 			values.Index(-2).Value.Message().Set(last.Step.FieldDescriptor(), protoreflect.ValueOfString("<redacted>"))
 			return nil
 		}
-		values.Index(-2).Value.Message().Set(last.Step.FieldDescriptor(), protoreflect.ValueOfString("<redacted>"))
 		return nil
 	})
 }
