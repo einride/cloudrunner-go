@@ -28,6 +28,12 @@ func StartTraceExporter(
 	exporterConfig TraceExporterConfig,
 	resource *resource.Resource,
 ) (func(context.Context) error, error) {
+	// configure open telemetry to read trace context from GCP `x-cloud-trace-context` header.
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		gcppropagator.CloudTraceFormatPropagator{},
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
 	if !exporterConfig.Enabled {
 		return func(context.Context) error { return nil }, nil
 	}
@@ -48,14 +54,7 @@ func StartTraceExporter(
 		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(exporterConfig.SampleProbability))),
 	)
 	otel.SetTracerProvider(tracerProvider)
-	// configure open telemetry to read trace context from GCP `x-cloud-trace-context` header.
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
-		gcppropagator.CloudTraceFormatPropagator{},
-		propagation.TraceContext{},
-		propagation.Baggage{},
-	))
 	opencensus.InstallTraceBridge()
-
 	cleanup := func(ctx context.Context) error {
 		if err := tracerProvider.ForceFlush(ctx); err != nil {
 			return fmt.Errorf("error shutting down trace exporter: %v", err)
