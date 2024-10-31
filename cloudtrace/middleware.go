@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"go.einride.tech/cloudrunner/cloudstream"
+	"go.einride.tech/cloudrunner/cloudzap"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -34,6 +36,7 @@ func (i *Middleware) GRPCServerUnaryInterceptor(
 	}
 	ctx = i.withOutgoingRequestTracing(ctx, values[0])
 	ctx = i.withInternalContext(ctx, values[0])
+	ctx = i.withLogTracing(ctx, values[0])
 	return handler(ctx, req)
 }
 
@@ -55,6 +58,7 @@ func (i *Middleware) GRPCStreamServerInterceptor(
 	ctx := ss.Context()
 	ctx = i.withOutgoingRequestTracing(ctx, values[0])
 	ctx = i.withInternalContext(ctx, values[0])
+	ctx = i.withLogTracing(ctx, values[0])
 	return handler(srv, cloudstream.NewContextualServerStream(ctx, ss))
 }
 
@@ -69,6 +73,7 @@ func (i *Middleware) HTTPServer(next http.Handler) http.Handler {
 		w.Header().Set(ContextHeader, header)
 		ctx := i.withOutgoingRequestTracing(r.Context(), header)
 		ctx = i.withInternalContext(ctx, header)
+		ctx = i.withLogTracing(ctx, header)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -83,4 +88,23 @@ func (i *Middleware) withInternalContext(ctx context.Context, header string) con
 		return ctx
 	}
 	return SetContext(ctx, result)
+}
+
+func (i *Middleware) withLogTracing(ctx context.Context, header string) context.Context {
+	var traceContext Context
+	if err := traceContext.UnmarshalString(header); err != nil {
+		return ctx
+	}
+	if i.TraceHook != nil {
+		ctx = i.TraceHook(ctx, traceContext)
+	}
+	fields := make([]zap.Field, 0, 3)
+	fields = append(fields, cloudzap.Trace(i.ProjectID, traceContext.TraceID))
+	if traceContext.SpanID != "" {
+		fields = append(fields, cloudzap.SpanID(traceContext.SpanID))
+	}
+	if traceContext.Sampled {
+		fields = append(fields, cloudzap.TraceSampled(traceContext.Sampled))
+	}
+	return cloudzap.WithLoggerFields(ctx, fields...)
 }
