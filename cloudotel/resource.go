@@ -25,6 +25,9 @@ func NewResource(ctx context.Context) (*resource.Resource, error) {
 	if e, ok := cloudruntime.TaskIndex(); ok {
 		opts = append(opts, resource.WithAttributes(semconv.FaaSInstanceKey.String(strconv.Itoa(e))))
 	}
+	if e, ok := cloudruntime.Service(); ok {
+		opts = append(opts, resource.WithAttributes(semconv.ServiceName(e)))
+	}
 	result, err := resource.New(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("init telemetry resource: %w", err)
