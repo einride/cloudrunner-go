@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudstatus"
+	"go.opentelemetry.io/otel/propagation"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -55,6 +57,10 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fields.Add(slog.Any("pubsubMessage", &pubsubMessage))
 	}
 	ctx := withSubscription(r.Context(), payload.Subscription)
+	tc := propagation.TraceContext{}
+	ctx = tc.Extract(ctx, pubsub.NewMessageCarrierFromPB(&pubsubMessage))
+	carrier := make(propagation.MapCarrier)
+	tc.Inject(ctx, &carrier)
 	if err := fn(ctx, &pubsubMessage); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 			fields.Add(slog.Any("error", err))

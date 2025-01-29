@@ -51,7 +51,10 @@ func GoTest(ctx context.Context) error {
 
 func GoLint(ctx context.Context) error {
 	sg.Logger(ctx).Println("linting Go files...")
-	return sggolangcilint.Run(ctx)
+	// It is currently not possible to ignore package deprecation lint errors so we ignore
+	// it through flags and match the lint error string.
+	// See https://github.com/golangci/golangci-lint/issues/741#issuecomment-1721737130 for more details.
+	return sggolangcilint.Run(ctx, "--exclude", `SA1019: .go.einride.tech/cloudrunner/cloudtrace. is deprecated:`)
 }
 
 func GoLintFix(ctx context.Context) error {
