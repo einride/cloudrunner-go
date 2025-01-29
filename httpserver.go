@@ -24,12 +24,16 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 	if !ok {
 		panic("cloudrunner.NewHTTPServer: must be called with a context from cloudrunner.Run")
 	}
+	tracingMiddleware := run.otelTraceMiddleware.HTTPServer
+	if run.useLegacyTracing {
+		tracingMiddleware = run.traceMiddleware.HTTPServer
+	}
 	defaultMiddlewares := []cloudserver.HTTPMiddleware{
 		func(handler http.Handler) http.Handler {
 			return otelhttp.NewHandler(handler, "server")
 		},
 		run.loggerMiddleware.HTTPServer,
-		run.traceMiddleware.HTTPServer,
+		tracingMiddleware,
 		run.requestLoggerMiddleware.HTTPServer,
 		run.securityHeadersMiddleware.HTTPServer,
 		run.serverMiddleware.HTTPServer,

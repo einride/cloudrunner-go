@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.einride.tech/cloudrunner/cloudconfig"
+	"go.einride.tech/cloudrunner/cloudotel"
 	"go.einride.tech/cloudrunner/cloudtrace"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
@@ -42,8 +43,17 @@ func WithGRPCServerOptions(grpcServerOptions ...grpc.ServerOption) Option {
 }
 
 // WithTraceHook configures the run context with a trace hook.
+// Deprecated: use WithOtelTraceHook instead.
 func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.Context) Option {
 	return func(run *runContext) {
+		run.useLegacyTracing = true
 		run.traceMiddleware.TraceHook = traceHook
+	}
+}
+
+// WithTraceHook configures the run context with a trace hook.
+func WithOtelTraceHook(traceHook cloudotel.TraceHook) Option {
+	return func(run *runContext) {
+		run.otelTraceMiddleware.TraceHook = traceHook
 	}
 }

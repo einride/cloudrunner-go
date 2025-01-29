@@ -56,6 +56,7 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	flag.Parse()
 	flag.CommandLine.SetOutput(os.Stdout)
 	var run runContext
+	run.otelTraceMiddleware = cloudotel.NewTraceMiddleware()
 	for _, option := range options {
 		option(&run)
 	}
@@ -87,10 +88,12 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	if *validate {
 		return nil
 	}
+
 	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID
 	if run.traceMiddleware.TraceHook == nil {
 		run.traceMiddleware.TraceHook = cloudtrace.IDHook
 	}
+	run.otelTraceMiddleware.ProjectID = run.config.Runtime.ProjectID
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
 	ctx = withRunContext(ctx, &run)
@@ -179,7 +182,9 @@ type runContext struct {
 	serverMiddleware          cloudserver.Middleware
 	clientMiddleware          cloudclient.Middleware
 	requestLoggerMiddleware   cloudrequestlog.Middleware
+	useLegacyTracing          bool
 	traceMiddleware           cloudtrace.Middleware
+	otelTraceMiddleware       cloudotel.TraceMiddleware
 	securityHeadersMiddleware cloudserver.SecurityHeadersMiddleware
 }
 

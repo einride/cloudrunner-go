@@ -18,17 +18,23 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 	if !ok {
 		panic("cloudrunner.NewGRPCServer: must be called with a context from cloudrunner.Run")
 	}
+	unaryTracing := run.otelTraceMiddleware.GRPCServerUnaryInterceptor
+	streamTracing := run.otelTraceMiddleware.GRPCStreamServerInterceptor
+	if run.useLegacyTracing {
+		unaryTracing = run.traceMiddleware.GRPCServerUnaryInterceptor
+		streamTracing = run.traceMiddleware.GRPCStreamServerInterceptor
+	}
 	serverOptions := []grpc.ServerOption{
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
-			run.loggerMiddleware.GRPCUnaryServerInterceptor,        // adds context logger
-			run.traceMiddleware.GRPCServerUnaryInterceptor,         // needs the context logger
+			run.loggerMiddleware.GRPCUnaryServerInterceptor, // adds context logger
+			unaryTracing, // needs the context logger
 			run.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
 			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
 		grpc.ChainStreamInterceptor(
 			run.loggerMiddleware.GRPCStreamServerInterceptor,
-			run.traceMiddleware.GRPCStreamServerInterceptor,
+			streamTracing,
 			run.requestLoggerMiddleware.GRPCStreamServerInterceptor,
 			run.serverMiddleware.GRPCStreamServerInterceptor,
 		),
