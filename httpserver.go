@@ -57,6 +57,7 @@ func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
 		shutdownContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
+		httpServer.SetKeepAlivesEnabled(false)
 		if err := httpServer.Shutdown(shutdownContext); err != nil {
 			Logger(ctx).Error("HTTPServer shutdown error", zap.Error(err))
 		}
