@@ -10,7 +10,6 @@ import (
 
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.uber.org/zap"
 )
 
 // HTTPMiddleware is an HTTP middleware.
@@ -52,14 +51,14 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
 	go func() {
 		<-ctx.Done()
-		Logger(ctx).Info("HTTPServer shutting down")
+		slog.InfoContext(ctx, "HTTPServer shutting down")
 
 		shutdownContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		httpServer.SetKeepAlivesEnabled(false)
 		if err := httpServer.Shutdown(shutdownContext); err != nil {
-			Logger(ctx).Error("HTTPServer shutdown error", zap.Error(err))
+			slog.ErrorContext(ctx, "HTTPServer shutdown error", slog.Any("error", err))
 		}
 	}()
 	slog.InfoContext(ctx, "HTTPServer listening", slog.String("address", httpServer.Addr))
