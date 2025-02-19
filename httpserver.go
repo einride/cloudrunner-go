@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -52,7 +53,11 @@ func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
 	go func() {
 		<-ctx.Done()
 		Logger(ctx).Info("HTTPServer shutting down")
-		if err := httpServer.Shutdown(context.Background()); err != nil {
+
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		if err := httpServer.Shutdown(shutdownContext); err != nil {
 			Logger(ctx).Error("HTTPServer shutdown error", zap.Error(err))
 		}
 	}()
