@@ -103,6 +103,7 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	ctx = cloudzap.WithLogger(ctx, logger)
 	// Set the global default log/slog logger.
 	slog.SetDefault(slog.New(cloudslog.NewHandler(cloudslog.LoggerConfig{
+		ProjectID:             run.config.Runtime.ProjectID,
 		Development:           run.config.Logger.Development,
 		Level:                 cloudzap.LevelToSlog(run.config.Logger.Level),
 		ProtoMessageSizeLimit: run.config.RequestLogger.MessageSizeLimit,
