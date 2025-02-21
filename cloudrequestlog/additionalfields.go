@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"sync"
 
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -25,7 +24,7 @@ func WithAdditionalFields(ctx context.Context) context.Context {
 // AdditionalFields for a request log message.
 type AdditionalFields struct {
 	mu     sync.Mutex
-	fields []zap.Field
+	attrs  []slog.Attr
 	arrays []*arrayField
 }
 
@@ -34,10 +33,10 @@ type arrayField struct {
 	values []any
 }
 
-// Add additional fields.
+// Add additional attrs.
 func (m *AdditionalFields) Add(args ...any) {
 	m.mu.Lock()
-	m.fields = append(m.fields, argsToFieldSlice(args)...)
+	m.attrs = append(m.attrs, argsToAttrSlice(args)...)
 	m.mu.Unlock()
 }
 
@@ -59,25 +58,23 @@ func (m *AdditionalFields) AddToArray(key string, objects ...any) {
 	array.values = append(array.values, objects...)
 }
 
-// AppendTo appends the additional fields to the input fields.
+// AppendTo appends the additional attrs to the input attrs.
 func (m *AdditionalFields) AppendTo(attrs []slog.Attr) []slog.Attr {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	for _, field := range m.fields {
-		attrs = append(attrs, fieldToAttr(field))
-	}
+	attrs = append(attrs, m.attrs...)
 	for _, array := range m.arrays {
 		attrs = append(attrs, slog.Any(array.key, array.values))
 	}
 	return attrs
 }
 
-func argsToFieldSlice(args []any) []zap.Field {
+func argsToAttrSlice(args []any) []slog.Attr {
 	var attr slog.Attr
-	fields := make([]zap.Field, 0, len(args))
+	fields := make([]slog.Attr, 0, len(args))
 	for len(args) > 0 {
 		attr, args = argsToAttr(args)
-		fields = append(fields, attrToField(attr))
+		fields = append(fields, attr)
 	}
 	return fields
 }

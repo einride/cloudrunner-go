@@ -213,7 +213,7 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 			httpRequest.RequestUrl = r.URL.String()
 		}
 		attrs := []slog.Attr{
-			slog.Any("httpRequest", &httpRequest),
+			slog.Any("httpRequest", httpRequest),
 		}
 		if additionalFields, ok := GetAdditionalFields(ctx); ok {
 			attrs = additionalFields.AppendTo(attrs)

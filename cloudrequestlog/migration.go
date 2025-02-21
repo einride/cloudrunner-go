@@ -5,58 +5,8 @@ import (
 	"math"
 	"time"
 
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
-
-func attrToField(attr slog.Attr) zapcore.Field {
-	if attr.Equal(slog.Attr{}) {
-		// Ignore empty attrs.
-		return zap.Skip()
-	}
-	switch attr.Value.Kind() {
-	case slog.KindBool:
-		return zap.Bool(attr.Key, attr.Value.Bool())
-	case slog.KindDuration:
-		return zap.Duration(attr.Key, attr.Value.Duration())
-	case slog.KindFloat64:
-		return zap.Float64(attr.Key, attr.Value.Float64())
-	case slog.KindInt64:
-		return zap.Int64(attr.Key, attr.Value.Int64())
-	case slog.KindString:
-		return zap.String(attr.Key, attr.Value.String())
-	case slog.KindTime:
-		return zap.Time(attr.Key, attr.Value.Time())
-	case slog.KindUint64:
-		return zap.Uint64(attr.Key, attr.Value.Uint64())
-	case slog.KindGroup:
-		if attr.Key == "" {
-			// Inlines recursively.
-			return zap.Inline(groupObject(attr.Value.Group()))
-		}
-		return zap.Object(attr.Key, groupObject(attr.Value.Group()))
-	case slog.KindLogValuer:
-		return attrToField(slog.Attr{
-			Key: attr.Key,
-			// TODO: resolve the value in a lazy way.
-			// This probably needs a new Zap field type
-			// that can be resolved lazily.
-			Value: attr.Value.Resolve(),
-		})
-	default:
-		return zap.Any(attr.Key, attr.Value.Any())
-	}
-}
-
-// groupObject holds all the Attrs saved in a slog.GroupValue.
-type groupObject []slog.Attr
-
-func (gs groupObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	for _, attr := range gs {
-		attrToField(attr).AddTo(enc)
-	}
-	return nil
-}
 
 func fieldToAttr(field zapcore.Field) slog.Attr {
 	switch field.Type {
