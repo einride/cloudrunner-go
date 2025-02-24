@@ -2,4 +2,4 @@ module go.einride.tech/cloudrunner/.sage
 
 go 1.21
 
-require go.einride.tech/sage v0.344.0
+require go.einride.tech/sage v0.346.0
