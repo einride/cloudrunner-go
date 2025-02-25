@@ -2,6 +2,7 @@ package cloudslog
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -16,6 +17,8 @@ import (
 
 // LoggerConfig configures the application logger.
 type LoggerConfig struct {
+	// ProjectID of the project the service is running in.
+	ProjectID string
 	// Development indicates if the logger should output human-readable output for development.
 	Development bool `default:"true" onGCE:"false"`
 	// Level indicates which log level the logger should output at.
@@ -46,12 +49,14 @@ func newHandler(w io.Writer, config LoggerConfig) slog.Handler {
 			ReplaceAttr: replacer.replaceAttr,
 		})
 	}
-	result = &handler{Handler: result}
+	result = &handler{Handler: result, projectID: config.ProjectID}
 	return result
 }
 
 type handler struct {
 	slog.Handler
+
+	projectID string
 }
 
 var _ slog.Handler = &handler{}
@@ -60,7 +65,12 @@ var _ slog.Handler = &handler{}
 func (t *handler) Handle(ctx context.Context, record slog.Record) error {
 	if s := trace.SpanContextFromContext(ctx); s.IsValid() {
 		// See: https://cloud.google.com/logging/docs/structured-logging#special-payload-fields
-		record.AddAttrs(slog.Any("logging.googleapis.com/trace", s.TraceID()))
+		if t.projectID != "" {
+			trace := fmt.Sprintf("projects/%s/traces/%s", t.projectID, s.TraceID())
+			record.AddAttrs(slog.String("logging.googleapis.com/trace", trace))
+		} else {
+			record.AddAttrs(slog.Any("logging.googleapis.com/trace", s.TraceID()))
+		}
 		record.AddAttrs(slog.Any("logging.googleapis.com/spanId", s.SpanID()))
 		record.AddAttrs(slog.Bool("logging.googleapis.com/trace_sampled", s.TraceFlags().IsSampled()))
 	}
