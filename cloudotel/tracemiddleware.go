@@ -1,10 +1,16 @@
 package cloudotel
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 
+	"cloud.google.com/go/pubsub"
+	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
 	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
+	"go.einride.tech/cloudrunner/cloudpubsub"
 	"go.einride.tech/cloudrunner/cloudstream"
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.opentelemetry.io/otel/propagation"
@@ -78,6 +84,8 @@ func (i *TraceMiddleware) HTTPServer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		carrier := propagation.HeaderCarrier(r.Header)
 		ctx := i.propagator.Extract(r.Context(), carrier)
+		// Check if it is a Pub/Sub message and propagate tracing if exists.
+		ctx = propagatePubSubTracing(ctx, r)
 		ctx = i.withLogTracing(ctx, trace.SpanContextFromContext(ctx))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -96,4 +104,37 @@ func (i *TraceMiddleware) withLogTracing(ctx context.Context, spanCtx trace.Span
 		fields = append(fields, cloudzap.TraceSampled(spanCtx.IsSampled()))
 	}
 	return cloudzap.WithLoggerFields(ctx, fields...)
+}
+
+func propagatePubSubTracing(ctx context.Context, r *http.Request) context.Context {
+	if r.Method != http.MethodPost {
+		return ctx
+	}
+	bodyBuffer, payload, err := readAndDecodeRequestBody(r)
+	if err != nil {
+		return ctx
+	}
+	pubsubMessage := payload.BuildPubSubMessage()
+	ctx = injectTracingFromPubsubMsg(ctx, &pubsubMessage)
+	// Replace the original request body with the buffered one, so it can be read again.
+	r.Body = io.NopCloser(bytes.NewReader(bodyBuffer.Bytes()))
+	return ctx
+}
+
+func readAndDecodeRequestBody(r *http.Request) (bytes.Buffer, cloudpubsub.Payload, error) {
+	var bodyBuffer bytes.Buffer
+	tr := io.TeeReader(r.Body, &bodyBuffer)
+	var payload cloudpubsub.Payload
+	if err := json.NewDecoder(tr).Decode(&payload); err != nil {
+		return bodyBuffer, payload, err
+	}
+	return bodyBuffer, payload, nil
+}
+
+func injectTracingFromPubsubMsg(ctx context.Context, pubsubMessage *pubsubpb.PubsubMessage) context.Context {
+	tc := propagation.TraceContext{}
+	ctx = tc.Extract(ctx, pubsub.NewMessageCarrierFromPB(pubsubMessage))
+	carrier := make(propagation.MapCarrier)
+	tc.Inject(ctx, &carrier)
+	return ctx
 }
