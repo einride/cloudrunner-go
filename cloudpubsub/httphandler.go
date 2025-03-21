@@ -5,15 +5,11 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"time"
 
-	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudstatus"
-	"go.opentelemetry.io/otel/propagation"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // HTTPHandler creates a new HTTP handler for Cloud Pub/Sub push messages.
@@ -29,16 +25,7 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-	var payload struct {
-		Subscription string `json:"subscription"`
-		Message      struct {
-			Attributes  map[string]string `json:"attributes"`
-			Data        []byte            `json:"data"`
-			MessageID   string            `json:"messageId"`
-			PublishTime time.Time         `json:"publishTime"`
-			OrderingKey string            `json:"orderingKey"`
-		} `json:"message"`
-	}
+	var payload Payload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 			fields.Add(slog.Any("error", err))
@@ -46,21 +33,11 @@ func (fn httpHandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	pubsubMessage := pubsubpb.PubsubMessage{
-		Data:        payload.Message.Data,
-		Attributes:  payload.Message.Attributes,
-		MessageId:   payload.Message.MessageID,
-		PublishTime: timestamppb.New(payload.Message.PublishTime),
-		OrderingKey: payload.Message.OrderingKey,
-	}
+	pubsubMessage := payload.BuildPubSubMessage()
 	if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 		fields.Add(slog.Any("pubsubMessage", &pubsubMessage))
 	}
 	ctx := withSubscription(r.Context(), payload.Subscription)
-	tc := propagation.TraceContext{}
-	ctx = tc.Extract(ctx, pubsub.NewMessageCarrierFromPB(&pubsubMessage))
-	carrier := make(propagation.MapCarrier)
-	tc.Inject(ctx, &carrier)
 	if err := fn(ctx, &pubsubMessage); err != nil {
 		if fields, ok := cloudrequestlog.GetAdditionalFields(r.Context()); ok {
 			fields.Add(slog.Any("error", err))
