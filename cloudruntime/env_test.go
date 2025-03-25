@@ -180,6 +180,39 @@ func TestTaskCount(t *testing.T) {
 	})
 }
 
+func TestEnablePubsubTracing(t *testing.T) {
+	t.Run("disabled from env", func(t *testing.T) {
+		const expected = false
+		setEnv(t, "ENABLE_PUBSUB_TRACING", "false")
+		actual, ok := EnablePubsubTracing()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("enabled from env", func(t *testing.T) {
+		const expected = true
+		setEnv(t, "ENABLE_PUBSUB_TRACING", "true")
+		actual, ok := EnablePubsubTracing()
+		assert.Assert(t, ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("undefined", func(t *testing.T) {
+		const expected = false
+		actual, ok := EnablePubsubTracing()
+		assert.Assert(t, !ok)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		const expected = false
+		setEnv(t, "ENABLE_PUBSUB_TRACING", "invalid")
+		actual, ok := EnablePubsubTracing()
+		assert.Assert(t, !ok)
+		assert.Equal(t, expected, actual)
+	})
+}
+
 // setEnv will be available in the standard library from Go 1.17 as t.SetEnv.
 func setEnv(t *testing.T, key, value string) {
 	prevValue, ok := os.LookupEnv(key)
