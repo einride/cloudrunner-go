@@ -43,6 +43,8 @@ type Config struct {
 	ServiceAccount string
 	// ServiceVersion is the version of the service.
 	ServiceVersion string `env:"SERVICE_VERSION"`
+	// EnablePubsubTracing, disabled by default, reads trace parent from Pub/Sub message attributes.
+	EnablePubsubTracing bool `env:"ENABLE_PUBSUB_TRACING"`
 }
 
 // Resolve the runtime config.
@@ -79,6 +81,9 @@ func (c *Config) Resolve(ctx context.Context) error {
 	}
 	if taskCount, ok := TaskCount(); ok {
 		c.TaskCount = taskCount
+	}
+	if enablePubsubTracing, ok := EnablePubsubTracing(); ok {
+		c.EnablePubsubTracing = enablePubsubTracing
 	}
 	return nil
 }

@@ -99,6 +99,7 @@ cloudrunner    CLOUD_RUN_TASK_COUNT                     int
 cloudrunner    GOOGLE_CLOUD_PROJECT                     string                                              
 cloudrunner    RUNTIME_SERVICEACCOUNT                   string                                              
 cloudrunner    SERVICE_VERSION                          string                                              
+cloudrunner    ENABLE_PUBSUB_TRACING                    bool                                                
 cloudrunner    LOGGER_DEVELOPMENT                       bool                         true                   false
 cloudrunner    LOGGER_LEVEL                             zapcore.Level                debug                  info
 cloudrunner    LOGGER_REPORTERRORS                      bool                                                true

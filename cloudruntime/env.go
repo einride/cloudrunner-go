@@ -62,3 +62,9 @@ func TaskCount() (int, bool) {
 	taskIndex, err := strconv.Atoi(os.Getenv("CLOUD_RUN_TASK_COUNT"))
 	return taskIndex, err == nil
 }
+
+// EnablePubsubTracing returns a boolean indicating whether Pub/Sub tracing is enabled (false by default).
+func EnablePubsubTracing() (bool, bool) {
+	enablePubsubTracing, err := strconv.ParseBool(os.Getenv("ENABLE_PUBSUB_TRACING"))
+	return enablePubsubTracing, err == nil
+}

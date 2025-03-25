@@ -29,6 +29,8 @@ type TraceMiddleware struct {
 	ProjectID string
 	// TraceHook is an optional callback that gets called with the parsed trace context.
 	TraceHook TraceHook
+	// EnablePubsubTracing, disabled by default, reads trace parent from Pub/Sub message attributes.
+	EnablePubsubTracing bool
 	// propagator is a opentelemetry trace propagator
 	propagator propagation.TextMapPropagator
 }
@@ -85,8 +87,10 @@ func (i *TraceMiddleware) HTTPServer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		carrier := propagation.HeaderCarrier(r.Header)
 		ctx := i.propagator.Extract(r.Context(), carrier)
-		// Check if it is a Pub/Sub message and propagate tracing if exists.
-		ctx = propagatePubsubTracing(ctx, r)
+		if i.EnablePubsubTracing {
+			// Check if it is a Pub/Sub message and propagate tracing if exists.
+			ctx = propagatePubsubTracing(ctx, r)
+		}
 		ctx = i.withLogTracing(ctx, trace.SpanContextFromContext(ctx))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
