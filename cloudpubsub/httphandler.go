@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
+	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudstatus"
 	"google.golang.org/api/idtoken"

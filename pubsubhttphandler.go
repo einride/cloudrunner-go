@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
+	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	"go.einride.tech/cloudrunner/cloudpubsub"
 )
 

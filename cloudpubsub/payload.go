@@ -3,7 +3,7 @@ package cloudpubsub
 import (
 	"time"
 
-	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
+	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

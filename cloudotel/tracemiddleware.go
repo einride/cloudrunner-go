@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 
-	"cloud.google.com/go/pubsub"
-	"cloud.google.com/go/pubsub/apiv1/pubsubpb"
+	"cloud.google.com/go/pubsub/v2"
+	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
 	"go.einride.tech/cloudrunner/cloudpubsub"
 	"go.einride.tech/cloudrunner/cloudstream"
