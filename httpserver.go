@@ -53,20 +53,25 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 
 // ListenHTTP binds a listener on the configured port and listens for HTTP requests.
 func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
+	shutdown := make(chan struct{})
 	go func() {
 		<-ctx.Done()
 		slog.InfoContext(ctx, "HTTPServer shutting down")
 
-		shutdownContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		httpServer.SetKeepAlivesEnabled(false)
 		if err := httpServer.Shutdown(shutdownContext); err != nil {
 			slog.ErrorContext(ctx, "HTTPServer shutdown error", slog.Any("error", err))
 		}
+		close(shutdown)
 	}()
 	slog.InfoContext(ctx, "HTTPServer listening", slog.String("address", httpServer.Addr))
-	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	err := httpServer.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) && ctx.Err() != nil {
+		<-shutdown
+	} else if err != nil {
 		return err
 	}
 	return nil
