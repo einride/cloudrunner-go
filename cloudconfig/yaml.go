@@ -37,7 +37,7 @@ func getEnvFromYAMLServiceSpecificationFile(name string) (envValues []env, err e
 	}
 	var envs []env
 	switch kind.Kind {
-	case "Service": // Cloud Run Services
+	case "Service", "WorkerPool": // Cloud Run Services and Worker Pools
 		var config struct {
 			Metadata struct {
 				Name string
