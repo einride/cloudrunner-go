@@ -111,6 +111,7 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 		Development:           run.config.Logger.Development,
 		Level:                 cloudzap.LevelToSlog(run.config.Logger.Level),
 		ProtoMessageSizeLimit: run.config.RequestLogger.MessageSizeLimit,
+		ReportErrors:          run.config.Logger.ReportErrors,
 	})))
 	if err := cloudprofiler.Start(run.config.Profiler); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)

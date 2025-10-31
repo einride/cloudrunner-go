@@ -6,8 +6,10 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"runtime"
 	"runtime/debug"
 
+	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
 	ltype "google.golang.org/genproto/googleapis/logging/type"
@@ -27,6 +29,8 @@ type LoggerConfig struct {
 	// Messages large than the limit will be truncated.
 	// Default value, 0, means that no messages will be truncated.
 	ProtoMessageSizeLimit int `onGCE:"1024"`
+	// ReportErrors indicates if error reports should be logged for errors.
+	ReportErrors bool `onGCE:"true"`
 }
 
 // NewHandler creates a new [slog.Handler] with special-handling for Cloud Run.
@@ -49,14 +53,14 @@ func newHandler(w io.Writer, config LoggerConfig) slog.Handler {
 			ReplaceAttr: replacer.replaceAttr,
 		})
 	}
-	result = &handler{Handler: result, projectID: config.ProjectID}
+	result = &handler{Handler: result, projectID: config.ProjectID, config: config}
 	return result
 }
 
 type handler struct {
 	slog.Handler
-
 	projectID string
+	config    LoggerConfig
 }
 
 var _ slog.Handler = &handler{}
@@ -73,6 +77,31 @@ func (t *handler) Handle(ctx context.Context, record slog.Record) error {
 		}
 		record.AddAttrs(slog.Any("logging.googleapis.com/spanId", s.SpanID()))
 		record.AddAttrs(slog.Bool("logging.googleapis.com/trace_sampled", s.TraceFlags().IsSampled()))
+	}
+	if t.config.ReportErrors && record.Level >= slog.LevelError {
+		// See: https://cloud.google.com/error-reporting/docs/formatting-error-messages#reported-error-example
+		record.AddAttrs(slog.String("@type",
+			"type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent"))
+		if service, ok := cloudruntime.Service(); ok {
+			if serviceVersion, ok := cloudruntime.ServiceVersion(); ok {
+				record.AddAttrs(slog.Group("serviceContext",
+					slog.String("service", service),
+					slog.String("version", serviceVersion),
+				))
+			}
+		}
+
+		if record.PC != 0 {
+			fs := runtime.CallersFrames([]uintptr{record.PC})
+			f, _ := fs.Next()
+			record.AddAttrs(slog.Group("context",
+				slog.Group("reportLocation",
+					slog.String("filePath", f.File),
+					slog.Int("lineNumber", f.Line),
+					slog.String("functionName", f.Function),
+				),
+			))
+		}
 	}
 	record.AddAttrs(attributesFromContext(ctx)...)
 	return t.Handler.Handle(ctx, record)
