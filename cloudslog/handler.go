@@ -91,20 +91,40 @@ func (t *handler) Handle(ctx context.Context, record slog.Record) error {
 			}
 		}
 
+		// Build context group with optional httpRequest and reportLocation
+		contextAttrs := []any{}
+		if httpRequest := t.extractHTTPRequest(record); httpRequest != nil {
+			contextAttrs = append(contextAttrs, slog.Any("httpRequest", httpRequest))
+		}
 		if record.PC != 0 {
 			fs := runtime.CallersFrames([]uintptr{record.PC})
 			f, _ := fs.Next()
-			record.AddAttrs(slog.Group("context",
-				slog.Group("reportLocation",
-					slog.String("filePath", f.File),
-					slog.Int("lineNumber", f.Line),
-					slog.String("functionName", f.Function),
-				),
+			contextAttrs = append(contextAttrs, slog.Group("reportLocation",
+				slog.String("filePath", f.File),
+				slog.Int("lineNumber", f.Line),
+				slog.String("functionName", f.Function),
 			))
+		}
+		if len(contextAttrs) > 0 {
+			record.AddAttrs(slog.Group("context", contextAttrs...))
 		}
 	}
 	record.AddAttrs(attributesFromContext(ctx)...)
 	return t.Handler.Handle(ctx, record)
+}
+
+// extractHTTPRequest extracts the httpRequest attribute from the log record if present.
+// The httpRequest is added by the request logging middleware in cloudrequestlog/middleware.go.
+func (t *handler) extractHTTPRequest(record slog.Record) *ltype.HttpRequest {
+	var httpRequest *ltype.HttpRequest
+	record.Attrs(func(a slog.Attr) bool {
+		if a.Key == "httpRequest" {
+			httpRequest, _ = a.Value.Any().(*ltype.HttpRequest)
+			return false
+		}
+		return true
+	})
+	return httpRequest
 }
 
 type attrReplacer struct {
