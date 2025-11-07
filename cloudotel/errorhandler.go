@@ -5,16 +5,8 @@ import (
 	"log/slog"
 
 	"go.opentelemetry.io/otel"
-	"go.uber.org/zap"         //nolint:gomodguard // legacy zap dependency for backwards compatibility
-	"go.uber.org/zap/zapcore" //nolint:gomodguard // legacy zap dependency for backwards compatibility
 )
 
-// NewErrorLogger returns a new otel.ErrorHandler that logs errors using the provided logger, level and message.
-//
-// Deprecated: This is a no-op as part of the migration from zap to slog.
-func NewErrorLogger(*zap.Logger, zapcore.Level, string) otel.ErrorHandler {
-	return otel.ErrorHandlerFunc(func(error) {})
-}
 
 // RegisterErrorHandler registers a global OpenTelemetry error handler.
 func RegisterErrorHandler(ctx context.Context) {
