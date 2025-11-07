@@ -21,7 +21,6 @@ import (
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.einride.tech/cloudrunner/cloudslog"
 	"go.einride.tech/cloudrunner/cloudtrace"
-	"go.einride.tech/cloudrunner/cloudzap"
 	"google.golang.org/grpc"
 )
 
@@ -30,7 +29,7 @@ type runConfig struct {
 	// Runtime contains runtime config.
 	Runtime cloudruntime.Config
 	// Logger contains logger config.
-	Logger cloudzap.LoggerConfig
+	Logger cloudslog.LoggerConfig
 	// Profiler contains profiler config.
 	Profiler cloudprofiler.Config
 	// TraceExporter contains trace exporter config.
@@ -99,17 +98,11 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
 	ctx = withRunContext(ctx, &run)
 	ctx = cloudruntime.WithConfig(ctx, run.config.Runtime)
-	logger, err := cloudzap.NewLogger(run.config.Logger)
-	if err != nil {
-		return fmt.Errorf("cloudrunner.Run: %w", err)
-	}
-	run.loggerMiddleware.Logger = logger
-	ctx = cloudzap.WithLogger(ctx, logger)
 	// Set the global default log/slog logger.
 	slog.SetDefault(slog.New(cloudslog.NewHandler(cloudslog.LoggerConfig{
 		ProjectID:             run.config.Runtime.ProjectID,
 		Development:           run.config.Logger.Development,
-		Level:                 cloudzap.LevelToSlog(run.config.Logger.Level),
+		Level:                 run.config.Logger.Level,
 		ProtoMessageSizeLimit: run.config.RequestLogger.MessageSizeLimit,
 		ReportErrors:          run.config.Logger.ReportErrors,
 	})))
@@ -180,7 +173,6 @@ type runContext struct {
 	config                    runConfig
 	configOptions             []cloudconfig.Option
 	grpcServerOptions         []grpc.ServerOption
-	loggerMiddleware          cloudzap.Middleware
 	serverMiddleware          cloudserver.Middleware
 	clientMiddleware          cloudclient.Middleware
 	requestLoggerMiddleware   cloudrequestlog.Middleware

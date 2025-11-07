@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"go.einride.tech/cloudrunner/cloudstream"
-	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -98,13 +96,6 @@ func (i *Middleware) withLogTracing(ctx context.Context, header string) context.
 	if i.TraceHook != nil {
 		ctx = i.TraceHook(ctx, traceContext)
 	}
-	fields := make([]zap.Field, 0, 3)
-	fields = append(fields, cloudzap.Trace(i.ProjectID, traceContext.TraceID))
-	if traceContext.SpanID != "" {
-		fields = append(fields, cloudzap.SpanID(traceContext.SpanID))
-	}
-	if traceContext.Sampled {
-		fields = append(fields, cloudzap.TraceSampled(traceContext.Sampled))
-	}
-	return cloudzap.WithLoggerFields(ctx, fields...)
+	// Trace fields are automatically added by the slog handler from the span context
+	return ctx
 }

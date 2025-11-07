@@ -27,13 +27,11 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 	serverOptions := []grpc.ServerOption{
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
-			run.loggerMiddleware.GRPCUnaryServerInterceptor, // adds context logger
-			unaryTracing, // needs the context logger
+			unaryTracing,
 			run.requestLoggerMiddleware.GRPCUnaryServerInterceptor, // needs to run after trace
 			run.serverMiddleware.GRPCUnaryServerInterceptor,        // needs to run after request logger
 		),
 		grpc.ChainStreamInterceptor(
-			run.loggerMiddleware.GRPCStreamServerInterceptor,
 			streamTracing,
 			run.requestLoggerMiddleware.GRPCStreamServerInterceptor,
 			run.serverMiddleware.GRPCStreamServerInterceptor,
