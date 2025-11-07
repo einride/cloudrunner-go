@@ -9,7 +9,7 @@ opinionated, batteries-included service SDK.
 Run your application with [`cloudrunner.Run`](./run.go), and you get:
 
 - Logging integrated with [Cloud Logging](https://cloud.google.com/logging)
-  using [Zap](https://go.uber.org/zap).
+  using [slog](https://pkg.go.dev/log/slog).
 - Tracing integrated with [Cloud Trace](https://cloud.google.com/trace)
   using[OpenTelemetry Go](https://go.opentelemetry.io/otel).
 - Metrics integrated with
