@@ -7,7 +7,6 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-
 // RegisterErrorHandler registers a global OpenTelemetry error handler.
 func RegisterErrorHandler(ctx context.Context) {
 	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
