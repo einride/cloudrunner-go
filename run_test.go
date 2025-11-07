@@ -3,6 +3,7 @@ package cloudrunner_test
 import (
 	"context"
 	"log"
+	"log/slog"
 
 	"go.einride.tech/cloudrunner"
 	"google.golang.org/grpc/health"
@@ -11,7 +12,7 @@ import (
 
 func ExampleRun_helloWorld() {
 	if err := cloudrunner.Run(func(ctx context.Context) error {
-		cloudrunner.Logger(ctx).Info("hello world")
+		slog.InfoContext(ctx, "hello world")
 		return nil
 	}); err != nil {
 		log.Fatal(err)
