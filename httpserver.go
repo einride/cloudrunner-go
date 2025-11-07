@@ -32,7 +32,6 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		func(handler http.Handler) http.Handler {
 			return otelhttp.NewHandler(handler, "server")
 		},
-		run.loggerMiddleware.HTTPServer,
 		tracingMiddleware,
 		run.requestLoggerMiddleware.HTTPServer,
 		run.securityHeadersMiddleware.HTTPServer,
