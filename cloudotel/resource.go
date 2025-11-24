@@ -2,7 +2,9 @@ package cloudotel
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"strconv"
 
 	"go.einride.tech/cloudrunner/cloudruntime"
@@ -30,6 +32,14 @@ func NewResource(ctx context.Context) (*resource.Resource, error) {
 	}
 	result, err := resource.New(ctx, opts...)
 	if err != nil {
+		if errors.Is(err, resource.ErrPartialResource) {
+			slog.WarnContext(ctx, "partial otel resource being used", slog.Any("error", err))
+			return result, nil
+		}
+		if errors.Is(err, resource.ErrSchemaURLConflict) {
+			slog.WarnContext(ctx, "otel resource schema merge conflict, using anyway", slog.Any("error", err))
+			return result, nil
+		}
 		return nil, fmt.Errorf("init telemetry resource: %w", err)
 	}
 	return result, nil
