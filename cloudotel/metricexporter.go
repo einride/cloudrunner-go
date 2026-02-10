@@ -27,6 +27,9 @@ type MetricExporterConfig struct {
 	RuntimeInstrumentation bool          `onGCE:"true"`
 	HostInstrumentation    bool          `onGCE:"true"`
 	OpenCensusProducer     bool          `default:"false"`
+	// DropMetrics is a list of metric names to drop. Supports wildcards (e.g., "http.client.*").
+	// This can be used to reduce cost and cardinality by excluding unwanted metrics.
+	DropMetrics []string
 }
 
 // StartMetricExporter starts the OpenTelemetry Cloud Monitoring exporter.
@@ -55,29 +58,35 @@ func StartMetricExporter(
 		readerOpts = append(readerOpts, sdkmetric.WithProducer(ocbridge.NewMetricProducer()))
 	}
 	reader := sdkmetric.NewPeriodicReader(exporter, readerOpts...)
+	// Build views for the meter provider.
+	// `net.sock.peer.port`, `net.port.peer` and `http.client_ip are high-cardinality attributes (essentially
+	// one unique value per request) which causes failures when exporting metrics as the request limit
+	// towards GCP is reached (200 time series per request).
+	//
+	// The following views masks these attributes from both otelhttp and otelgrpc so
+	// that metrics can still be exported.
+	// Based on https://github.com/open-telemetry/opentelemetry-go-contrib/issues/3071#issuecomment-1416137206
+	views := []sdkmetric.View{
+		maskInstrumentAttrs(
+			"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
+			semconv.NetPeerPortKey,
+			semconv.NetSockPeerPortKey,
+			attribute.Key("http.client_ip"),
+		),
+		maskInstrumentAttrs(
+			"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
+			semconv.NetPeerPortKey,
+			semconv.NetSockPeerPortKey,
+		),
+	}
+	// Add drop views for metrics specified in DropMetrics.
+	for _, name := range exporterConfig.DropMetrics {
+		views = append(views, dropMetricView(name))
+	}
 	provider := sdkmetric.NewMeterProvider(
 		sdkmetric.WithReader(reader),
 		sdkmetric.WithResource(resource),
-		sdkmetric.WithView(
-			// `net.sock.peer.port`, `net.port.peer` and `http.client_ip are high-cardinality attributes (essentially
-			// one unique value per request) which causes failures when exporting metrics as the request limit
-			// towards GCP is reached (200 time series per request).
-			//
-			// The following views masks these attributes from both otelhttp and otelgrpc so
-			// that metrics can still be exported.
-			// Based on https://github.com/open-telemetry/opentelemetry-go-contrib/issues/3071#issuecomment-1416137206
-			maskInstrumentAttrs(
-				"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
-				semconv.NetPeerPortKey,
-				semconv.NetSockPeerPortKey,
-				attribute.Key("http.client_ip"),
-			),
-			maskInstrumentAttrs(
-				"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
-				semconv.NetPeerPortKey,
-				semconv.NetSockPeerPortKey,
-			),
-		),
+		sdkmetric.WithView(views...),
 	)
 	otel.SetMeterProvider(provider)
 	shutdown := func(ctx context.Context) error {
@@ -110,6 +119,13 @@ func isUnsupportedSamplerErr(err error) bool {
 		return false
 	}
 	return strings.Contains(err.Error(), "unsupported sampler")
+}
+
+func dropMetricView(name string) sdkmetric.View {
+	return sdkmetric.NewView(
+		sdkmetric.Instrument{Name: name},
+		sdkmetric.Stream{Aggregation: sdkmetric.AggregationDrop{}},
+	)
 }
 
 func maskInstrumentAttrs(instrumentScopeName string, attrs ...attribute.Key) sdkmetric.View {
