@@ -115,6 +115,8 @@ cloudrunner    METRICEXPORTER_RUNTIMEINSTRUMENTATION    bool                    
 cloudrunner    METRICEXPORTER_HOSTINSTRUMENTATION       bool                                                true
 cloudrunner    METRICEXPORTER_OPENCENSUSPRODUCER        bool                         false                  
 cloudrunner    METRICEXPORTER_DROPMETRICS               []string                                            
+cloudrunner    RESOURCE_ALLOWPARTIALRESOURCE            bool                                                
+cloudrunner    RESOURCE_ALLOWSCHEMAURLCONFLICT          bool                                                
 cloudrunner    SERVER_TIMEOUT                           time.Duration                290s                   
 cloudrunner    CLIENT_TIMEOUT                           time.Duration                10s                    
 cloudrunner    CLIENT_RETRY_ENABLED                     bool                         true                   

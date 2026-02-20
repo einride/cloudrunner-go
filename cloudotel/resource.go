@@ -13,8 +13,24 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
+// ResourceConfig configures NewResourceWithConfig behavior.
+type ResourceConfig struct {
+	// AllowPartialResource allows startup to continue when OTel resource detection is partial (e.g. some detectors
+	// fail). A warning is logged.
+	AllowPartialResource bool
+	// AllowSchemaURLConflict allows startup to continue when OTel resource schema URLs conflict during merge.
+	// A warning is logged.
+	AllowSchemaURLConflict bool
+}
+
 // NewResource creates and detects attributes for a new OpenTelemetry resource.
 func NewResource(ctx context.Context) (*resource.Resource, error) {
+	return NewResourceWithConfig(ctx, ResourceConfig{})
+}
+
+// NewResourceWithConfig creates and detects attributes for a new OpenTelemetry resource, with optional tolerance for
+// partial resources and schema URL conflicts configured via ResourceConfig.
+func NewResourceWithConfig(ctx context.Context, config ResourceConfig) (*resource.Resource, error) {
 	opts := []resource.Option{
 		resource.WithTelemetrySDK(),
 		resource.WithDetectors(gcp.NewDetector()),
@@ -32,11 +48,11 @@ func NewResource(ctx context.Context) (*resource.Resource, error) {
 	}
 	result, err := resource.New(ctx, opts...)
 	if err != nil {
-		if errors.Is(err, resource.ErrPartialResource) {
+		if config.AllowPartialResource && errors.Is(err, resource.ErrPartialResource) {
 			slog.WarnContext(ctx, "partial otel resource being used", slog.Any("error", err))
 			return result, nil
 		}
-		if errors.Is(err, resource.ErrSchemaURLConflict) {
+		if config.AllowSchemaURLConflict && errors.Is(err, resource.ErrSchemaURLConflict) {
 			slog.WarnContext(ctx, "otel resource schema merge conflict, using anyway", slog.Any("error", err))
 			return result, nil
 		}
