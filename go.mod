@@ -16,11 +16,11 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/soheilhy/cmux v0.1.5
 	go.einride.tech/protobuf-sensitive v0.9.0
-	go.opentelemetry.io/contrib/detectors/gcp v1.39.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.64.0
-	go.opentelemetry.io/contrib/instrumentation/host v0.64.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.64.0
+	go.opentelemetry.io/contrib/detectors/gcp v1.40.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.65.0
+	go.opentelemetry.io/contrib/instrumentation/host v0.65.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.65.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.65.0
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/bridge/opencensus v1.40.0
 	go.opentelemetry.io/otel/sdk v1.40.0
@@ -47,7 +47,7 @@ require (
 	cloud.google.com/go/longrunning v0.8.0 // indirect
 	cloud.google.com/go/monitoring v1.24.3 // indirect
 	cloud.google.com/go/trace v1.11.7 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.31.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.55.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/ebitengine/purego v0.9.1 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.16.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
-	github.com/shirou/gopsutil/v4 v4.25.11 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
@@ -77,7 +77,7 @@ require (
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260128011058-8636f8732409 // indirect
 )
 
 retract (
