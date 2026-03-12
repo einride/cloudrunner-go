@@ -28,8 +28,10 @@ func StartTraceExporter(
 	exporterConfig TraceExporterConfig,
 	resource *resource.Resource,
 ) (func(context.Context) error, error) {
-	// configure open telemetry to read trace context from GCP `x-cloud-trace-context` header.
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		// TODO: Remove CloudTraceFormatPropagator. The x-cloud-trace-context header is
+		// GCP-specific and legacy; GCP now sends the W3C traceparent header on all requests.
+		// See https://cloud.google.com/trace/docs/trace-context
 		gcppropagator.CloudTraceFormatPropagator{},
 		propagation.TraceContext{},
 		propagation.Baggage{},

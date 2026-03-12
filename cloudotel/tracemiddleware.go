@@ -37,6 +37,9 @@ type TraceMiddleware struct {
 
 func NewTraceMiddleware() TraceMiddleware {
 	propagator := propagation.NewCompositeTextMapPropagator(
+		// TODO: Remove CloudTraceFormatPropagator. The x-cloud-trace-context header is
+		// GCP-specific and legacy; GCP now sends the W3C traceparent header on all requests.
+		// See https://cloud.google.com/trace/docs/trace-context
 		gcppropagator.CloudTraceFormatPropagator{},
 		propagation.TraceContext{},
 		propagation.Baggage{},
@@ -82,16 +85,38 @@ func (i *TraceMiddleware) GRPCStreamServerInterceptor(
 	return handler(srv, cloudstream.NewContextualServerStream(ctx, ss))
 }
 
+// PubsubTraceExtractor is an HTTP middleware that extracts trace context from
+// Pub/Sub push message attributes into the request context. For pull
+// subscriptions, the google-cloud-go pubsub library handles this automatically
+// in its iterator. For push subscriptions, the message arrives as an HTTP POST
+// from GCP infrastructure, so we must extract the trace context ourselves.
+//
+// It uses pubsub.NewMessageCarrierFromPB to extract the googclient_traceparent
+// attribute — the same carrier the pull subscriber uses internally.
+//
+// This middleware must run before otelhttp.NewHandler so that the span created
+// by otelhttp becomes a child of the publisher's trace. The extracted trace
+// context is injected as a W3C traceparent HTTP header so that otelhttp's
+// propagator picks it up.
+func (i *TraceMiddleware) PubsubTraceExtractor(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if i.EnablePubsubTracing {
+			ctx := propagatePubsubTracing(r.Context(), r)
+			// Inject the pubsub trace as a W3C traceparent header so that
+			// otelhttp's global propagator picks it up.
+			propagation.TraceContext{}.Inject(ctx, propagation.HeaderCarrier(r.Header))
+			r = r.WithContext(ctx)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // HTTPServer provides middleware for HTTP servers.
+// It reads the span context already extracted by otelhttp and wires it into
+// structured logging. Must run after otelhttp.NewHandler in the middleware chain.
 func (i *TraceMiddleware) HTTPServer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		carrier := propagation.HeaderCarrier(r.Header)
-		ctx := i.propagator.Extract(r.Context(), carrier)
-		if i.EnablePubsubTracing {
-			// Check if it is a Pub/Sub message and propagate tracing if exists.
-			ctx = propagatePubsubTracing(ctx, r)
-		}
-		ctx = i.withLogTracing(ctx, trace.SpanContextFromContext(ctx))
+		ctx := i.withLogTracing(r.Context(), trace.SpanContextFromContext(r.Context()))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -141,6 +166,10 @@ func tryUnmarshalAsPubsubPayload(body []byte) (cloudpubsub.Payload, error) {
 	return payload, nil
 }
 
+// injectTracingFromPubsubMsg extracts trace context from a Pub/Sub message
+// using pubsub.NewMessageCarrierFromPB. The carrier maps the W3C traceparent
+// key to the googclient_traceparent message attribute — the same mechanism the
+// google-cloud-go pubsub library uses for pull subscriptions.
 func injectTracingFromPubsubMsg(ctx context.Context, pubsubMessage *pubsubpb.PubsubMessage) context.Context {
 	tc := propagation.TraceContext{}
 	ctx = tc.Extract(ctx, pubsub.NewMessageCarrierFromPB(pubsubMessage))
