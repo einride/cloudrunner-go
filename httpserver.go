@@ -29,6 +29,7 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		tracingMiddleware = run.traceMiddleware.HTTPServer
 	}
 	defaultMiddlewares := []cloudserver.HTTPMiddleware{
+		run.otelTraceMiddleware.PubsubTraceExtractor,
 		func(handler http.Handler) http.Handler {
 			return otelhttp.NewHandler(handler, "server")
 		},
