@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"go.einride.tech/cloudrunner/cloudserver"
@@ -31,7 +32,11 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 	defaultMiddlewares := []cloudserver.HTTPMiddleware{
 		run.otelTraceMiddleware.PubsubTraceExtractor,
 		func(handler http.Handler) http.Handler {
-			return otelhttp.NewHandler(handler, "server")
+			return otelhttp.NewHandler(
+				handler,
+				"server",
+				otelhttp.WithSpanNameFormatter(httpSpanName),
+			)
 		},
 		run.loggerMiddleware.HTTPServer,
 		tracingMiddleware,
@@ -50,6 +55,25 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		WriteTimeout:      run.serverMiddleware.Config.Timeout,
 		IdleTimeout:       run.serverMiddleware.Config.Timeout,
 	}
+}
+
+// httpSpanName returns a span name following the OpenTelemetry HTTP semantic
+// conventions: "{method} {route}".
+// See https://opentelemetry.io/docs/specs/semconv/http/http-spans/#name
+func httpSpanName(_ string, r *http.Request) string {
+	route := r.URL.Path
+	if r.Pattern != "" {
+		// ServeMux patterns may include a method prefix (e.g. "GET /path").
+		// Strip it so we always use the actual request method — this matters
+		// when GET patterns match HEAD requests (r.Method=HEAD, r.Pattern="GET /path").
+		_, path, found := strings.Cut(r.Pattern, " ")
+		if found {
+			route = path
+		} else {
+			route = r.Pattern
+		}
+	}
+	return r.Method + " " + route
 }
 
 // ListenHTTP binds a listener on the configured port and listens for HTTP requests.
