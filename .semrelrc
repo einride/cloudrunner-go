@@ -1,0 +1,10 @@
+{
+  "plugins": {
+    "commit-analyzer": {
+      "name": "default",
+      "options": {
+        "patch_release_rules": "fix,chore(deps)"
+      }
+    }
+  }
+}
