@@ -39,18 +39,18 @@ func ErrorReportContext(file string, line int, function string) zapcore.Field {
 // ErrorReportServiceContext returns a structured logging field for error report context for the provided caller.
 func ErrorReportServiceContext(serviceName, serviceVersion string) zapcore.Field {
 	return zap.Object(errorReportServiceContextKey, errorReportServiceContext{
-		name:    serviceName,
+		service: serviceName,
 		version: serviceVersion,
 	})
 }
 
 type errorReportServiceContext struct {
-	name    string
+	service string
 	version string
 }
 
 func (s errorReportServiceContext) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddString("name", s.name)
+	encoder.AddString("service", s.service)
 	encoder.AddString("version", s.version)
 	return nil
 }
