@@ -52,6 +52,10 @@ func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.C
 }
 
 // WithTraceHook configures the run context with a trace hook.
+// Deprecated: As per https://docs.cloud.google.com/trace/docs/trace-log-integration
+// the project specific cloud logging trace format is now considered legacy
+// and the new format is the same as what this function was doing. Will be removed
+// in a future update.
 func WithOtelTraceHook(traceHook cloudotel.TraceHook) Option {
 	return func(run *runContext) {
 		run.otelTraceMiddleware.TraceHook = traceHook

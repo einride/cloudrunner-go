@@ -14,12 +14,12 @@ func TestTrace(t *testing.T) {
 	var buffer zaptest.Buffer
 	encoder := zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
 	logger := zap.New(zapcore.NewCore(encoder, &buffer, zap.DebugLevel))
-	logger.Info("test", Trace("foo", "bar"))
+	logger.Info("test", Trace("bar"))
 	assert.Assert(
 		t,
 		strings.Contains(
 			buffer.Stripped(),
-			`"logging.googleapis.com/trace":"projects/foo/traces/bar"`,
+			`"logging.googleapis.com/trace":"bar"`,
 		),
 	)
 }
