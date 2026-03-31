@@ -126,7 +126,7 @@ func (i *TraceMiddleware) withLogTracing(ctx context.Context, spanCtx trace.Span
 		ctx = i.TraceHook(ctx, spanCtx)
 	}
 	fields := make([]zap.Field, 0, 3)
-	fields = append(fields, cloudzap.Trace(i.ProjectID, spanCtx.TraceID().String()))
+	fields = append(fields, cloudzap.Trace(spanCtx.TraceID().String()))
 	if spanCtx.SpanID().String() != "" {
 		fields = append(fields, cloudzap.SpanID(spanCtx.SpanID().String()))
 	}

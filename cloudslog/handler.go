@@ -2,7 +2,6 @@ package cloudslog
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -68,14 +67,9 @@ var _ slog.Handler = &handler{}
 // Handle adds attributes from the span context to the [slog.Record].
 func (t *handler) Handle(ctx context.Context, record slog.Record) error {
 	if s := trace.SpanContextFromContext(ctx); s.IsValid() {
-		// See: https://cloud.google.com/logging/docs/structured-logging#special-payload-fields
-		if t.projectID != "" {
-			trace := fmt.Sprintf("projects/%s/traces/%s", t.projectID, s.TraceID())
-			record.AddAttrs(slog.String("logging.googleapis.com/trace", trace))
-		} else {
-			record.AddAttrs(slog.Any("logging.googleapis.com/trace", s.TraceID()))
-		}
-		record.AddAttrs(slog.Any("logging.googleapis.com/spanId", s.SpanID()))
+		// See: https://cloud.google.com/trace/docs/trace-log-integration
+		record.AddAttrs(slog.String("logging.googleapis.com/trace", s.TraceID().String()))
+		record.AddAttrs(slog.String("logging.googleapis.com/spanId", s.SpanID().String()))
 		record.AddAttrs(slog.Bool("logging.googleapis.com/trace_sampled", s.TraceFlags().IsSampled()))
 	}
 	if t.config.ReportErrors && record.Level >= slog.LevelError {

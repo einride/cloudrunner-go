@@ -1,8 +1,6 @@
 package cloudzap
 
 import (
-	"fmt"
-
 	"go.uber.org/zap"
 )
 
@@ -12,8 +10,8 @@ const (
 	traceSampledKey = "logging.googleapis.com/trace_sampled"
 )
 
-func Trace(projectID, traceID string) zap.Field {
-	return zap.String(traceKey, fmt.Sprintf("projects/%s/traces/%s", projectID, traceID))
+func Trace(traceID string) zap.Field {
+	return zap.String(traceKey, traceID)
 }
 
 func SpanID(spanID string) zap.Field {
