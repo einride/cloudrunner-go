@@ -13,10 +13,8 @@ import (
 	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
 	"go.einride.tech/cloudrunner/cloudpubsub"
 	"go.einride.tech/cloudrunner/cloudstream"
-	"go.einride.tech/cloudrunner/cloudzap" //nolint:staticcheck // SA1019: internal use of deprecated package pending removal
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/zap" //nolint:gomodguard // legacy zap dependency for trace middleware
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -131,19 +129,8 @@ func (i *TraceMiddleware) withLogTracing(ctx context.Context, spanCtx trace.Span
 	if i.TraceHook != nil {
 		ctx = i.TraceHook(ctx, spanCtx)
 	}
-	fields := make([]zap.Field, 0, 3)
-	//nolint:staticcheck // SA1019: deprecated, pending removal
-	fields = append(fields, cloudzap.Trace(spanCtx.TraceID().String()))
-	if spanCtx.SpanID().String() != "" {
-		//nolint:staticcheck // SA1019: deprecated, pending removal
-		fields = append(fields, cloudzap.SpanID(spanCtx.SpanID().String()))
-	}
-	if spanCtx.IsSampled() {
-		//nolint:staticcheck // SA1019: deprecated, pending removal
-		fields = append(fields, cloudzap.TraceSampled(spanCtx.IsSampled()))
-	}
-	//nolint:staticcheck // SA1019: deprecated, pending removal
-	return cloudzap.WithLoggerFields(ctx, fields...)
+	// Trace fields are automatically added by the slog handler from the span context
+	return ctx
 }
 
 func propagatePubsubTracing(ctx context.Context, r *http.Request) context.Context {

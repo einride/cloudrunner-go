@@ -4,32 +4,12 @@ import (
 	"context"
 
 	"go.einride.tech/cloudrunner/cloudrequestlog"
-	"go.einride.tech/cloudrunner/cloudzap" //nolint:staticcheck // SA1019: internal use of deprecated package pending removal
-	"go.uber.org/zap"                      //nolint:gomodguard // legacy zap dependency for backwards compatibility
+	"go.einride.tech/cloudrunner/cloudslog"
 )
 
-// Logger returns the logger for the current context.
-//
-// Deprecated: Use slog.InfoContext, slog.WarnContext, slog.ErrorContext, etc. instead.
-// The default slog logger is configured with cloudslog.Handler which automatically
-// handles trace correlation and Cloud Logging field formatting.
-func Logger(ctx context.Context) *zap.Logger {
-	logger, ok := cloudzap.GetLogger(ctx)
-	if !ok {
-		panic("cloudrunner.Logger must be called with a context from cloudrunner.Run")
-	}
-	return logger
-}
-
-// WithLoggerFields attaches structured fields to a new logger in the returned child context.
-//
-// Deprecated: Use cloudslog.With to attach slog attributes to the context instead.
-func WithLoggerFields(ctx context.Context, fields ...zap.Field) context.Context {
-	logger, ok := cloudzap.GetLogger(ctx)
-	if !ok {
-		panic("cloudrunner.WithLoggerFields must be called with a context from cloudrunner.Run")
-	}
-	return cloudzap.WithLogger(ctx, logger.With(fields...))
+// WithLoggerFields attaches structured fields to the returned child context.
+func WithLoggerFields(ctx context.Context, args ...any) context.Context {
+	return cloudslog.With(ctx, args...)
 }
 
 // AddRequestLogFields adds fields to the current request log, and is safe to call concurrently.
