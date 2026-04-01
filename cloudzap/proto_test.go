@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"go.uber.org/zap/zaptest"
+	"go.uber.org/zap"         //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zaptest" //nolint:gomodguard // cloudzap is a zap integration package
 	"google.golang.org/genproto/googleapis/example/library/v1"
 	"gotest.tools/v3/assert"
 )

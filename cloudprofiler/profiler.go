@@ -10,7 +10,7 @@ import (
 
 // shims for unit testing.
 //
-//nolint:gochecknoglobals
+//nolint:gochecknoglobals // shims for unit testing
 var (
 	profilerStart = profiler.Start
 )
@@ -32,7 +32,7 @@ func Start(config Config) error {
 	}
 
 	var cloudConfig cloudruntime.Config
-	if err := cloudConfig.Autodetect(); err != nil {
+	if err := cloudConfig.Autodetect(); err != nil { //nolint:staticcheck // SA1019: TODO migrate to Config.Resolve
 		return fmt.Errorf("start profiler: %w", err)
 	}
 

@@ -16,7 +16,7 @@ import (
 	"go.einride.tech/cloudrunner/cloudzap"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // legacy zap dependency for trace middleware
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )

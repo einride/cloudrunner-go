@@ -29,7 +29,8 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 	if run.useLegacyTracing {
 		tracingMiddleware = run.traceMiddleware.HTTPServer
 	}
-	defaultMiddlewares := []cloudserver.HTTPMiddleware{
+	defaultMiddlewares := make([]cloudserver.HTTPMiddleware, 0, 7+len(middlewares))
+	defaultMiddlewares = append(defaultMiddlewares,
 		run.otelTraceMiddleware.PubsubTraceExtractor,
 		func(handler http.Handler) http.Handler {
 			return otelhttp.NewHandler(
@@ -43,7 +44,7 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 		run.requestLoggerMiddleware.HTTPServer,
 		run.securityHeadersMiddleware.HTTPServer,
 		run.serverMiddleware.HTTPServer,
-	}
+	)
 	return &http.Server{
 		Addr: fmt.Sprintf(":%d", run.config.Runtime.Port),
 		Handler: cloudserver.ChainHTTPMiddleware(
@@ -79,6 +80,7 @@ func httpSpanName(_ string, r *http.Request) string {
 // ListenHTTP binds a listener on the configured port and listens for HTTP requests.
 func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
 	shutdown := make(chan struct{})
+	//nolint:gosec // G118: intentional use of context.Background for graceful shutdown after parent context cancellation
 	go func() {
 		<-ctx.Done()
 		slog.InfoContext(ctx, "HTTPServer shutting down")

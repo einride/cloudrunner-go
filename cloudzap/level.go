@@ -3,7 +3,7 @@ package cloudzap
 import (
 	"log/slog"
 
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 // LevelToSeverity converts a zapcore.Level to its corresponding Cloud Logging severity level.

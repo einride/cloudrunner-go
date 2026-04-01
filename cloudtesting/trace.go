@@ -3,11 +3,12 @@ package cloudtesting
 import (
 	"context"
 
-	cloudtrace "go.einride.tech/cloudrunner/cloudtrace"
+	cloudtrace "go.einride.tech/cloudrunner/cloudtrace" //nolint:staticcheck // SA1019: internal use of deprecated package
 	"google.golang.org/grpc/metadata"
 )
 
 // WithIncomingTraceContext returns a new context with the specified trace.
+//
 // Deprecated: use opentelemetry trace.ContextWithSpanContext instead.
 func WithIncomingTraceContext(ctx context.Context, traceContext cloudtrace.Context) context.Context {
 	md, _ := metadata.FromIncomingContext(ctx)

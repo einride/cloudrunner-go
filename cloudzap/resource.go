@@ -2,8 +2,8 @@ package cloudzap
 
 import (
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap"         //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 // Resource constructs a zap.Field with the given key and OpenTelemetry resource.

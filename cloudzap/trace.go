@@ -1,7 +1,7 @@
 package cloudzap
 
 import (
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 const (

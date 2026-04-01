@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 )
 
-//nolint:gochecknoglobals
+//nolint:gochecknoglobals // set via build-time linker flags
 var serviceVersion string
 
 // ServiceVersionFromLinkerFlags returns the exact value of the variable:

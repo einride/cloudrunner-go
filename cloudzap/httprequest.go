@@ -7,8 +7,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap"         //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 // HTTPRequest creates a new zap.Field for a Cloud Logging HTTP request.

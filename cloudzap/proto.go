@@ -3,7 +3,7 @@ package cloudzap
 import (
 	"encoding/json"
 
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // cloudzap is a zap integration package
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )

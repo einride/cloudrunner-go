@@ -3,8 +3,8 @@ package cloudzap
 import (
 	"runtime"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap"         //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 const (

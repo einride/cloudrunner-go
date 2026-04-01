@@ -24,7 +24,8 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 		unaryTracing = run.traceMiddleware.GRPCServerUnaryInterceptor
 		streamTracing = run.traceMiddleware.GRPCStreamServerInterceptor
 	}
-	serverOptions := []grpc.ServerOption{
+	serverOptions := make([]grpc.ServerOption, 0, 4+len(run.grpcServerOptions)+len(opts))
+	serverOptions = append(serverOptions,
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			run.loggerMiddleware.GRPCUnaryServerInterceptor, // adds context logger
@@ -46,7 +47,7 @@ func NewGRPCServer(ctx context.Context, opts ...grpc.ServerOption) *grpc.Server 
 			// Allow pings even when there are no active streams
 			PermitWithoutStream: true,
 		}),
-	}
+	)
 	serverOptions = append(serverOptions, run.grpcServerOptions...)
 	serverOptions = append(serverOptions, opts...)
 	return grpc.NewServer(serverOptions...)

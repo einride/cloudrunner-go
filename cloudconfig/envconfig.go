@@ -129,7 +129,7 @@ func (c *Config) process(fieldSpecs []fieldSpec) error {
 			}
 		}
 		if !ok && def == "" {
-			if isTrue(info.Tags.Get("required")) && !(isTrue(info.Tags.Get("secret")) && c.optionalSecrets) {
+			if isTrue(info.Tags.Get("required")) && (!isTrue(info.Tags.Get("secret")) || !c.optionalSecrets) {
 				key := info.Key
 				return fmt.Errorf("required key %s missing value", key)
 			}
