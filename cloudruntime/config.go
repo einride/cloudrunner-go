@@ -89,6 +89,7 @@ func (c *Config) Resolve(ctx context.Context) error {
 }
 
 // Autodetect the runtime config.
+//
 // Deprecated: Use the context-based [Config.Resolve] method instead.
 func (c *Config) Autodetect() error {
 	return c.Resolve(context.Background())

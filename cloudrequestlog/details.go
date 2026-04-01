@@ -3,8 +3,8 @@ package cloudrequestlog
 import (
 	"encoding/json"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap"         //nolint:gomodguard // cloudrequestlog uses zap for legacy request logging
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudrequestlog uses zap for legacy request logging
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"

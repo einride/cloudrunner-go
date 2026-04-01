@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 // NewEncoderConfig creates a new zapcore.EncoderConfig for structured JSON logging to Cloud Logging.

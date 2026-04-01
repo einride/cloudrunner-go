@@ -116,6 +116,7 @@ func TestServe_GracefulHTTP(t *testing.T) {
 func newTestFixture(t *testing.T) *testFixture {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	var lc net.ListenConfig
 	lis, err := lc.Listen(ctx, "tcp", ":0")
 	assert.NilError(t, err)
@@ -124,7 +125,7 @@ func newTestFixture(t *testing.T) *testFixture {
 	grpcH := &grpcServer{}
 	helloworld.RegisterGreeterServer(grpcS, grpcH)
 	httpH := &httpServer{}
-	//nolint:gosec
+	//nolint:gosec // G112: timeouts not needed in test server
 	httpS := &http.Server{Handler: httpH}
 
 	return &testFixture{

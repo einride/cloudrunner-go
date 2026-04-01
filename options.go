@@ -5,7 +5,7 @@ import (
 
 	"go.einride.tech/cloudrunner/cloudconfig"
 	"go.einride.tech/cloudrunner/cloudotel"
-	"go.einride.tech/cloudrunner/cloudtrace"
+	"go.einride.tech/cloudrunner/cloudtrace" //nolint:staticcheck // SA1019: internal use of deprecated package
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
@@ -14,6 +14,7 @@ import (
 type Option func(*runContext)
 
 // WithRequestLoggerMessageTransformer configures the request logger with a message transformer.
+//
 // Deprecated: This was historically used for redaction. All proto messages are now automatically redacted.
 func WithRequestLoggerMessageTransformer(func(proto.Message) proto.Message) Option {
 	return func(*runContext) {}
@@ -43,6 +44,7 @@ func WithGRPCServerOptions(grpcServerOptions ...grpc.ServerOption) Option {
 }
 
 // WithTraceHook configures the run context with a trace hook.
+//
 // Deprecated: use WithOtelTraceHook instead.
 func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.Context) Option {
 	return func(run *runContext) {
@@ -51,7 +53,8 @@ func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.C
 	}
 }
 
-// WithTraceHook configures the run context with a trace hook.
+// WithOtelTraceHook configures the run context with a trace hook.
+//
 // Deprecated: As per https://docs.cloud.google.com/trace/docs/trace-log-integration
 // the project specific cloud logging trace format is now considered legacy
 // and the new format is the same as what this function was doing. Will be removed

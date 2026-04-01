@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudrequestlog uses zap for legacy request logging
 )
 
 func fieldToAttr(field zapcore.Field) slog.Attr {

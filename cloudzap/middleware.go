@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"go.einride.tech/cloudrunner/cloudstream"
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // cloudzap is a zap integration package
 	"google.golang.org/grpc"
 )
 

@@ -7,9 +7,9 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"go.uber.org/zap/zaptest"
+	"go.uber.org/zap"         //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudzap is a zap integration package
+	"go.uber.org/zap/zaptest" //nolint:gomodguard // cloudzap is a zap integration package
 	"gotest.tools/v3/assert"
 )
 

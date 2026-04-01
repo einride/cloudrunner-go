@@ -20,5 +20,5 @@ type jsonError struct {
 }
 
 func (j jsonError) MarshalJSON() ([]byte, error) {
-	return json.Marshal(j.error.Error())
+	return json.Marshal(j.error.Error()) //nolint:staticcheck // QF1008
 }

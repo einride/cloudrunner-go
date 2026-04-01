@@ -15,8 +15,8 @@ type resourceValue struct {
 }
 
 func (r resourceValue) LogValue() slog.Value {
-	attrs := make([]slog.Attr, 0, r.Resource.Len())
-	it := r.Resource.Iter()
+	attrs := make([]slog.Attr, 0, r.Len())
+	it := r.Iter()
 	for it.Next() {
 		attr := it.Attribute()
 		attrs = append(attrs, slog.Any(string(attr.Key), attr.Value.AsInterface()))

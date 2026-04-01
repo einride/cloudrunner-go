@@ -20,7 +20,7 @@ import (
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.einride.tech/cloudrunner/cloudslog"
-	"go.einride.tech/cloudrunner/cloudtrace"
+	"go.einride.tech/cloudrunner/cloudtrace" //nolint:staticcheck // SA1019: internal use of deprecated package
 	"go.einride.tech/cloudrunner/cloudzap"
 	"google.golang.org/grpc"
 )
@@ -84,7 +84,7 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 	if err := config.Load(); err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
-	if err := run.config.Runtime.Autodetect(); err != nil {
+	if err := run.config.Runtime.Autodetect(); err != nil { //nolint:staticcheck // SA1019: TODO migrate to Config.Resolve
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	if *validate {

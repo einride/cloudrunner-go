@@ -11,7 +11,7 @@ import (
 	"go.einride.tech/sage/tools/sgconvco"
 	"go.einride.tech/sage/tools/sggit"
 	"go.einride.tech/sage/tools/sggo"
-	"go.einride.tech/sage/tools/sggolangcilint"
+	"go.einride.tech/sage/tools/sggolangcilintv2"
 	"go.einride.tech/sage/tools/sggolicenses"
 	"go.einride.tech/sage/tools/sgmdformat"
 	"go.einride.tech/sage/tools/sgyamlfmt"
@@ -51,17 +51,15 @@ func GoTest(ctx context.Context) error {
 
 func GoLint(ctx context.Context) error {
 	sg.Logger(ctx).Println("linting Go files...")
-	// It is currently not possible to ignore package deprecation lint errors so we ignore
-	// it through flags and match the lint error string.
-	// See https://github.com/golangci/golangci-lint/issues/741#issuecomment-1721737130 for more details.
-	return sggolangcilint.Run(ctx, "--exclude", `SA1019: .go.einride.tech/cloudrunner/cloudtrace. is deprecated:`)
+	return sggolangcilintv2.Run(ctx, sggolangcilintv2.Config{})
 }
 
 func GoLintFix(ctx context.Context) error {
 	sg.Logger(ctx).Println("fixing Go files...")
-	return sggolangcilint.Fix(ctx)
+	return sggolangcilintv2.Fix(ctx, sggolangcilintv2.Config{})
 }
 
+// GoLicenses will check dependencies' licenses.
 // TODO: Add this to All target once it is working again.
 func GoLicenses(ctx context.Context) error {
 	sg.Logger(ctx).Println("checking Go licenses...")
@@ -96,5 +94,7 @@ func ReadmeSnippet(ctx context.Context) error {
 	if !usageRegexp.Match(readme) {
 		return fmt.Errorf("found no match for 'usage' snippet in README.md")
 	}
+	// TODO: look into this warning and why gosec is emitting a warning on this
+	//nolint:gosec // G703: path is a hardcoded constant
 	return os.WriteFile("README.md", usageRegexp.ReplaceAll(readme, []byte(usage)), 0o600)
 }

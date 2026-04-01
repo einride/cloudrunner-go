@@ -3,7 +3,7 @@ package cloudzap
 import (
 	"context"
 
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // cloudzap is a zap integration package
 )
 
 type loggerContextKey struct{}

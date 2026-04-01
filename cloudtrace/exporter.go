@@ -11,6 +11,7 @@ import (
 type ExporterConfig = cloudotel.TraceExporterConfig
 
 // StartExporter starts the OpenTelemetry Cloud Trace exporter.
+//
 // Deprecated: use cloudotel.StartTraceExporter.
 func StartExporter(
 	ctx context.Context,

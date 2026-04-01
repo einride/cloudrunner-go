@@ -5,7 +5,7 @@ import (
 
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // legacy zap dependency for backwards compatibility
 )
 
 // Logger returns the logger for the current context.

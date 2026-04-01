@@ -6,7 +6,7 @@ import (
 
 	"go.einride.tech/cloudrunner/cloudstream"
 	"go.einride.tech/cloudrunner/cloudzap"
-	"go.uber.org/zap"
+	"go.uber.org/zap" //nolint:gomodguard // legacy zap dependency for trace middleware
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )

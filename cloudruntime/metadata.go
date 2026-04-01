@@ -14,7 +14,7 @@ import (
 
 // shims for unit testing.
 //
-//nolint:gochecknoglobals
+//nolint:gochecknoglobals // shims for unit testing
 var (
 	metadataOnGCE                = metadata.OnGCE
 	metadataProjectIDWithContext = metadata.ProjectIDWithContext
@@ -23,6 +23,7 @@ var (
 )
 
 // ProjectID returns the Google Cloud Project ID of the current runtime.
+//
 // Deprecated: Use the context-based [ResolveProjectID] function.
 func ProjectID() (string, bool) {
 	return ResolveProjectID(context.Background())
@@ -41,6 +42,7 @@ func ResolveProjectID(ctx context.Context) (string, bool) {
 }
 
 // ServiceAccount returns the default service account of the current runtime.
+//
 // Deprecated: Use the context-based [ResolveServiceAccount] function.
 func ServiceAccount() (string, bool) {
 	return ResolveServiceAccount(context.Background())

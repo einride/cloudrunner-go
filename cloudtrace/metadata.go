@@ -10,6 +10,7 @@ import (
 const ContextHeader = "x-cloud-trace-context"
 
 // FromIncomingContext returns the incoming Cloud Trace Context.
+//
 // Deprecated: FromIncomingContext does not handle trace context coming from a HTTP server,
 // use GetContext instead.
 func FromIncomingContext(ctx context.Context) (Context, bool) {
@@ -31,12 +32,14 @@ func FromIncomingContext(ctx context.Context) (Context, bool) {
 type contextKey struct{}
 
 // SetContext sets the cloud trace context to the provided context.
+//
 // Deprecated: Use OpenTelemetry middleware for trace extraction.
 func SetContext(ctx context.Context, ctxx Context) context.Context {
 	return context.WithValue(ctx, contextKey{}, ctxx)
 }
 
 // GetContext gets the cloud trace context from the provided context if it exists.
+//
 // Deprecated: Use OpenTelemetry trace.SpanContextFromContext.
 func GetContext(ctx context.Context) (Context, bool) {
 	result, ok := ctx.Value(contextKey{}).(Context)

@@ -1,6 +1,7 @@
 package cloudserver_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +28,7 @@ func TestHTTPServer_WorksWhenHeaderIsAlreadyWritten(t *testing.T) {
 }
 
 func serveHTTP(handler http.Handler) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(http.MethodGet, "http://testing.com", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "http://testing.com", nil)
 	res := httptest.NewRecorder()
 
 	middleware := cloudserver.Middleware{}

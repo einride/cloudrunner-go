@@ -15,12 +15,12 @@ type buildInfoValue struct {
 
 func (v buildInfoValue) LogValue() slog.Value {
 	buildSettings := make([]any, 0, len(v.Settings))
-	for _, setting := range v.BuildInfo.Settings {
+	for _, setting := range v.Settings {
 		buildSettings = append(buildSettings, slog.String(setting.Key, setting.Value))
 	}
 	return slog.GroupValue(
-		slog.String("mainPath", v.BuildInfo.Main.Path),
-		slog.String("goVersion", v.BuildInfo.GoVersion),
+		slog.String("mainPath", v.Main.Path),
+		slog.String("goVersion", v.GoVersion),
 		slog.Group("buildSettings", buildSettings...),
 	)
 }
