@@ -12,6 +12,9 @@ import (
 )
 
 // ErrorDetails creates a zap.Field that logs the gRPC error details of the provided error.
+//
+// Deprecated: Returns a zap.Field which ties consumers to the deprecated zap dependency.
+// There is no drop-in slog replacement yet. This function will be removed in a future version.
 func ErrorDetails(err error) zap.Field {
 	if err == nil {
 		return zap.Skip()

@@ -8,6 +8,8 @@ import (
 
 // LevelToSeverity converts a zapcore.Level to its corresponding Cloud Logging severity level.
 // See: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#logseverity.
+//
+// Deprecated: Use slog.Level directly with cloudslog.NewHandler, which maps levels automatically.
 func LevelToSeverity(l zapcore.Level) string {
 	switch l {
 	case zapcore.DebugLevel:
@@ -30,6 +32,8 @@ func LevelToSeverity(l zapcore.Level) string {
 }
 
 // LevelToSlog converts a [zapcore.Level] to a [slog.Level].
+//
+// Deprecated: Use slog.Level directly with cloudslog.LoggerConfig.
 func LevelToSlog(l zapcore.Level) slog.Level {
 	switch l {
 	case zapcore.DebugLevel:

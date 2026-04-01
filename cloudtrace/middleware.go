@@ -12,10 +12,13 @@ import (
 )
 
 // Middleware that ensures incoming traces are forwarded and included in logging.
+//
+// Deprecated: Use cloudotel.TraceMiddleware instead.
 type Middleware struct {
-	// ProjectID of the project the service is running in.
-	ProjectID string
 	// TraceHook is an optional callback that gets called with the parsed trace context.
+	//
+	// Deprecated: The cloudslog.Handler automatically injects trace fields from the
+	// OpenTelemetry span context, making custom trace hooks for log enrichment redundant.
 	TraceHook func(context.Context, Context) context.Context
 }
 

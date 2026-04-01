@@ -9,6 +9,10 @@ import (
 )
 
 // Logger returns the logger for the current context.
+//
+// Deprecated: Use slog.InfoContext, slog.WarnContext, slog.ErrorContext, etc. instead.
+// The default slog logger is configured with cloudslog.Handler which automatically
+// handles trace correlation and Cloud Logging field formatting.
 func Logger(ctx context.Context) *zap.Logger {
 	logger, ok := cloudzap.GetLogger(ctx)
 	if !ok {
@@ -18,6 +22,8 @@ func Logger(ctx context.Context) *zap.Logger {
 }
 
 // WithLoggerFields attaches structured fields to a new logger in the returned child context.
+//
+// Deprecated: Use cloudslog.With to attach slog attributes to the context instead.
 func WithLoggerFields(ctx context.Context, fields ...zap.Field) context.Context {
 	logger, ok := cloudzap.GetLogger(ctx)
 	if !ok {

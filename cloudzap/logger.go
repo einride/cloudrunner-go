@@ -9,6 +9,8 @@ import (
 )
 
 // LoggerConfig configures the application logger.
+//
+// Deprecated: Use cloudslog.LoggerConfig instead.
 type LoggerConfig struct {
 	// Development indicates if the logger should output human-readable output for development.
 	Development bool `default:"true" onGCE:"false"`
@@ -19,6 +21,8 @@ type LoggerConfig struct {
 }
 
 // NewLogger creates a new Logger.
+//
+// Deprecated: Use cloudslog.NewHandler instead.
 func NewLogger(config LoggerConfig) (*zap.Logger, error) {
 	if config.Development {
 		zapConfig := zap.NewDevelopmentConfig()
