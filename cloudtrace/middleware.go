@@ -15,6 +15,11 @@ import (
 //
 // Deprecated: Use cloudotel.TraceMiddleware instead.
 type Middleware struct {
+	// ProjectID of the project the service is running in.
+	//
+	// Deprecated: No longer used. As per https://docs.cloud.google.com/trace/docs/trace-log-integration
+	// the preferred trace format is now just the trace ID, not projects/PROJECT_ID/traces/TRACE_ID.
+	ProjectID string
 	// TraceHook is an optional callback that gets called with the parsed trace context.
 	//
 	// Deprecated: The cloudslog.Handler automatically injects trace fields from the
