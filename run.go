@@ -20,8 +20,8 @@ import (
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.einride.tech/cloudrunner/cloudslog"
-	"go.einride.tech/cloudrunner/cloudtrace" //nolint:staticcheck // SA1019: internal use of deprecated package
-	"go.einride.tech/cloudrunner/cloudzap"
+	"go.einride.tech/cloudrunner/cloudtrace" //nolint:staticcheck // SA1019: internal use of deprecated package pending removal
+	"go.einride.tech/cloudrunner/cloudzap"   //nolint:staticcheck // SA1019: internal use of deprecated package pending removal
 	"google.golang.org/grpc"
 )
 
@@ -30,7 +30,7 @@ type runConfig struct {
 	// Runtime contains runtime config.
 	Runtime cloudruntime.Config
 	// Logger contains logger config.
-	Logger cloudzap.LoggerConfig
+	Logger cloudzap.LoggerConfig //nolint:staticcheck // SA1019: deprecated, pending removal
 	// Profiler contains profiler config.
 	Profiler cloudprofiler.Config
 	// TraceExporter contains trace exporter config.
@@ -91,27 +91,27 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 		return nil
 	}
 
-	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID
-	if run.traceMiddleware.TraceHook == nil {
-		run.traceMiddleware.TraceHook = cloudtrace.IDHook
+	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID //nolint:staticcheck // SA1019: deprecated
+	if run.traceMiddleware.TraceHook == nil {                    //nolint:staticcheck // SA1019: deprecated
+		run.traceMiddleware.TraceHook = cloudtrace.IDHook //nolint:staticcheck // SA1019: deprecated
 	}
-	run.otelTraceMiddleware.ProjectID = run.config.Runtime.ProjectID
+	run.otelTraceMiddleware.ProjectID = run.config.Runtime.ProjectID //nolint:staticcheck // SA1019: deprecated
 	run.otelTraceMiddleware.EnablePubsubTracing = run.config.Runtime.EnablePubsubTracing
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
 	ctx = withRunContext(ctx, &run)
 	ctx = cloudruntime.WithConfig(ctx, run.config.Runtime)
-	logger, err := cloudzap.NewLogger(run.config.Logger)
+	logger, err := cloudzap.NewLogger(run.config.Logger) //nolint:staticcheck // SA1019: deprecated, pending removal
 	if err != nil {
 		return fmt.Errorf("cloudrunner.Run: %w", err)
 	}
 	run.loggerMiddleware.Logger = logger
-	ctx = cloudzap.WithLogger(ctx, logger)
+	ctx = cloudzap.WithLogger(ctx, logger) //nolint:staticcheck // SA1019: deprecated, pending removal
 	// Set the global default log/slog logger.
 	slog.SetDefault(slog.New(cloudslog.NewHandler(cloudslog.LoggerConfig{
 		ProjectID:             run.config.Runtime.ProjectID,
 		Development:           run.config.Logger.Development,
-		Level:                 cloudzap.LevelToSlog(run.config.Logger.Level),
+		Level:                 cloudzap.LevelToSlog(run.config.Logger.Level), //nolint:staticcheck // SA1019: deprecated
 		ProtoMessageSizeLimit: run.config.RequestLogger.MessageSizeLimit,
 		ReportErrors:          run.config.Logger.ReportErrors,
 	})))
@@ -182,12 +182,12 @@ type runContext struct {
 	config                    runConfig
 	configOptions             []cloudconfig.Option
 	grpcServerOptions         []grpc.ServerOption
-	loggerMiddleware          cloudzap.Middleware
+	loggerMiddleware          cloudzap.Middleware //nolint:staticcheck // SA1019: deprecated, pending removal
 	serverMiddleware          cloudserver.Middleware
 	clientMiddleware          cloudclient.Middleware
 	requestLoggerMiddleware   cloudrequestlog.Middleware
 	useLegacyTracing          bool
-	traceMiddleware           cloudtrace.Middleware
+	traceMiddleware           cloudtrace.Middleware //nolint:staticcheck // SA1019: deprecated, pending removal
 	otelTraceMiddleware       cloudotel.TraceMiddleware
 	securityHeadersMiddleware cloudserver.SecurityHeadersMiddleware
 }
