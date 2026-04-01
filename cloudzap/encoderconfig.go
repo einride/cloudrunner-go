@@ -9,6 +9,8 @@ import (
 
 // NewEncoderConfig creates a new zapcore.EncoderConfig for structured JSON logging to Cloud Logging.
 // See: https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields.
+//
+// Deprecated: Use cloudslog.NewHandler instead, which handles Cloud Logging field formatting.
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
 		TimeKey:  "time",

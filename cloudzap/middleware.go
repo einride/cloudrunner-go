@@ -9,6 +9,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Middleware injects a zap logger into the request context.
+//
+// Deprecated: The default slog logger configured by cloudrunner.Run handles logging
+// without requiring middleware. Use slog.InfoContext, slog.WarnContext, etc. instead.
 type Middleware struct {
 	Logger *zap.Logger
 }

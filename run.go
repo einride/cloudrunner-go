@@ -91,11 +91,9 @@ func Run(fn func(context.Context) error, options ...Option) (err error) {
 		return nil
 	}
 
-	run.traceMiddleware.ProjectID = run.config.Runtime.ProjectID
 	if run.traceMiddleware.TraceHook == nil {
 		run.traceMiddleware.TraceHook = cloudtrace.IDHook
 	}
-	run.otelTraceMiddleware.ProjectID = run.config.Runtime.ProjectID
 	run.otelTraceMiddleware.EnablePubsubTracing = run.config.Runtime.EnablePubsubTracing
 	run.serverMiddleware.Config = run.config.Server
 	run.requestLoggerMiddleware.Config = run.config.RequestLogger
