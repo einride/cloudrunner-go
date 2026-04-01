@@ -45,7 +45,10 @@ func WithGRPCServerOptions(grpcServerOptions ...grpc.ServerOption) Option {
 
 // WithTraceHook configures the run context with a trace hook.
 //
-// Deprecated: use WithOtelTraceHook instead.
+// Deprecated: As per https://docs.cloud.google.com/trace/docs/trace-log-integration
+// the project specific cloud logging trace format is now considered legacy
+// and the new format is the same as what this function was doing. Will be removed
+// in a future update.
 func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.Context) Option {
 	return func(run *runContext) {
 		run.useLegacyTracing = true
@@ -55,9 +58,10 @@ func WithTraceHook(traceHook func(context.Context, cloudtrace.Context) context.C
 
 // WithOtelTraceHook configures the run context with a trace hook.
 //
-// Deprecated: The legacy tracing path (cloudtrace.Middleware) will be removed in a future
-// version, making OpenTelemetry the only tracing implementation. Once that happens, there
-// is no alternative to select and this option becomes unnecessary.
+// Deprecated: As per https://docs.cloud.google.com/trace/docs/trace-log-integration
+// the project specific cloud logging trace format is now considered legacy
+// and the new format is the same as what this function was doing. Will be removed
+// in a future update.
 func WithOtelTraceHook(traceHook cloudotel.TraceHook) Option {
 	return func(run *runContext) {
 		run.otelTraceMiddleware.TraceHook = traceHook
