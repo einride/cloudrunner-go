@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 
 	"go.einride.tech/cloudrunner/cloudserver"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -79,13 +78,18 @@ func httpSpanName(_ string, r *http.Request) string {
 
 // ListenHTTP binds a listener on the configured port and listens for HTTP requests.
 func ListenHTTP(ctx context.Context, httpServer *http.Server) error {
+	run, ok := getRunContext(ctx)
+	if !ok {
+		return fmt.Errorf("cloudrunner.ListenHTTP: must be called with a context from cloudrunner.Run")
+	}
+	shutdownTimeout := run.serverMiddleware.Config.ShutdownTimeout
 	shutdown := make(chan struct{})
 	//nolint:gosec // G118: intentional use of context.Background for graceful shutdown after parent context cancellation
 	go func() {
 		<-ctx.Done()
 		slog.InfoContext(ctx, "HTTPServer shutting down")
 
-		shutdownContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		shutdownContext, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 		defer cancel()
 
 		httpServer.SetKeepAlivesEnabled(false)

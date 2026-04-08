@@ -9,4 +9,7 @@ type Config struct {
 	// Timeout of all requests to the servers.
 	// Defaults to 10 seconds below the default Cloud Run timeout for managed services.
 	Timeout time.Duration `default:"290s"`
+	// ShutdownTimeout is the maximum duration to wait for in-flight requests
+	// to complete during graceful shutdown.
+	ShutdownTimeout time.Duration `default:"5s"`
 }
