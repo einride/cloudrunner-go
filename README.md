@@ -118,6 +118,7 @@ cloudrunner    METRICEXPORTER_DROPMETRICS               []string
 cloudrunner    RESOURCE_ALLOWPARTIALRESOURCE            bool                                                
 cloudrunner    RESOURCE_ALLOWSCHEMAURLCONFLICT          bool                                                
 cloudrunner    SERVER_TIMEOUT                           time.Duration                290s                   
+cloudrunner    SERVER_SHUTDOWNTIMEOUT                   time.Duration                5s                     
 cloudrunner    CLIENT_TIMEOUT                           time.Duration                10s                    
 cloudrunner    CLIENT_RETRY_ENABLED                     bool                         true                   
 cloudrunner    CLIENT_RETRY_INITIALBACKOFF              time.Duration                200ms                  

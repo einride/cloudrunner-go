@@ -15,6 +15,21 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Option configures ServeGRPCHTTP.
+type Option func(*muxConfig)
+
+type muxConfig struct {
+	shutdownTimeout time.Duration
+}
+
+// WithShutdownTimeout sets the maximum duration to wait for in-flight requests
+// to complete during graceful shutdown. Defaults to 5s.
+func WithShutdownTimeout(d time.Duration) Option {
+	return func(c *muxConfig) {
+		c.shutdownTimeout = d
+	}
+}
+
 // ServeGRPCHTTP serves both a gRPC and an HTTP server on listener l.
 // When the context is canceled, the servers will be gracefully shutdown and
 // then the function will return.
@@ -23,7 +38,12 @@ func ServeGRPCHTTP(
 	l net.Listener,
 	grpcServer *grpc.Server,
 	httpServer *http.Server,
+	opts ...Option,
 ) error {
+	cfg := muxConfig{shutdownTimeout: 5 * time.Second}
+	for _, o := range opts {
+		o(&cfg)
+	}
 	m := cmux.New(l)
 	grpcL := m.MatchWithWriters(
 		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"),
@@ -38,7 +58,7 @@ func ServeGRPCHTTP(
 		m.Close()
 		slog.DebugContext(ctx, "stopping HTTP server")
 		// use a new context because the parent ctx is already canceled.
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		ctx, cancel := context.WithTimeout(context.Background(), cfg.shutdownTimeout)
 		defer cancel()
 		if err := httpServer.Shutdown(ctx); err != nil && !isClosedErr(err) {
 			slog.WarnContext(ctx, "stopping http server", slog.Any("error", err))
