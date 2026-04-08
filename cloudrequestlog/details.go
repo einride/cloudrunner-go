@@ -2,46 +2,31 @@ package cloudrequestlog
 
 import (
 	"encoding/json"
+	"log/slog"
 
-	"go.uber.org/zap"         //nolint:gomodguard // cloudrequestlog uses zap for legacy request logging
-	"go.uber.org/zap/zapcore" //nolint:gomodguard // cloudrequestlog uses zap for legacy request logging
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
-// ErrorDetails creates a zap.Field that logs the gRPC error details of the provided error.
-//
-// Deprecated: Returns a zap.Field which ties consumers to the deprecated zap dependency.
-// There is no drop-in slog replacement yet. This function will be removed in a future version.
-func ErrorDetails(err error) zap.Field {
+// ErrorDetails creates a slog.Attr that logs the gRPC error details of the provided error.
+func ErrorDetails(err error) slog.Attr {
 	if err == nil {
-		return zap.Skip()
+		return slog.Attr{}
 	}
 	s, ok := status.FromError(err)
 	if !ok {
-		return zap.Skip()
+		return slog.Attr{}
 	}
 	protoDetails := s.Proto().GetDetails()
 	if len(protoDetails) == 0 {
-		return zap.Skip()
+		return slog.Attr{}
 	}
-	return zap.Array("errorDetails", errorDetailsMarshaler(protoDetails))
-}
-
-type errorDetailsMarshaler []*anypb.Any
-
-var _ zapcore.ArrayMarshaler = errorDetailsMarshaler{}
-
-// MarshalLogArray implements zapcore.ArrayMarshaler.
-func (d errorDetailsMarshaler) MarshalLogArray(encoder zapcore.ArrayEncoder) error {
-	for _, detail := range d {
-		if err := encoder.AppendReflected(reflectProtoMessage{message: detail}); err != nil {
-			return err
-		}
+	details := make([]reflectProtoMessage, len(protoDetails))
+	for i, detail := range protoDetails {
+		details[i] = reflectProtoMessage{message: detail}
 	}
-	return nil
+	return slog.Any("errorDetails", details)
 }
 
 type reflectProtoMessage struct {
