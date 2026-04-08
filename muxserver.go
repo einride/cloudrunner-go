@@ -16,7 +16,7 @@ func ListenGRPCHTTP(ctx context.Context, grpcServer *grpc.Server, httpServer *ht
 	if !ok {
 		return fmt.Errorf("cloudrunner.ListenGRPCHTTP: must be called with a context from cloudrunner.Run")
 	}
-	l, err := (&net.ListenConfig{}).Listen(ctx, "tcp", fmt.Sprintf(":%d", Runtime(ctx).Port))
+	l, err := (&net.ListenConfig{}).Listen(ctx, "tcp", fmt.Sprintf(":%d", run.config.Runtime.Port))
 	if err != nil {
 		return fmt.Errorf("serve gRPC and HTTP: %w", err)
 	}
