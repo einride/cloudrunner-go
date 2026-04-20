@@ -38,7 +38,6 @@ func NewHTTPServer(ctx context.Context, handler http.Handler, middlewares ...HTT
 				otelhttp.WithSpanNameFormatter(httpSpanName),
 			)
 		},
-		run.loggerMiddleware.HTTPServer,
 		tracingMiddleware,
 		run.requestLoggerMiddleware.HTTPServer,
 		run.securityHeadersMiddleware.HTTPServer,

@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"go.einride.tech/cloudrunner/cloudstream"
-	"go.einride.tech/cloudrunner/cloudzap" //nolint:staticcheck // SA1019: internal use of deprecated package pending removal
-	"go.uber.org/zap"                      //nolint:gomodguard // legacy zap dependency for trace middleware
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -106,17 +104,6 @@ func (i *Middleware) withLogTracing(ctx context.Context, header string) context.
 	if i.TraceHook != nil {
 		ctx = i.TraceHook(ctx, traceContext)
 	}
-	fields := make([]zap.Field, 0, 3)
-	//nolint:staticcheck // SA1019: deprecated, pending removal
-	fields = append(fields, cloudzap.Trace(traceContext.TraceID))
-	if traceContext.SpanID != "" {
-		//nolint:staticcheck // SA1019: deprecated, pending removal
-		fields = append(fields, cloudzap.SpanID(traceContext.SpanID))
-	}
-	if traceContext.Sampled {
-		//nolint:staticcheck // SA1019: deprecated, pending removal
-		fields = append(fields, cloudzap.TraceSampled(traceContext.Sampled))
-	}
-	//nolint:staticcheck // SA1019: deprecated, pending removal
-	return cloudzap.WithLoggerFields(ctx, fields...)
+	// Trace fields are automatically added by the slog handler from the span context
+	return ctx
 }
