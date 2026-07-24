@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	ocbridge "go.opentelemetry.io/otel/bridge/opencensus"
-	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
@@ -66,15 +66,22 @@ func StartMetricExporter(
 	// The following views masks these attributes from both otelhttp and otelgrpc so
 	// that metrics can still be exported.
 	// Based on https://github.com/open-telemetry/opentelemetry-go-contrib/issues/3071#issuecomment-1416137206
+	//
+	// IMPORTANT: a drop view (DropMetrics) and a scope-based attribute mask view are combined into a single
+	// View function per scope. If they were registered as two separate sdkmetric.View entries, an instrument
+	// matching both would produce two independent output streams — the drop aggregation on one stream does NOT
+	// suppress the other, unmasked stream still being exported.
 	views := []sdkmetric.View{
-		maskInstrumentAttrs(
+		maskedView(
 			"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
+			exporterConfig.DropMetrics,
 			semconv.NetPeerPortKey,
 			semconv.NetSockPeerPortKey,
 			attribute.Key("http.client_ip"),
 		),
-		maskInstrumentAttrs(
+		maskedView(
 			"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc",
+			exporterConfig.DropMetrics,
 			semconv.NetPeerPortKey,
 			semconv.NetSockPeerPortKey,
 		),
@@ -128,18 +135,52 @@ func dropMetricView(name string) sdkmetric.View {
 	)
 }
 
-func maskInstrumentAttrs(instrumentScopeName string, attrs ...attribute.Key) sdkmetric.View {
-	masked := make(map[attribute.Key]struct{})
-	for _, attr := range attrs {
-		masked[attr] = struct{}{}
+// maskedView returns a View for the given instrumentation scope that drops any instrument whose name
+// matches one of dropPatterns (glob patterns, e.g. "http.client.*"), and otherwise masks the given attributes.
+func maskedView(scopeName string, dropPatterns []string, maskedAttrs ...attribute.Key) sdkmetric.View {
+	masked := make(map[attribute.Key]struct{}, len(maskedAttrs))
+	for _, a := range maskedAttrs {
+		masked[a] = struct{}{}
 	}
-	return sdkmetric.NewView(
-		sdkmetric.Instrument{Scope: instrumentation.Scope{Name: instrumentScopeName}},
-		sdkmetric.Stream{
+	return func(inst sdkmetric.Instrument) (sdkmetric.Stream, bool) {
+		if inst.Scope.Name != scopeName {
+			// does not match scope - view does not apply
+			return sdkmetric.Stream{}, false
+		}
+		if matchesAnyMetricPattern(inst.Name, dropPatterns) {
+			// matches drop pattern - drop the metric
+			return sdkmetric.Stream{Aggregation: sdkmetric.AggregationDrop{}}, true
+		}
+		// matches scope but should not be dropped - mask the attributes
+		return sdkmetric.Stream{
+			Name:        inst.Name,
+			Description: inst.Description,
+			Unit:        inst.Unit,
 			AttributeFilter: func(value attribute.KeyValue) bool {
 				_, ok := masked[value.Key]
 				return !ok
 			},
-		},
-	)
+		}, true
+	}
+}
+
+func matchesAnyMetricPattern(name string, patterns []string) bool {
+	for _, pattern := range patterns {
+		if matchesMetricPattern(name, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
+// taken from https://github.com/open-telemetry/opentelemetry-go/blob/7dd91016c5768fa8e4d1835ccbd9774f4ff75b71/sdk/metric/view.go#L71
+//
+//nolint:lll
+func matchesMetricPattern(name, patternString string) bool {
+	pattern := regexp.QuoteMeta(patternString)
+	pattern = "^" + pattern + "$"
+	pattern = strings.ReplaceAll(pattern, `\?`, ".")
+	pattern = strings.ReplaceAll(pattern, `\*`, ".*")
+	re := regexp.MustCompile(pattern)
+	return re.MatchString(name)
 }
