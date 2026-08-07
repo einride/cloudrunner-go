@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 
+	"go.einride.tech/cloudrunner/cloudslog"
 	"go.einride.tech/cloudrunner/cloudstream"
 	ltype "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/grpc"
@@ -32,6 +33,7 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 ) (interface{}, error) {
 	startTime := time.Now()
 	ctx = WithAdditionalFields(ctx)
+	ctx = cloudslog.WithHTTPRequest(ctx, &ltype.HttpRequest{Protocol: "gRPC"})
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
 	response, err := handler(ctx, request)
@@ -84,6 +86,7 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 ) error {
 	startTime := time.Now()
 	ctx := WithAdditionalFields(ss.Context())
+	ctx = cloudslog.WithHTTPRequest(ctx, &ltype.HttpRequest{Protocol: "gRPC"})
 	ss = cloudstream.NewContextualServerStream(ctx, ss)
 	err := handler(srv, ss)
 	responseStatus := status.Convert(err)
@@ -190,6 +193,17 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
 		ctx := WithAdditionalFields(r.Context())
+		httpReq := &ltype.HttpRequest{
+			RequestMethod: r.Method,
+			UserAgent:     r.UserAgent(),
+			RemoteIp:      r.RemoteAddr,
+			Referer:       r.Referer(),
+			Protocol:      r.Proto,
+		}
+		if r.URL != nil {
+			httpReq.RequestUrl = r.URL.String()
+		}
+		ctx = cloudslog.WithHTTPRequest(ctx, httpReq)
 		r = r.WithContext(ctx)
 		responseWriter := &httpResponseWriter{ResponseWriter: w}
 		next.ServeHTTP(responseWriter, r)
