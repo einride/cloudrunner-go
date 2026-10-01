@@ -49,6 +49,7 @@ func WrapTransientCaller(err error, msg string, caller Caller) error {
 		return &wrappedStatusError{status: status.New(codes.Canceled, msg), err: err, caller: caller}
 	case errors.Is(err, syscall.ECONNRESET):
 		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
+	//nolint:staticcheck // SA1019: this has been deprecated in https://github.com/golang/go/issues/78064
 	case errors.As(err, &http2.GoAwayError{}):
 		return &wrappedStatusError{status: status.New(codes.Unavailable, msg), err: err, caller: caller}
 	case os.IsTimeout(err):
