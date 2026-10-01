@@ -64,6 +64,7 @@ func Test_WrapTransient(t *testing.T) {
 		},
 		{
 			name: "http2.GoAwayError",
+			//nolint:staticcheck // SA1019: this has been deprecated in https://github.com/golang/go/issues/78064
 			err: http2.GoAwayError{
 				LastStreamID: 123,
 				ErrCode:      http2.ErrCodeNo,
