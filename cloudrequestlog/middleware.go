@@ -26,10 +26,10 @@ type Middleware struct {
 // GRPCUnaryServerInterceptor implements request logging as a grpc.UnaryServerInterceptor.
 func (l *Middleware) GRPCUnaryServerInterceptor(
 	ctx context.Context,
-	request interface{},
+	request any,
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
-) (interface{}, error) {
+) (any, error) {
 	startTime := time.Now()
 	ctx = WithAdditionalFields(ctx)
 	// Clone request to ensure not using a mutated one later
@@ -63,10 +63,10 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		attrs = additionalFields.AppendTo(attrs)
 	}
-	var errCaller interface {
+	if errCaller, ok := errors.AsType[interface {
+		error
 		Caller() (pc uintptr, file string, line int, ok bool)
-	}
-	if errors.As(err, &errCaller) {
+	}](err); ok {
 		attrs = append(attrs, newSourceAttr(errCaller.Caller()))
 	}
 	logger.LogAttrs(ctx, level, grpcServerLogMessage(responseStatus.Code(), info.FullMethod), attrs...)
@@ -77,7 +77,7 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 // This middleware differs from the unary one in that it does not log request or response payload.
 // The reason for this is that this info is not readily available in the middleware layer.
 func (l *Middleware) GRPCStreamServerInterceptor(
-	srv interface{},
+	srv any,
 	ss grpc.ServerStream,
 	info *grpc.StreamServerInfo,
 	handler grpc.StreamHandler,
@@ -108,10 +108,10 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		attrs = additionalFields.AppendTo(attrs)
 	}
-	var errCaller interface {
+	if errCaller, ok := errors.AsType[interface {
+		error
 		Caller() (pc uintptr, file string, line int, ok bool)
-	}
-	if errors.As(err, &errCaller) {
+	}](err); ok {
 		attrs = append(attrs, newSourceAttr(errCaller.Caller()))
 	}
 	logger.LogAttrs(ctx, level, grpcServerLogMessage(responseStatus.Code(), info.FullMethod), attrs...)
@@ -122,8 +122,8 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 func (l *Middleware) GRPCUnaryClientInterceptor(
 	ctx context.Context,
 	fullMethod string,
-	request interface{},
-	response interface{},
+	request any,
+	response any,
 	cc *grpc.ClientConn,
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,

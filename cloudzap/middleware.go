@@ -27,16 +27,16 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 // GRPCUnaryServerInterceptor implements grpc.UnaryServerInterceptor to add a logger to the request context.
 func (l *Middleware) GRPCUnaryServerInterceptor(
 	ctx context.Context,
-	request interface{},
+	request any,
 	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
-) (interface{}, error) {
+) (any, error) {
 	return handler(WithLogger(ctx, l.Logger), request)
 }
 
 // GRPCStreamServerInterceptor adds a zap logger to the server stream context.
 func (l *Middleware) GRPCStreamServerInterceptor(
-	srv interface{},
+	srv any,
 	ss grpc.ServerStream,
 	_ *grpc.StreamServerInfo,
 	handler grpc.StreamHandler,

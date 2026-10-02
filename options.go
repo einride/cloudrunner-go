@@ -21,7 +21,7 @@ func WithRequestLoggerMessageTransformer(func(proto.Message) proto.Message) Opti
 }
 
 // WithConfig configures an additional config struct to be loaded.
-func WithConfig(name string, config interface{}) Option {
+func WithConfig(name string, config any) Option {
 	return func(run *runContext) {
 		run.configOptions = append(run.configOptions, cloudconfig.WithAdditionalSpec(name, config))
 	}

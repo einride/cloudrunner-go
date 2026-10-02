@@ -20,11 +20,9 @@ func TestServe_Canceled(t *testing.T) {
 	fx := newTestFixture(t)
 
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		fx.listen()
-		wg.Done()
-	}()
+	})
 
 	// wait for server to be ready
 	time.Sleep(time.Millisecond * 20)
@@ -44,21 +42,17 @@ func TestServe_GracefulGRPC(t *testing.T) {
 	fx.grpc.requestRecvChan = requestConn
 
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		fx.listen()
-		wg.Done()
-	}()
+	})
 
 	client := greeterClient(t, fx.lis.Addr())
 	var callErr error
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		_, callErr = client.SayHello(context.Background(), &helloworld.HelloRequest{
 			Name: "world",
 		})
-		wg.Done()
-	}()
+	})
 
 	// wait for server to have received request
 	<-requestConn
@@ -79,11 +73,9 @@ func TestServe_GracefulHTTP(t *testing.T) {
 	fx.http.requestRecvChan = requestConn
 
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		fx.listen()
-		wg.Done()
-	}()
+	})
 
 	// request needs to have a timeout in order to be blocking
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -92,15 +84,13 @@ func TestServe_GracefulHTTP(t *testing.T) {
 	assert.NilError(t, err)
 
 	var callErr error
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		res, err := http.DefaultClient.Do(req)
 		callErr = err
 		if err == nil {
 			_ = res.Body.Close()
 		}
-		wg.Done()
-	}()
+	})
 
 	// wait for server to have received request
 	<-requestConn

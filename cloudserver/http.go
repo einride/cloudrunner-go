@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"runtime/debug"
+	"slices"
 
 	"go.einride.tech/cloudrunner/cloudrequestlog"
 )
@@ -44,8 +45,8 @@ func ChainHTTPMiddleware(next http.Handler, middlewares ...HTTPMiddleware) http.
 	}
 	wrapped := next
 	// loop in reverse to preserve middleware order
-	for i := len(middlewares) - 1; i >= 0; i-- {
-		wrapped = middlewares[i](wrapped)
+	for _, middleware := range slices.Backward(middlewares) {
+		wrapped = middleware(wrapped)
 	}
 	return wrapped
 }

@@ -17,7 +17,7 @@ import (
 var envPrefix string
 
 // New creates a new Config with the provided name, specification and options.
-func New(name string, spec interface{}, options ...Option) (*Config, error) {
+func New(name string, spec any, options ...Option) (*Config, error) {
 	config := Config{
 		configSpecs: []*configSpec{
 			{name: name, spec: spec},
@@ -47,7 +47,7 @@ type Config struct {
 
 type configSpec struct {
 	name       string
-	spec       interface{}
+	spec       any
 	fieldSpecs []fieldSpec
 }
 
