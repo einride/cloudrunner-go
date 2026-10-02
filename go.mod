@@ -1,6 +1,6 @@
 module go.einride.tech/cloudrunner
 
-go 1.25.8
+go 1.26.6
 
 require (
 	cloud.google.com/go/compute/metadata v0.9.0
