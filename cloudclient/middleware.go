@@ -17,8 +17,8 @@ type Middleware struct{}
 func (l *Middleware) GRPCUnaryClientInterceptor(
 	ctx context.Context,
 	fullMethod string,
-	request interface{},
-	response interface{},
+	request any,
+	response any,
 	cc *grpc.ClientConn,
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,

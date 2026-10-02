@@ -49,7 +49,7 @@ type fieldSpec struct {
 	Tags   reflect.StructTag
 }
 
-func collectFieldSpecs(prefix string, spec interface{}) ([]fieldSpec, error) {
+func collectFieldSpecs(prefix string, spec any) ([]fieldSpec, error) {
 	s := reflect.ValueOf(spec)
 	if s.Kind() != reflect.Pointer {
 		return nil, errors.New("specification must be a struct pointer")
@@ -231,8 +231,8 @@ func processField(value string, field reflect.Value) error {
 	case reflect.Map:
 		mp := reflect.MakeMap(typ)
 		if len(strings.TrimSpace(value)) != 0 {
-			pairs := strings.Split(value, ",")
-			for _, pair := range pairs {
+			pairs := strings.SplitSeq(value, ",")
+			for pair := range pairs {
 				kvpair := strings.Split(pair, ":")
 				if len(kvpair) != 2 {
 					return fmt.Errorf("invalid map item: %q", pair)
@@ -255,7 +255,7 @@ func processField(value string, field reflect.Value) error {
 	return nil
 }
 
-func interfaceFrom(field reflect.Value, fn func(interface{}, *bool)) {
+func interfaceFrom(field reflect.Value, fn func(any, *bool)) {
 	// it may be impossible for a struct field to fail this check
 	if !field.CanInterface() {
 		return
@@ -268,17 +268,17 @@ func interfaceFrom(field reflect.Value, fn func(interface{}, *bool)) {
 }
 
 func setterFrom(field reflect.Value) (s Setter) {
-	interfaceFrom(field, func(v interface{}, ok *bool) { s, *ok = v.(Setter) })
+	interfaceFrom(field, func(v any, ok *bool) { s, *ok = v.(Setter) })
 	return s
 }
 
 func textUnmarshaler(field reflect.Value) (t encoding.TextUnmarshaler) {
-	interfaceFrom(field, func(v interface{}, ok *bool) { t, *ok = v.(encoding.TextUnmarshaler) })
+	interfaceFrom(field, func(v any, ok *bool) { t, *ok = v.(encoding.TextUnmarshaler) })
 	return t
 }
 
 func binaryUnmarshaler(field reflect.Value) (b encoding.BinaryUnmarshaler) {
-	interfaceFrom(field, func(v interface{}, ok *bool) { b, *ok = v.(encoding.BinaryUnmarshaler) })
+	interfaceFrom(field, func(v any, ok *bool) { b, *ok = v.(encoding.BinaryUnmarshaler) })
 	return b
 }
 

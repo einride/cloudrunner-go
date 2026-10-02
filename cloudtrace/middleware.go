@@ -30,10 +30,10 @@ type Middleware struct {
 // GRPCServerUnaryInterceptor provides unary RPC middleware for gRPC servers.
 func (i *Middleware) GRPCServerUnaryInterceptor(
 	ctx context.Context,
-	req interface{},
+	req any,
 	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
-) (resp interface{}, err error) {
+) (resp any, err error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return handler(ctx, req)
@@ -50,7 +50,7 @@ func (i *Middleware) GRPCServerUnaryInterceptor(
 
 // GRPCStreamServerInterceptor adds tracing metadata to streaming RPCs.
 func (i *Middleware) GRPCStreamServerInterceptor(
-	srv interface{},
+	srv any,
 	ss grpc.ServerStream,
 	_ *grpc.StreamServerInfo,
 	handler grpc.StreamHandler,

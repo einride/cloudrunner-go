@@ -25,10 +25,10 @@ type Middleware struct {
 // GRPCUnaryServerInterceptor implements grpc.UnaryServerInterceptor.
 func (i *Middleware) GRPCUnaryServerInterceptor(
 	ctx context.Context,
-	req interface{},
+	req any,
 	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
-) (resp interface{}, err error) {
+) (resp any, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = clouderror.Wrap(
@@ -59,7 +59,7 @@ func (i *Middleware) GRPCUnaryServerInterceptor(
 
 // GRPCStreamServerInterceptor implements grpc.StreamServerInterceptor.
 func (i *Middleware) GRPCStreamServerInterceptor(
-	srv interface{},
+	srv any,
 	ss grpc.ServerStream,
 	_ *grpc.StreamServerInfo,
 	handler grpc.StreamHandler,

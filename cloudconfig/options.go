@@ -4,7 +4,7 @@ package cloudconfig
 type Option func(*Config)
 
 // WithAdditionalSpec includes an additional specification in the config loading.
-func WithAdditionalSpec(name string, spec interface{}) Option {
+func WithAdditionalSpec(name string, spec any) Option {
 	return func(config *Config) {
 		config.configSpecs = append(config.configSpecs, &configSpec{
 			name: name,
