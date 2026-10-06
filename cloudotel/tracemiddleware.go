@@ -10,7 +10,7 @@ import (
 
 	"cloud.google.com/go/pubsub/v2"
 	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
-	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
+	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator" //nolint:staticcheck // SA1019: pending removal
 	"go.einride.tech/cloudrunner/cloudpubsub"
 	"go.einride.tech/cloudrunner/cloudstream"
 	"go.einride.tech/cloudrunner/cloudzap" //nolint:staticcheck // SA1019: internal use of deprecated package pending removal
@@ -46,6 +46,7 @@ func NewTraceMiddleware() TraceMiddleware {
 		// TODO: Remove CloudTraceFormatPropagator. The x-cloud-trace-context header is
 		// GCP-specific and legacy; GCP now sends the W3C traceparent header on all requests.
 		// See https://cloud.google.com/trace/docs/trace-context
+		//nolint:staticcheck // SA1019: pending removal
 		gcppropagator.CloudTraceFormatPropagator{},
 		propagation.TraceContext{},
 		propagation.Baggage{},
