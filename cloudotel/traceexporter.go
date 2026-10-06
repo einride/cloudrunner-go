@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	traceexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
-	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
+	traceexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace" //nolint:staticcheck // SA1019: pending OTLP migration
+	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"     //nolint:staticcheck // SA1019: pending removal
 	"go.einride.tech/cloudrunner/cloudruntime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/bridge/opencensus"
@@ -32,6 +32,7 @@ func StartTraceExporter(
 		// TODO: Remove CloudTraceFormatPropagator. The x-cloud-trace-context header is
 		// GCP-specific and legacy; GCP now sends the W3C traceparent header on all requests.
 		// See https://cloud.google.com/trace/docs/trace-context
+		//nolint:staticcheck // SA1019: pending removal
 		gcppropagator.CloudTraceFormatPropagator{},
 		propagation.TraceContext{},
 		propagation.Baggage{},
@@ -43,6 +44,9 @@ func StartTraceExporter(
 	if !ok {
 		return nil, fmt.Errorf("start trace exporter: unknown project ID")
 	}
+	// TODO: Migrate to otlptracegrpc.
+	// See https://github.com/GoogleCloudPlatform/opentelemetry-operations-go/blob/main/MIGRATION.md.
+	//nolint:staticcheck // SA1019: pending OTLP migration
 	exporter, err := traceexporter.New(
 		traceexporter.WithProjectID(projectID),
 		traceexporter.WithTimeout(exporterConfig.Timeout),

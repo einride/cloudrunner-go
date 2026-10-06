@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	metricexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
+	metricexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric" //nolint:staticcheck // SA1019: pending OTLP migration
 	"go.einride.tech/cloudrunner/cloudruntime"
 	hostinstrumentation "go.opentelemetry.io/contrib/instrumentation/host"
 	runtimeinstrumentation "go.opentelemetry.io/contrib/instrumentation/runtime"
@@ -45,6 +45,9 @@ func StartMetricExporter(
 	if !ok {
 		return nil, fmt.Errorf("start metric exporter: unknown project ID")
 	}
+	// TODO: Migrate to otlpmetricgrpc.
+	// See https://github.com/GoogleCloudPlatform/opentelemetry-operations-go/blob/main/MIGRATION.md.
+	//nolint:staticcheck // SA1019: pending OTLP migration
 	exporter, err := metricexporter.New(
 		metricexporter.WithProjectID(projectID),
 	)
