@@ -4,42 +4,57 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
-
+      interval: cron
+      cronjob: "0 6 1 * *"
     cooldown:
       default-days: 7
       exclude:
         - github.com/einride/*
         - github.com/einride-autonomous/*
         - github.com/einride-labs/*
+    groups:
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      github-actions-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
   - package-ecosystem: gomod
-    directory: /
+    directories:
+      - "**/*"
     schedule:
-      interval: monthly
+      interval: cron
+      cronjob: "0 6 1 * *"
+    allow:
+      - dependency-type: direct
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
+      exclude:
+        - github.com/einride/*
+        - github.com/einride-autonomous/*
+        - github.com/einride-labs/*
     groups:
       opentelemetry:
-        patterns: ["*opentelemetry*"]
-      all:
-        patterns: ["*"]
-    cooldown:
-      default-days: 7
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 3
-      exclude:
-        - github.com/einride/*
-        - github.com/einride-autonomous/*
-        - github.com/einride-labs/*
-  - package-ecosystem: gomod
-    directory: .sage
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-      semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 3
-      exclude:
-        - github.com/einride/*
-        - github.com/einride-autonomous/*
-        - github.com/einride-labs/*
+        patterns:
+          - "*opentelemetry*"
+        update-types:
+          - minor
+          - patch
+      go-dependencies-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      go-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
