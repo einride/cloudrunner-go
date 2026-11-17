@@ -12,6 +12,7 @@ import (
 	ltype "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -37,6 +38,11 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 	response, err := handler(ctx, request)
 	responseStatus := status.Convert(err)
 	level := l.codeToLevel(responseStatus.Code())
+	rootCause := l.serverRootCause(ctx, level, responseStatus.Code(), info.FullMethod)
+	if rootCause != "" {
+		// Best effort, the trailer can only fail to be set when the request is not served by a gRPC server.
+		_ = grpc.SetTrailer(ctx, rootCauseTrailer(rootCause))
+	}
 	logger := slog.Default()
 	if !logger.Enabled(ctx, level) {
 		return response, err
@@ -60,6 +66,7 @@ func (l *Middleware) GRPCUnaryServerInterceptor(
 		attrs = append(attrs, slog.Any("error", err))
 	}
 	attrs = appendFullMethodAttrs(info.FullMethod, attrs)
+	attrs = appendRootCauseAttr(rootCause, attrs)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		attrs = additionalFields.AppendTo(attrs)
 	}
@@ -88,6 +95,10 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 	err := handler(srv, ss)
 	responseStatus := status.Convert(err)
 	level := l.codeToLevel(responseStatus.Code())
+	rootCause := l.serverRootCause(ctx, level, responseStatus.Code(), info.FullMethod)
+	if rootCause != "" {
+		ss.SetTrailer(rootCauseTrailer(rootCause))
+	}
 	logger := slog.Default()
 	if !logger.Enabled(ctx, level) {
 		return err
@@ -105,6 +116,7 @@ func (l *Middleware) GRPCStreamServerInterceptor(
 		attrs = append(attrs, slog.Any("error", err))
 	}
 	attrs = appendFullMethodAttrs(info.FullMethod, attrs)
+	attrs = appendRootCauseAttr(rootCause, attrs)
 	if additionalFields, ok := GetAdditionalFields(ctx); ok {
 		attrs = additionalFields.AppendTo(attrs)
 	}
@@ -131,9 +143,14 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 	startTime := time.Now()
 	// Clone request to ensure not using a mutated one later
 	requestClone := proto.Clone(request.(proto.Message))
+	var trailer metadata.MD
+	if l.Config.PropagateErrorRootCause {
+		opts = append(opts, grpc.Trailer(&trailer))
+	}
 	err := invoker(ctx, fullMethod, request, response, cc, opts...)
 	responseStatus := status.Convert(err)
 	level := l.codeToLevel(responseStatus.Code())
+	rootCause := l.clientRootCause(ctx, err, level, responseStatus.Code(), fullMethod, trailer)
 	logger := slog.Default()
 	if !logger.Enabled(ctx, level) {
 		return err
@@ -159,6 +176,7 @@ func (l *Middleware) GRPCUnaryClientInterceptor(
 		attrs = append(attrs, slog.Any("error", err))
 	}
 	attrs = appendFullMethodAttrs(fullMethod, attrs)
+	attrs = appendRootCauseAttr(rootCause, attrs)
 	logger.LogAttrs(ctx, level, grpcClientLogMessage(responseStatus.Code(), fullMethod), attrs...)
 	return err
 }
@@ -214,6 +232,11 @@ func (l *Middleware) HTTPServer(next http.Handler) http.Handler {
 		}
 		attrs := []slog.Attr{
 			slog.Any("httpRequest", httpRequest),
+		}
+		// The root cause is recorded by GRPCUnaryClientInterceptor when a downstream gRPC call made with the request
+		// context fails, so the request log of an HTTP edge service carries the same root cause as the services it called.
+		if level >= slog.LevelError {
+			attrs = appendRootCauseAttr(l.recordedRootCause(ctx), attrs)
 		}
 		if additionalFields, ok := GetAdditionalFields(ctx); ok {
 			attrs = additionalFields.AppendTo(attrs)
