@@ -137,3 +137,17 @@ go.einride.tech/cloudrunner/cloudruntime.serviceVersion    string
 ```
 
 <!-- END usage -->
+
+To validate YAML service specifications in a test, without building and running
+the service binary, call `cloudrunner.ValidateConfig` with the same options you
+pass to `cloudrunner.Run`:
+
+```go
+func TestConfig(t *testing.T) {
+	var config Config
+	err := cloudrunner.ValidateConfig("config/prod.yaml", cloudrunner.WithConfig("app", &config))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+```
