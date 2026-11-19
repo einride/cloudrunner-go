@@ -43,7 +43,10 @@ type Config struct {
 	envPrefix                        string
 	yamlServiceSpecificationFilename string
 	optionalSecrets                  bool
+	lookupEnv                        lookupEnvFunc
 }
+
+type lookupEnvFunc = func(key string) (string, bool)
 
 type configSpec struct {
 	name       string
@@ -53,26 +56,68 @@ type configSpec struct {
 
 // Load values into the config.
 func (c *Config) Load() error {
+	lookupEnv := c.lookupEnv
+	if lookupEnv == nil {
+		lookupEnv = os.LookupEnv
+	}
 	if c.yamlServiceSpecificationFilename != "" {
-		envs, err := getEnvFromYAMLServiceSpecificationFile(c.yamlServiceSpecificationFilename)
-		if err != nil {
+		var err error
+		if lookupEnv, err = c.loadYAMLServiceSpecificationFile(lookupEnv); err != nil {
 			return err
-		}
-		if err := validateEnvSecretTags(envs, c.configSpecs); err != nil {
-			return err
-		}
-		for _, e := range envs {
-			if err := os.Setenv(e.Name, e.Value); err != nil {
-				return err
-			}
 		}
 	}
 	for _, cs := range c.configSpecs {
-		if err := c.process(cs.fieldSpecs); err != nil {
+		if err := c.process(cs.fieldSpecs, lookupEnv); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// loadYAMLServiceSpecificationFile layers the env of the YAML service specification file under
+// lookupEnv, so that variables lookupEnv already has take precedence, and returns the combined lookup.
+// Without a custom lookup, it sets the file's env in the process environment instead, for the
+// service and the libraries it uses to read.
+func (c *Config) loadYAMLServiceSpecificationFile(lookupEnv lookupEnvFunc) (lookupEnvFunc, error) {
+	serviceName, envs, err := readYAMLServiceSpecificationFile(c.yamlServiceSpecificationFilename)
+	if err != nil {
+		return nil, err
+	}
+	fileEnv := make(map[string]string, len(envs)+1)
+	if serviceName != "" {
+		fileEnv["K_SERVICE"] = serviceName
+	}
+	// Skip the file's env for variables that are already set, so they take precedence.
+	unsetEnvs := make([]env, 0, len(envs))
+	for _, e := range envs {
+		if _, ok := fileEnv[e.Name]; ok {
+			continue // K_SERVICE, which the file's service name sets.
+		}
+		if _, ok := lookupEnv(e.Name); ok {
+			continue
+		}
+		unsetEnvs = append(unsetEnvs, e)
+	}
+	if err := validateEnvSecretTags(unsetEnvs, c.configSpecs); err != nil {
+		return nil, err
+	}
+	for _, e := range unsetEnvs {
+		fileEnv[e.Name] = e.Value
+	}
+	if c.lookupEnv != nil {
+		return func(key string) (string, bool) {
+			if value, ok := fileEnv[key]; ok {
+				return value, true
+			}
+			return lookupEnv(key)
+		}, nil
+	}
+	for key, value := range fileEnv {
+		if err := os.Setenv(key, value); err != nil {
+			return nil, err
+		}
+	}
+	return os.LookupEnv, nil
 }
 
 func validateEnvSecretTags(envs []env, configSpecs []*configSpec) error {

@@ -33,3 +33,13 @@ func WithOptionalSecrets() Option {
 		config.optionalSecrets = true
 	}
 }
+
+// WithLookupEnv sets the function that looks up environment variables. If unset, the default is [os.LookupEnv].
+//
+// The environment of a YAML service specification file is then layered under lookupEnv, instead of
+// being set in the process environment, so that loading the config has no side effects.
+func WithLookupEnv(lookupEnv func(key string) (string, bool)) Option {
+	return func(config *Config) {
+		config.lookupEnv = lookupEnv
+	}
+}

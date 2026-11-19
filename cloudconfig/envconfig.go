@@ -4,7 +4,6 @@ import (
 	"encoding"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -115,9 +114,9 @@ func collectFieldSpecs(prefix string, spec any) ([]fieldSpec, error) {
 	return infos, nil
 }
 
-func (c *Config) process(fieldSpecs []fieldSpec) error {
+func (c *Config) process(fieldSpecs []fieldSpec, lookupEnv lookupEnvFunc) error {
 	for _, info := range fieldSpecs {
-		value, ok := os.LookupEnv(info.Key)
+		value, ok := lookupEnv(info.Key)
 		def := info.Tags.Get("default")
 		if !ok && def != "" {
 			value = def
