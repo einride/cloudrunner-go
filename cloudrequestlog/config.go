@@ -16,4 +16,10 @@ type Config struct {
 	CodeToLevel map[codes.Code]slog.Level
 	// StatusToLevel enables overriding the default HTTP status code to level conversion.
 	StatusToLevel map[int]slog.Level
+	// PropagateRootCause enables propagation of the root cause of failed requests between services.
+	// The root cause is an opaque fingerprint of the deepest request in a call chain that failed at error level,
+	// and is logged as the rootCause field on every error level request log along the chain.
+	// It is passed to callers in a gRPC response trailer, so both caller and callee must enable it.
+	// The fingerprint does not expose internal details to callers.
+	PropagateRootCause bool
 }

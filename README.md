@@ -129,6 +129,7 @@ cloudrunner    CLIENT_RETRY_RETRYABLESTATUSCODES        []codes.Code            
 cloudrunner    REQUESTLOGGER_MESSAGESIZELIMIT           int                                                 1024
 cloudrunner    REQUESTLOGGER_CODETOLEVEL                map[codes.Code]slog.Level                           
 cloudrunner    REQUESTLOGGER_STATUSTOLEVEL              map[int]slog.Level                                  
+cloudrunner    REQUESTLOGGER_PROPAGATEROOTCAUSE         bool                                                
 
 Build-time configuration of grpc-server:
 

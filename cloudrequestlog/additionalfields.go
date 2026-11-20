@@ -23,9 +23,10 @@ func WithAdditionalFields(ctx context.Context) context.Context {
 
 // AdditionalFields for a request log message.
 type AdditionalFields struct {
-	mu     sync.Mutex
-	attrs  []slog.Attr
-	arrays []*arrayField
+	mu        sync.Mutex
+	attrs     []slog.Attr
+	arrays    []*arrayField
+	rootCause string
 }
 
 type arrayField struct {
@@ -67,6 +68,23 @@ func (m *AdditionalFields) AppendTo(attrs []slog.Attr) []slog.Attr {
 		attrs = append(attrs, slog.Any(array.key, array.values))
 	}
 	return attrs
+}
+
+// recordRootCause records the root cause of the current request, unless one is already recorded, and returns the
+// recorded root cause. The first recorded root cause wins since concurrent downstream calls may fail.
+func (m *AdditionalFields) recordRootCause(rootCause string) string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.rootCause == "" {
+		m.rootCause = rootCause
+	}
+	return m.rootCause
+}
+
+func (m *AdditionalFields) getRootCause() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.rootCause
 }
 
 func argsToAttrSlice(args []any) []slog.Attr {
